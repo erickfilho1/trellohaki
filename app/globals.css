@@ -1,26 +1,234 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-geist-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  color-scheme: dark;
+  --background: #0b0f19;
+  --foreground: #f5f7fb;
+  --card: #171b26;
+  --card-foreground: #f5f7fb;
+  --popover: #151a23;
+  --popover-foreground: #f5f7fb;
+  --primary: #f5f7fb;
+  --primary-foreground: #0b0f19;
+  --secondary: #20273a;
+  --secondary-foreground: #d6dced;
+  --muted: #111723;
+  --muted-foreground: #8f97ab;
+  --accent: #1b2333;
+  --accent-foreground: #f5f7fb;
+  --destructive: #c94f4f;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: rgba(113, 156, 255, 0.45);
+  --chart-1: #4f7cff;
+  --chart-2: #2ca58d;
+  --chart-3: #f4b942;
+  --chart-4: #de6c83;
+  --chart-5: #82aaff;
+  --radius: 1rem;
+  --sidebar: #0d121c;
+  --sidebar-foreground: #eff2fb;
+  --sidebar-primary: #101827;
+  --sidebar-primary-foreground: #eff2fb;
+  --sidebar-accent: #182131;
+  --sidebar-accent-foreground: #eff2fb;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: rgba(113, 156, 255, 0.45);
+}
+
+.dark {
+  --background: #0b0f19;
+  --foreground: #f5f7fb;
+  --card: #171b26;
+  --card-foreground: #f5f7fb;
+  --popover: #151a23;
+  --popover-foreground: #f5f7fb;
+  --primary: #f5f7fb;
+  --primary-foreground: #0b0f19;
+  --secondary: #20273a;
+  --secondary-foreground: #d6dced;
+  --muted: #111723;
+  --muted-foreground: #8f97ab;
+  --accent: #1b2333;
+  --accent-foreground: #f5f7fb;
+  --destructive: #c94f4f;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: rgba(113, 156, 255, 0.45);
+  --sidebar: #0d121c;
+  --sidebar-foreground: #eff2fb;
+  --sidebar-primary: #101827;
+  --sidebar-primary-foreground: #eff2fb;
+  --sidebar-accent: #182131;
+  --sidebar-accent-foreground: #eff2fb;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: rgba(113, 156, 255, 0.45);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply h-full scroll-smooth font-sans;
+  }
+
+  body {
+    @apply min-h-[100dvh] bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(circle at top, rgba(113, 156, 255, 0.08), transparent 28rem),
+      linear-gradient(180deg, #0b0f19 0%, #090d16 38%, #0b0f19 100%);
+    overflow: hidden;
+  }
+
+  button,
+  input,
+  textarea {
+    @apply font-sans;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .flowboard-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(222, 228, 245, 0.24) transparent;
+  }
+
+  .flowboard-scrollbar::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  .flowboard-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .flowboard-scrollbar::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background: linear-gradient(
+      180deg,
+      rgba(245, 247, 251, 0.28),
+      rgba(163, 174, 204, 0.22)
+    );
+    background-clip: padding-box;
+  }
+
+  .glass-panel {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 20px 50px -24px rgba(0, 0, 0, 0.85);
+  }
+
+  .flowboard-rich-editor p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: #7d879d;
+    pointer-events: none;
+    height: 0;
+  }
+
+  .flowboard-rich-editor h2 {
+    margin: 0.25rem 0 0.9rem;
+    font-size: 1.45rem;
+    line-height: 1.25;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    color: #f4f7ff;
+  }
+
+  .flowboard-rich-editor h3 {
+    margin: 0.25rem 0 0.85rem;
+    font-size: 1.15rem;
+    line-height: 1.35;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: #edf2fd;
+  }
+
+  .flowboard-rich-editor p + p,
+  .flowboard-rich-copy p + p {
+    margin-top: 0.8rem;
+  }
+
+  .flowboard-rich-editor ul,
+  .flowboard-rich-editor ol,
+  .flowboard-rich-copy ul,
+  .flowboard-rich-copy ol {
+    margin: 0.75rem 0;
+    padding-left: 1.4rem;
+  }
+
+  .flowboard-rich-editor ul,
+  .flowboard-rich-copy ul {
+    list-style: disc;
+  }
+
+  .flowboard-rich-editor ol,
+  .flowboard-rich-copy ol {
+    list-style: decimal;
+  }
+
+  .flowboard-rich-editor a,
+  .flowboard-rich-copy a {
+    color: #90b4ff;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .flowboard-rich-editor hr,
+  .flowboard-rich-copy hr {
+    margin: 1rem 0;
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
 }
