@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { useFlowBoardStore } from "@/components/providers/flowboard-provider";
 import { prepareSupabaseWorkspaceInvite } from "@/lib/supabase/access";
 import { syncSupabaseBoardRecordContent } from "@/lib/supabase/board-content";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 import { syncSupabaseWorkspacesFromBoards } from "@/lib/supabase/workspaces";
 import { cn } from "@/lib/utils";
@@ -325,9 +326,45 @@ export function AdminPage() {
         panel,
       });
 
+      let emailMessage = "Convite preparado e vinculado ao backend.";
+      if (hasSupabaseEnv()) {
+        const supabase = getSupabaseBrowserClient();
+        const { data: sessionData } = supabase
+          ? await supabase.auth.getSession()
+          : { data: { session: null } };
+        const accessToken = sessionData.session?.access_token;
+
+        if (accessToken) {
+          const response = await fetch("/api/invites/send", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({
+              to: invitePreview.email,
+              recipientName: nextName,
+              boardName: invitePreview.board.name,
+              inviteLink: invitePreview.link,
+              accessKind: inviteForm.kind,
+            }),
+          });
+          const result = (await response.json()) as { id?: string | null; error?: string };
+
+          if (!response.ok) {
+            emailMessage = `Convite preparado, mas o email real ainda nao saiu: ${result.error ?? "erro desconhecido"}`;
+          } else {
+            emailMessage = "Convite preparado, vinculado ao backend e enviado por email.";
+          }
+        } else {
+          emailMessage =
+            "Convite preparado, mas nao encontrei a sessao Supabase para disparar o email real.";
+        }
+      }
+
       setInviteStatus({
         type: "success",
-        message: "Convite preparado e vinculado ao backend.",
+        message: emailMessage,
       });
     } catch (error) {
       setInviteStatus({
