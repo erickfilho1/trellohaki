@@ -9,6 +9,7 @@ import { BoardBackgroundPopover } from "@/components/board-background-popover";
 import { FloatingPanel } from "@/components/floating-panel";
 import { MemberProfilePopover, type ProfilePopoverMember } from "@/components/member-profile-popover";
 import { useAuth } from "@/components/providers/auth-provider";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cleanProfileName, resolveUserProfileIdentity } from "@/lib/account-settings";
@@ -302,19 +303,20 @@ export function Topbar({
         <div className="flex items-center gap-3">
           {board && onUpdateBoardAccent ? (
             <>
-              <button
-                ref={backgroundButtonRef}
-                type="button"
-                onClick={() => setBackgroundOpen((current) => !current)}
-                title="Plano de fundo do quadro"
-                className={cn(
-                  "inline-flex items-center justify-center rounded-[1rem] border border-white/10 bg-white/[0.04] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 hover:-translate-y-[1px] hover:border-white/16 hover:bg-white/[0.08]",
-                  compact ? "size-10" : "size-11",
-                  backgroundOpen && "border-white/16 bg-white/[0.08]",
-                )}
-              >
-                <ImageSquare size={17} weight="duotone" />
-              </button>
+              <InfoTooltip content="Plano de fundo do quadro" side="bottom">
+                <button
+                  ref={backgroundButtonRef}
+                  type="button"
+                  onClick={() => setBackgroundOpen((current) => !current)}
+                  className={cn(
+                    "inline-flex items-center justify-center rounded-[1rem] border border-white/10 bg-white/[0.04] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 hover:-translate-y-[1px] hover:border-white/16 hover:bg-white/[0.08]",
+                    compact ? "size-10" : "size-11",
+                    backgroundOpen && "border-white/16 bg-white/[0.08]",
+                  )}
+                >
+                  <ImageSquare size={17} weight="duotone" />
+                </button>
+              </InfoTooltip>
 
               <FloatingPanel
                 anchorRef={backgroundButtonRef}
@@ -362,19 +364,20 @@ export function Topbar({
 
           {board ? (
             <>
-              <button
-                ref={automationButtonRef}
-                type="button"
-                onMouseEnter={openAutomation}
-                onMouseLeave={closeAutomationWithDelay}
-                title="Automações"
-                className={cn(
-                  "inline-flex items-center justify-center rounded-[1rem] border border-white/10 bg-white/[0.04] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 hover:-translate-y-[1px] hover:border-white/16 hover:bg-white/[0.08]",
-                  compact ? "size-10" : "size-11",
-                )}
-              >
-                <Lightning size={17} weight="duotone" />
-              </button>
+              <InfoTooltip content="Automações" side="bottom">
+                <button
+                  ref={automationButtonRef}
+                  type="button"
+                  onMouseEnter={openAutomation}
+                  onMouseLeave={closeAutomationWithDelay}
+                  className={cn(
+                    "inline-flex items-center justify-center rounded-[1rem] border border-white/10 bg-white/[0.04] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 hover:-translate-y-[1px] hover:border-white/16 hover:bg-white/[0.08]",
+                    compact ? "size-10" : "size-11",
+                  )}
+                >
+                  <Lightning size={17} weight="duotone" />
+                </button>
+              </InfoTooltip>
 
               <AutomationHoverPopover
                 anchorRef={automationButtonRef}
@@ -389,24 +392,24 @@ export function Topbar({
             <div className="relative">
               <AvatarGroup className="items-center">
                 {topbarMembers.slice(0, 4).map((member) => (
-                  <button
-                    key={member.id}
-                    ref={(node) => {
-                      memberAnchorRefs.current[member.id] = node;
-                    }}
-                    type="button"
-                    data-testid={member.isCurrentUser ? "open-user-menu" : `open-member-menu-${member.id}`}
-                    onClick={() => setActiveMemberId((current) => (current === member.id ? null : member.id))}
-                    title={member.name}
-                    className="rounded-full transition-transform duration-150 hover:-translate-y-0.5"
-                  >
-                    <Avatar className="bg-[#121212] ring-2 ring-[#0b0b0b]" size="default">
-                      {member.avatarUrl ? <AvatarImage src={member.avatarUrl} alt={member.name} /> : null}
-                      <AvatarFallback className="bg-[radial-gradient(circle_at_32%_20%,#313136,#17181c_50%,#0d0d0f)] text-[12px] font-semibold text-[#f5f7fb]">
-                        {member.initials}
-                      </AvatarFallback>
-                    </Avatar>
-                  </button>
+                  <InfoTooltip key={member.id} content={member.name} side="bottom">
+                    <button
+                      ref={(node) => {
+                        memberAnchorRefs.current[member.id] = node;
+                      }}
+                      type="button"
+                      data-testid={member.isCurrentUser ? "open-user-menu" : `open-member-menu-${member.id}`}
+                      onClick={() => setActiveMemberId((current) => (current === member.id ? null : member.id))}
+                      className="rounded-full transition-transform duration-150 hover:-translate-y-0.5"
+                    >
+                      <Avatar className="bg-[#121212] ring-2 ring-[#0b0b0b]" size="default">
+                        {member.avatarUrl ? <AvatarImage src={member.avatarUrl} alt={member.name} /> : null}
+                        <AvatarFallback className="bg-[radial-gradient(circle_at_32%_20%,#313136,#17181c_50%,#0d0d0f)] text-[12px] font-semibold text-[#f5f7fb]">
+                          {member.initials}
+                        </AvatarFallback>
+                      </Avatar>
+                    </button>
+                  </InfoTooltip>
                 ))}
                 {topbarMembers.length > 4 ? (
                   <AvatarGroupCount className="bg-[#171717] text-[#f4f4f5] ring-[#0b0b0b]">
