@@ -171,18 +171,18 @@
     color: #5d6674 !important;
   }
 
-  html[data-haki-theme="light"] [data-app-topbar="true"] button:not([data-testid="share-board-primary"]) {
+  html[data-haki-theme="light"] [data-app-topbar="true"] button:not([data-testid="open-add-demand"]) {
     border-color: rgba(17, 17, 17, 0.1) !important;
     background: rgba(17, 17, 17, 0.055) !important;
     color: #151515 !important;
   }
 
-  html[data-haki-theme="light"] [data-app-topbar="true"] button:not([data-testid="share-board-primary"]):hover {
+  html[data-haki-theme="light"] [data-app-topbar="true"] button:not([data-testid="open-add-demand"]):hover {
     border-color: rgba(219, 56, 49, 0.22) !important;
     background: rgba(219, 56, 49, 0.08) !important;
   }
 
-  html[data-haki-theme="light"] [data-testid="share-board-primary"] {
+  html[data-haki-theme="light"] [data-testid="open-add-demand"] {
     border-color: rgba(178, 38, 33, 0.18) !important;
     background: #dc3933 !important;
     color: #ffffff !important;

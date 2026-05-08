@@ -9,7 +9,8 @@ import { FilterPanel } from "@/components/filter-panel";
 import { useFlowBoardData } from "@/hooks/use-flowboard-store";
 
 export function ClientBoardPage({ boardId }: { boardId?: string }) {
-  const { board, boards, filters, stats, updateFilters, clearFilters, updateBoard } = useFlowBoardData(boardId);
+  const { board, boards, filters, stats, updateFilters, clearFilters, updateBoard, addCard } =
+    useFlowBoardData(boardId);
   const [shareOpen, setShareOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const filterButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -51,7 +52,12 @@ export function ClientBoardPage({ boardId }: { boardId?: string }) {
       <Topbar
         title={activeBoard.name}
         board={activeBoard}
-        onShare={() => setShareOpen(true)}
+        onAddDemand={({ listId, title, description }) => {
+          addCard(activeBoard.id, listId, {
+            title,
+            description: description ?? "",
+          });
+        }}
         onFilter={() => setFilterOpen(true)}
         onUpdateBoardAccent={(accent) => updateBoard(activeBoard.id, { accent })}
         filterButtonRef={filterButtonRef}

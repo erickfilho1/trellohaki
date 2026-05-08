@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { FunnelSimple, ImageSquare, Lightning, ShareNetwork } from "@phosphor-icons/react";
+import { FunnelSimple, ImageSquare, Lightning, Plus } from "@phosphor-icons/react";
+import { AddDemandPopover, type AddDemandPayload } from "@/components/add-demand-popover";
 import { AutomationHoverPopover } from "@/components/automation-hover-popover";
 import { BoardBackgroundPopover } from "@/components/board-background-popover";
 import { FloatingPanel } from "@/components/floating-panel";
@@ -25,7 +26,7 @@ export function Topbar({
   subtitle,
   eyebrow,
   board,
-  onShare,
+  onAddDemand,
   onFilter,
   onUpdateBoardAccent,
   filterButtonRef,
@@ -38,7 +39,7 @@ export function Topbar({
   subtitle?: string;
   eyebrow?: string;
   board?: BoardRecord;
-  onShare?: () => void;
+  onAddDemand?: (payload: AddDemandPayload) => void;
   onFilter?: () => void;
   onUpdateBoardAccent?: (accent: string) => void;
   filterButtonRef?: RefObject<HTMLButtonElement | null>;
@@ -51,8 +52,10 @@ export function Topbar({
   const [menuOpen, setMenuOpen] = useState(false);
   const [automationOpen, setAutomationOpen] = useState(false);
   const [backgroundOpen, setBackgroundOpen] = useState(false);
+  const [demandOpen, setDemandOpen] = useState(false);
   const backgroundButtonRef = useRef<HTMLButtonElement | null>(null);
   const automationButtonRef = useRef<HTMLButtonElement | null>(null);
+  const demandButtonRef = useRef<HTMLButtonElement | null>(null);
   const automationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeFilterCount = filters
     ? [
@@ -115,6 +118,40 @@ export function Topbar({
       document.removeEventListener("keydown", handleEscape);
     };
   }, [backgroundOpen]);
+
+  useEffect(() => {
+    if (!demandOpen) {
+      return;
+    }
+
+    function handlePointerDown(event: MouseEvent) {
+      const target = event.target as Node | null;
+      if (!target) {
+        return;
+      }
+
+      const insideButton = demandButtonRef.current?.contains(target);
+      const insidePanel = target instanceof HTMLElement ? target.closest("[data-add-demand-popover='true']") : null;
+
+      if (!insideButton && !insidePanel) {
+        setDemandOpen(false);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setDemandOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [demandOpen]);
 
   function openAutomation() {
     if (automationTimerRef.current) {
@@ -294,16 +331,41 @@ export function Topbar({
           ) : null}
 
           {board ? (
-            <Button
-              data-testid="share-board-primary"
-              onClick={onShare}
-              className={`rounded-[1rem] border border-white/10 bg-[#dc3933] px-4 text-white hover:bg-[#ef5148] ${
-                compact ? "h-10" : "h-11"
-              }`}
-            >
-              <ShareNetwork size={16} />
-              Compartilhar
-            </Button>
+            <>
+              <Button
+                ref={demandButtonRef}
+                data-testid="open-add-demand"
+                onClick={() => setDemandOpen((current) => !current)}
+                className={`rounded-[1rem] border border-white/10 bg-[#dc3933] px-4 text-white shadow-[0_18px_36px_-24px_rgba(220,57,51,0.72)] hover:bg-[#ef5148] ${
+                  compact ? "h-10" : "h-11"
+                }`}
+              >
+                <Plus size={16} />
+                Adicionar demanda
+              </Button>
+
+              <FloatingPanel
+                anchorRef={demandButtonRef}
+                open={demandOpen}
+                align="end"
+                placement="bottom"
+                offset={12}
+                estimatedWidth={384}
+                estimatedHeight={520}
+                className="w-[min(24rem,calc(100vw-24px))]"
+              >
+                <div data-add-demand-popover="true">
+                  <AddDemandPopover
+                    board={board}
+                    onCreate={(payload) => {
+                      onAddDemand?.(payload);
+                      setDemandOpen(false);
+                    }}
+                    onClose={() => setDemandOpen(false)}
+                  />
+                </div>
+              </FloatingPanel>
+            </>
           ) : null}
         </div>
       </div>
