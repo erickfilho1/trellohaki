@@ -21,6 +21,7 @@ const SESSION_STORAGE_KEY = "clientboard-auth-session";
 const ACCOUNTS_STORAGE_KEY = "clientboard-auth-accounts";
 
 const ADMIN_EMAIL = "erickfilho281@gmail.com";
+const ADMIN_PASSWORD = "erickE10@";
 
 type StoredAuthSession = {
   userId: string;
@@ -266,6 +267,21 @@ export function AuthProvider({
 
         if (!normalizedEmail || !password.trim()) {
           return { ok: false, error: "Preencha email e senha para entrar." };
+        }
+
+        if (normalizedEmail === ADMIN_EMAIL) {
+          if (password !== ADMIN_PASSWORD) {
+            return { ok: false, error: "Senha incorreta para o acesso admin." };
+          }
+
+          const nextSession: StoredAuthSession = {
+            userId: "admin-erick",
+            email: ADMIN_EMAIL,
+            panel: "admin",
+          };
+
+          setSession(nextSession);
+          return { ok: true, nextPath: "/admin" };
         }
 
         if (supabaseEnabled) {
