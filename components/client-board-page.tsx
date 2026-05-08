@@ -109,7 +109,7 @@ export function ClientBoardPage({ boardId }: { boardId?: string }) {
             "Você solicitou uma alteração neste card",
           );
         }}
-        onFilter={() => setFilterOpen(true)}
+        onFilter={() => setFilterOpen((current) => !current)}
         onUpdateBoardAccent={(accent) => updateBoard(activeBoard.id, { accent })}
         filterButtonRef={filterButtonRef}
         filters={filters}

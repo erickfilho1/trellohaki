@@ -182,14 +182,14 @@ export function FilterPanel({
       placement="bottom"
       offset={14}
       estimatedWidth={420}
-      estimatedHeight={760}
-      className="z-[90] w-[min(420px,calc(100vw-1rem))]"
+      estimatedHeight={820}
+      className="z-[90] w-[min(420px,calc(100vw-1rem))] max-h-[var(--floating-panel-max-height)]"
     >
       <aside
         ref={panelRef}
-        className="pointer-events-auto w-[min(420px,calc(100vw-1rem))] overflow-hidden rounded-[1.55rem] border border-white/10 bg-[#2a2c31] shadow-[0_34px_90px_-34px_rgba(0,0,0,0.95)]"
+        className="pointer-events-auto flex max-h-[var(--floating-panel-max-height)] w-[min(420px,calc(100vw-1rem))] flex-col overflow-hidden rounded-[1.55rem] border border-white/10 bg-[#2a2c31] shadow-[0_34px_90px_-34px_rgba(0,0,0,0.95)]"
       >
-        <div className="flex h-full flex-col overflow-hidden">
+        <div className="flex h-full min-h-0 flex-col overflow-hidden">
           <div className="flex items-start justify-between border-b border-white/8 px-5 py-4">
             <div>
               <h2 className="text-[1.4rem] font-medium tracking-[-0.04em] text-white">Filtro</h2>
@@ -208,7 +208,7 @@ export function FilterPanel({
             </button>
           </div>
 
-          <div className="flowboard-scrollbar max-h-[min(78vh,760px)] flex-1 space-y-7 overflow-y-auto px-5 py-5">
+          <div className="flowboard-scrollbar min-h-0 flex-1 space-y-7 overflow-y-auto px-5 py-5">
             <section className="space-y-2">
               <h3 className="text-sm font-medium text-[#dce3f2]">Palavra-chave</h3>
               <Input
