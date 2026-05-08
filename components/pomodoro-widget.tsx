@@ -100,7 +100,7 @@ export function PomodoroWidget() {
       }
 
       dragFrameRef.current = requestAnimationFrame(() => {
-        const width = panelRef.current?.offsetWidth ?? 284;
+        const width = panelRef.current?.offsetWidth ?? 332;
         const height = panelRef.current?.offsetHeight ?? 620;
         const maxX = Math.max(16, window.innerWidth - width - 16);
         const maxY = Math.max(16, window.innerHeight - height - 16);
@@ -161,7 +161,7 @@ export function PomodoroWidget() {
       <div
         ref={panelRef}
         className={cn(
-          "flowboard-scrollbar w-[284px] max-h-[78vh] overflow-y-auto overflow-x-hidden rounded-[1.7rem] border border-white/10 bg-[radial-gradient(circle_at_top,#1a0d0a_0%,#090909_42%,#050505_100%)] text-white shadow-[0_26px_90px_-38px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.03)]",
+          "flowboard-scrollbar w-[332px] max-h-[78vh] overflow-y-auto overflow-x-hidden rounded-[1.7rem] border border-white/10 bg-[radial-gradient(circle_at_top,#1a0d0a_0%,#090909_42%,#050505_100%)] text-white shadow-[0_26px_90px_-38px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.03)]",
           dragging ? "cursor-grabbing" : "",
         )}
       >
@@ -176,7 +176,7 @@ export function PomodoroWidget() {
             <p className="text-[0.64rem] uppercase tracking-[0.26em] text-white/40">
               Tarefa vinculada
             </p>
-            <p className="mt-1 truncate text-[0.9rem] font-medium tracking-[-0.02em] text-white/92">
+            <p className="mt-1 pr-3 text-[0.95rem] font-medium leading-[1.28] tracking-[-0.02em] text-white/92">
               {state.linkedCard.cardTitle}
             </p>
           </div>
@@ -285,7 +285,9 @@ export function PomodoroWidget() {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-white/42">Preset atual</p>
-                <p className="mt-1 truncate font-medium text-white">{selectedTask?.label ?? "Personalizado"}</p>
+                <p className="mt-1 pr-2 text-sm font-medium leading-6 text-white">
+                  {selectedTask?.label ?? "Personalizado"}
+                </p>
               </div>
               <button
                 type="button"
@@ -370,7 +372,7 @@ export function PomodoroWidget() {
             <div className="mt-4 space-y-4 rounded-[1.2rem] border border-white/10 bg-[#0b0b0b]/94 p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
               <div>
                 <p className="text-[0.66rem] uppercase tracking-[0.22em] text-white/42">Tarefas padrao</p>
-                <div className="mt-3 grid grid-cols-2 gap-2">
+                <div className="mt-3 grid grid-cols-2 gap-2.5">
                   {state.tasks.map((task) => {
                     const active = state.taskId === task.id;
                     return (
@@ -379,13 +381,13 @@ export function PomodoroWidget() {
                         type="button"
                         onClick={() => setTask(task.id)}
                         className={cn(
-                          "rounded-[0.95rem] border px-3 py-3 text-left transition-colors",
+                          "min-h-[92px] rounded-[0.95rem] border px-3 py-3 text-left transition-colors",
                           active
                             ? "border-[#ff7c63]/34 bg-[#2a1512] text-white"
                             : "border-white/8 bg-white/[0.03] text-white/72 hover:bg-white/[0.06] hover:text-white",
                         )}
                       >
-                        <p className="text-sm font-medium">{task.label}</p>
+                        <p className="text-sm font-medium leading-5 break-words">{task.label}</p>
                         <p className="mt-1 text-[0.72rem] leading-5 text-white/44">
                           {formatPomodoroDuration(task.focusSeconds)}
                         </p>

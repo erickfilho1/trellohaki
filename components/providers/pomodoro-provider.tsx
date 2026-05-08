@@ -56,6 +56,7 @@ type PomodoroContextValue = {
   canUsePomodoro: boolean;
   openForCard: (payload: PomodoroLinkedCard) => void;
   close: () => void;
+  isLinkedToCard: (cardId: string) => boolean;
   start: () => void;
   pause: () => void;
   reset: () => void;
@@ -257,6 +258,11 @@ export function PomodoroProvider({
     setState((current) => ({ ...current, open: false }));
   }, []);
 
+  const isLinkedToCard = useCallback(
+    (cardId: string) => state.open && state.linkedCard?.cardId === cardId,
+    [state.linkedCard, state.open],
+  );
+
   const start = useCallback(() => {
     setState((current) => {
       if (current.awaitingBreakDecision || current.completionPrompt || current.remainingSeconds <= 0) {
@@ -340,6 +346,7 @@ export function PomodoroProvider({
         ...current,
         completionPrompt: false,
         status: "idle",
+        open: false,
       };
     });
   }, [updateCard]);
@@ -513,6 +520,7 @@ export function PomodoroProvider({
       canUsePomodoro,
       openForCard,
       close,
+      isLinkedToCard,
       start,
       pause,
       reset,
@@ -533,6 +541,7 @@ export function PomodoroProvider({
       canUsePomodoro,
       openForCard,
       close,
+      isLinkedToCard,
       start,
       pause,
       reset,
