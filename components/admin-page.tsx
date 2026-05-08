@@ -24,10 +24,10 @@ import { syncSupabaseWorkspacesFromBoards } from "@/lib/supabase/workspaces";
 import { cn } from "@/lib/utils";
 
 const ACCENT_OPTIONS = [
-  "from-[#244d64] via-[#25334f] to-[#302440]",
+  "from-[#2a2a2a] via-[#181818] to-[#0f0f0f]",
   "from-[#6b3f12] via-[#83501b] to-[#4f2916]",
   "from-[#1d5a40] via-[#194632] to-[#132d22]",
-  "from-[#2c4a87] via-[#202b59] to-[#201a40]",
+  "from-[#45201f] via-[#251312] to-[#111111]",
 ];
 
 function slugFromEmail(email: string) {
@@ -93,7 +93,7 @@ function SectionShell({
   return (
     <section
       className={cn(
-        "glass-panel rounded-[1.9rem] border border-white/8 bg-[linear-gradient(180deg,#161d29_0%,#111722_100%)] p-5 shadow-[0_28px_80px_-46px_rgba(0,0,0,0.95)]",
+        "glass-panel rounded-[1.9rem] border border-white/8 bg-[linear-gradient(180deg,#151515_0%,#101010_100%)] p-5 shadow-[0_28px_80px_-46px_rgba(0,0,0,0.95)]",
         className,
       )}
     >
@@ -120,7 +120,7 @@ function WorkspaceCard({
   return (
     <Link
       href={`/boards/${boardId}`}
-      className="group relative block min-w-[228px] max-w-[228px] rounded-[1.9rem] border border-white/8 bg-[linear-gradient(180deg,#151c28_0%,#121825_100%)] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/14 hover:bg-[#182030]"
+      className="group relative block min-w-[228px] max-w-[228px] rounded-[1.9rem] border border-white/8 bg-[linear-gradient(180deg,#151515_0%,#101010_100%)] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/14 hover:bg-[#181818]"
     >
       <div className={cn("relative h-28 overflow-hidden rounded-[1.45rem] bg-gradient-to-br", accent)}>
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.12),transparent_58%)]" />
@@ -490,7 +490,7 @@ export function AdminPage() {
                       />
                     </label>
 
-                    <div className="rounded-[1.2rem] border border-white/8 bg-[#101621] p-4">
+                    <div className="rounded-[1.2rem] border border-white/8 bg-[#111] p-4">
                       <p className="text-[11px] font-semibold tracking-[0.24em] text-[#7a89a5] uppercase">
                         Previa do quadro
                       </p>
@@ -609,7 +609,7 @@ export function AdminPage() {
                     </label>
                   </div>
 
-                  <div className="rounded-[1.2rem] border border-white/8 bg-[#101621] p-4">
+                  <div className="rounded-[1.2rem] border border-white/8 bg-[#111] p-4">
                     <p className="text-[11px] font-semibold tracking-[0.24em] text-[#7a89a5] uppercase">
                       Previa do template
                     </p>

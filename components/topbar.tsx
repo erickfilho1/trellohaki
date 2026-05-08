@@ -137,7 +137,7 @@ export function Topbar({
 
   return (
     <header
-      className={`relative z-[20] border-b border-white/7 bg-[#101621]/78 backdrop-blur ${
+      className={`relative z-[20] border-b border-white/7 bg-[#0b0b0b]/88 backdrop-blur ${
         compact ? "px-4 py-2.5 sm:px-6 lg:px-8" : "px-4 py-4 sm:px-6 lg:px-8"
       }`}
     >
@@ -263,8 +263,8 @@ export function Topbar({
                   title={user.name}
                   className="rounded-full transition-transform duration-150 hover:-translate-y-0.5"
                 >
-                  <Avatar className="bg-[#172132] ring-2 ring-[#101621]" size="default">
-                    <AvatarFallback className="bg-[#2a3550] text-[#eaf0ff]">
+                  <Avatar className="bg-[#161616] ring-2 ring-[#0b0b0b]" size="default">
+                    <AvatarFallback className="bg-[#242424] text-[#f4f4f5]">
                       {initialsFromName(user.name)}
                     </AvatarFallback>
                   </Avatar>
@@ -274,7 +274,7 @@ export function Topbar({
                   .slice(0, 1)
                   .map((member) => (
                     <div key={member.id} title={member.name}>
-                      <Avatar className="bg-[#0f2432] ring-2 ring-[#101621]" size="default">
+                      <Avatar className="bg-[#151515] ring-2 ring-[#0b0b0b]" size="default">
                         <AvatarFallback className="bg-[#13a9c9] text-[#073245]">
                           {member.initials}
                         </AvatarFallback>

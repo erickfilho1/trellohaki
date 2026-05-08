@@ -35,15 +35,15 @@ export function buildInviteEmailHtml({
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${buildInviteEmailSubject(safeBoardName)}</title>
   </head>
-  <body style="margin:0;background:#080b12;font-family:Arial,Helvetica,sans-serif;color:#f7f9ff;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#080b12 0%,#11182a 48%,#1b1230 100%);padding:40px 16px;">
+  <body style="margin:0;background:#0b0b0b;font-family:Arial,Helvetica,sans-serif;color:#f7f9ff;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#0b0b0b 0%,#111111 52%,#160d0d 100%);padding:40px 16px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:620px;border:1px solid rgba(255,255,255,.12);border-radius:28px;background:#111722;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.45);">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:620px;border:1px solid rgba(255,255,255,.12);border-radius:28px;background:#111111;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.45);">
             <tr>
               <td style="padding:28px 30px;border-bottom:1px solid rgba(255,255,255,.08);">
-                <div style="display:inline-block;border-radius:999px;background:rgba(92,125,255,.14);border:1px solid rgba(130,160,255,.28);padding:8px 12px;color:#b9c8ff;font-size:12px;letter-spacing:.18em;text-transform:uppercase;">${panelLabel}</div>
-                <h1 style="margin:22px 0 0;font-size:34px;line-height:1.04;letter-spacing:-.04em;color:#ffffff;">Seu acesso ao ClientBoard esta pronto.</h1>
+                <div style="display:inline-block;border-radius:999px;background:rgba(255,91,78,.13);border:1px solid rgba(255,122,112,.28);padding:8px 12px;color:#ffc7c1;font-size:12px;letter-spacing:.18em;text-transform:uppercase;">${panelLabel}</div>
+                <h1 style="margin:22px 0 0;font-size:34px;line-height:1.04;letter-spacing:-.04em;color:#ffffff;">Seu acesso ao Painel Haki esta pronto.</h1>
                 <p style="margin:16px 0 0;color:#aab6cc;font-size:16px;line-height:1.65;">${safeName}, seu email foi liberado para entrar no quadro <strong style="color:#fff;">${safeBoardName}</strong>.</p>
               </td>
             </tr>

@@ -16,7 +16,7 @@ export function SettingsPage() {
   const currentBoard = boards[0];
 
   return (
-    <ClientLayout projectName={currentBoard?.name ?? "ClientBoard"}>
+    <ClientLayout projectName={currentBoard?.name ?? "Painel Haki"}>
       <Topbar
         title="Configuracoes"
         subtitle="Atualize os dados basicos do portal e os contatos principais do projeto."
@@ -24,7 +24,7 @@ export function SettingsPage() {
 
       <div className="flowboard-scrollbar flex min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5 lg:px-6">
         <div className="mx-auto w-full max-w-3xl">
-          <div className="glass-panel rounded-[1.85rem] border border-white/8 bg-[linear-gradient(180deg,#131a26,#101520)] p-6">
+          <div className="glass-panel rounded-[1.85rem] border border-white/8 bg-[linear-gradient(180deg,#151515,#101010)] p-6">
             <div className="grid gap-5 md:grid-cols-2">
               <div className="space-y-2">
                 <label className="text-sm text-[#cfd6e6]">Nome do cliente</label>
@@ -36,7 +36,7 @@ export function SettingsPage() {
               <div className="space-y-2">
                 <label className="text-sm text-[#cfd6e6]">Nome do projeto</label>
                 <Input
-                  defaultValue={currentBoard?.name ?? "ClientBoard"}
+                  defaultValue={currentBoard?.name ?? "Painel Haki"}
                   className="h-12 rounded-[1rem] border-white/10 bg-white/4 text-white"
                 />
               </div>

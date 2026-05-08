@@ -79,17 +79,17 @@ export function AutomationHoverPopover({
       <div
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
-        className="max-h-[min(28rem,var(--floating-panel-max-height))] overflow-hidden rounded-[1.25rem] border border-white/10 bg-[linear-gradient(180deg,#151b27_0%,#0f141e_100%)] shadow-[0_28px_90px_-38px_rgba(0,0,0,0.92)]"
+        className="max-h-[min(28rem,var(--floating-panel-max-height))] overflow-hidden rounded-[1.25rem] border border-white/10 bg-[linear-gradient(180deg,#151515_0%,#0d0d0d_100%)] shadow-[0_28px_90px_-38px_rgba(0,0,0,0.92)]"
       >
         <div className="border-b border-white/6 px-3.5 py-3">
           <div className="flex items-start gap-3">
-            <div className="flex size-8 items-center justify-center rounded-[0.9rem] border border-white/10 bg-[#1d2432] text-[#8f82ff] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+            <div className="flex size-8 items-center justify-center rounded-[0.9rem] border border-white/10 bg-[#1d1d1d] text-[#ff6b57] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
               <Lightning size={15} weight="fill" />
             </div>
             <div className="min-w-0">
               <p className="text-[0.92rem] font-medium tracking-[-0.03em] text-white">Automações</p>
               <p className="mt-1 text-[0.78rem] leading-5 text-[#8e9ab2]">
-                Conecte o ClientBoard com ferramentas externas sem sair do fluxo.
+                Conecte o Painel Haki com ferramentas externas sem sair do fluxo.
               </p>
             </div>
           </div>
