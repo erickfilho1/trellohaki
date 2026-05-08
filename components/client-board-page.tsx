@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { ClientLayout } from "@/components/client-layout";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Topbar } from "@/components/topbar";
@@ -12,6 +13,7 @@ import { createComment } from "@/lib/flowboard-helpers";
 import { useFlowBoardData } from "@/hooks/use-flowboard-store";
 
 export function ClientBoardPage({ boardId }: { boardId?: string }) {
+  const pathname = usePathname();
   const { user } = useAuth();
   const {
     board,
@@ -61,6 +63,14 @@ export function ClientBoardPage({ boardId }: { boardId?: string }) {
 
     window.localStorage.setItem("flowboard-active-board-id", activeBoard.id);
   }, [activeBoard]);
+
+  useEffect(() => {
+    setFilterOpen(false);
+  }, [activeBoard?.id]);
+
+  useEffect(() => {
+    setFilterOpen(false);
+  }, [pathname]);
 
   if (!activeBoard) {
     return (
