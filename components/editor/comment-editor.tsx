@@ -189,12 +189,22 @@ export function CommentEditor({
       return;
     }
 
-    const mentionMarkup = `<span data-mention-id="${member.id}" data-mention-name="${cleanProfileName(member.name)}" class="flowboard-mention-chip">@${cleanProfileName(member.name)}</span>&nbsp;`;
+    const mentionName = cleanProfileName(member.name);
+    const mentionHref = `mention://${member.id}`;
+    const mentionContent = {
+      type: "text",
+      text: `@${mentionName}`,
+      marks: [{ type: "link", attrs: { href: mentionHref } }],
+    };
 
     if (mentionRange) {
-      editor.chain().focus().insertContentAt(mentionRange, mentionMarkup).run();
+      editor
+        .chain()
+        .focus()
+        .insertContentAt(mentionRange, [mentionContent, { type: "text", text: " " }])
+        .run();
     } else {
-      editor.chain().focus().insertContent(mentionMarkup).run();
+      editor.chain().focus().insertContent([mentionContent, { type: "text", text: " " }]).run();
     }
 
     setMentionOpen(false);

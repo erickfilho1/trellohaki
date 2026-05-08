@@ -72,12 +72,12 @@ export function NotificationsPopover({
       placement="auto"
       offset={12}
       estimatedWidth={430}
-      estimatedHeight={520}
-      className="w-[min(27rem,calc(100vw-24px))]"
+      estimatedHeight={560}
+      className="max-h-[calc(100vh-24px)] w-[min(27rem,calc(100vw-24px))]"
     >
       <div
         data-notifications-popover="true"
-        className="overflow-hidden rounded-[1.45rem] border border-white/10 bg-[#0d0d0d] text-white shadow-[0_28px_90px_-34px_rgba(0,0,0,0.98)]"
+        className="flex max-h-[calc(100vh-24px)] min-h-0 flex-col overflow-hidden rounded-[1.45rem] border border-white/10 bg-[#0d0d0d] text-white shadow-[0_28px_90px_-34px_rgba(0,0,0,0.98)]"
       >
         <div className="border-b border-white/8 px-5 py-4">
           <div className="flex items-start justify-between gap-3">
@@ -139,7 +139,7 @@ export function NotificationsPopover({
           </div>
         </div>
 
-        <div className="flowboard-scrollbar max-h-[min(31rem,var(--floating-panel-max-height))] overflow-y-auto px-3 py-3">
+        <div className="flowboard-scrollbar min-h-0 flex-1 overflow-y-auto px-3 py-3">
           {filteredNotifications.length === 0 ? (
             <div className="flex min-h-[18rem] flex-col items-center justify-center rounded-[1.25rem] border border-dashed border-white/10 bg-white/[0.02] px-6 text-center">
               <span className="grid size-14 place-items-center rounded-full border border-white/8 bg-white/[0.04] text-[#8f98ab]">
