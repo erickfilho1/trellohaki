@@ -22,6 +22,8 @@ const ACCOUNTS_STORAGE_KEY = "clientboard-auth-accounts";
 
 const ADMIN_EMAIL = "erickfilho281@gmail.com";
 const ADMIN_PASSWORD = "erickE10@";
+const DEMO_COLLAB_EMAIL = "demo.colaborador@painelhaki.space";
+const DEMO_COLLAB_PASSWORD = "demoColab123@";
 
 type StoredAuthSession = {
   userId: string;
@@ -239,6 +241,15 @@ export function AuthProvider({
       };
     }
 
+    if (session.email === DEMO_COLLAB_EMAIL) {
+      return {
+        id: "demo-colaborador",
+        name: "Colaborador Demo",
+        email: DEMO_COLLAB_EMAIL,
+        panel: "colaborador",
+      };
+    }
+
     const invitedUser = adminUsers.find((user) => normalizeEmail(user.email) === session.email);
     if (!invitedUser) {
       return FALLBACK_USER;
@@ -282,6 +293,21 @@ export function AuthProvider({
 
           setSession(nextSession);
           return { ok: true, nextPath: "/admin" };
+        }
+
+        if (normalizedEmail === DEMO_COLLAB_EMAIL) {
+          if (password !== DEMO_COLLAB_PASSWORD) {
+            return { ok: false, error: "Senha incorreta para o acesso demo de colaborador." };
+          }
+
+          const nextSession: StoredAuthSession = {
+            userId: "demo-colaborador",
+            email: DEMO_COLLAB_EMAIL,
+            panel: "colaborador",
+          };
+
+          setSession(nextSession);
+          return { ok: true, nextPath: "/" };
         }
 
         if (supabaseEnabled) {

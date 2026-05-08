@@ -6,6 +6,7 @@ import "./globals.css";
 import { AuthGate } from "@/components/auth-gate";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { FlowBoardProvider } from "@/components/providers/flowboard-provider";
+import { PomodoroProvider } from "@/components/providers/pomodoro-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,7 +45,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <FlowBoardProvider>
           <AuthProvider>
-            <AuthGate>{children}</AuthGate>
+            <PomodoroProvider>
+              <AuthGate>{children}</AuthGate>
+            </PomodoroProvider>
           </AuthProvider>
         </FlowBoardProvider>
         <Analytics />
