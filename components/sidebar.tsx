@@ -303,19 +303,28 @@ function SidebarAccountMenu({
 
   return (
     <div ref={rootRef} className={cn("relative", collapsed ? "flex justify-center" : "")}>
-      <button
-        type="button"
-        data-testid="sidebar-account-trigger"
-        title={collapsed ? user.name : undefined}
-        onClick={() => onOpenChange(!open)}
-        className={cn(
-          "group flex items-center border border-white/8 bg-white/[0.035] text-left text-[#d6ddef] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all duration-200 hover:border-white/14 hover:bg-white/[0.065] active:scale-[0.985]",
-          collapsed ? "size-11 justify-center rounded-[1rem] p-0" : "w-full gap-3 rounded-[1.15rem] px-3 py-2.5",
-        )}
-      >
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#181818] text-xs font-semibold text-white ring-1 ring-white/10 transition-transform duration-200 group-hover:scale-[1.04]">
-          {userInitials(user.name)}
-        </span>
+        <button
+          type="button"
+          data-testid="sidebar-account-trigger"
+          title={collapsed ? user.name : undefined}
+          onClick={() => onOpenChange(!open)}
+          className={cn(
+            "group flex items-center text-left text-[#d6ddef] transition-all duration-200 active:scale-[0.985]",
+            collapsed
+              ? "size-11 justify-center rounded-full border border-transparent bg-transparent p-0 shadow-none hover:bg-white/[0.04]"
+              : "w-full gap-3 rounded-[1.15rem] border border-white/8 bg-white/[0.035] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:border-white/14 hover:bg-white/[0.065]",
+          )}
+        >
+          <span
+            className={cn(
+              "flex shrink-0 items-center justify-center rounded-full bg-[#181818] text-xs font-semibold text-white transition-transform duration-200 group-hover:scale-[1.04]",
+              collapsed
+                ? "size-10 border border-white/10 shadow-[0_10px_28px_-22px_rgba(0,0,0,0.95)]"
+                : "size-9 ring-1 ring-white/10",
+            )}
+          >
+            {userInitials(user.name)}
+          </span>
         {!collapsed ? (
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-medium text-white">{user.name}</span>
