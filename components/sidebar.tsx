@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Bell,
   CaretDown,
   CaretRight,
   FadersHorizontal,
@@ -16,13 +17,17 @@ import {
   SignOut,
   Sun,
 } from "@phosphor-icons/react";
+import { NotificationsPopover } from "@/components/notifications-popover";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useFlowBoardStore } from "@/components/providers/flowboard-provider";
 import { SidebarToggleButton } from "@/components/sidebar-toggle-button";
+import { filterNotificationsForViewer } from "@/lib/notifications";
 import { hasPermission } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
   { href: "/", label: "Quadro", icon: Kanban },
+  { href: "/notificacoes", label: "Notificacoes", icon: Bell },
   { href: "/projetos-entregues", label: "Projetos entregues", icon: Package },
   { href: "/configuracoes", label: "Configuracoes", icon: FadersHorizontal },
 ];
@@ -60,11 +65,17 @@ export function Sidebar({
   const pathname = usePathname();
   const router = useRouter();
   const { logout, user } = useAuth();
+  const { notifications, markNotificationRead, markNotificationsRead } = useFlowBoardStore();
   const [adminOpen, setAdminOpen] = useState(pathname.startsWith("/admin"));
   const [accountOpen, setAccountOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [theme, setTheme] = useState<HakiTheme>(readStoredTheme);
   const canUseAdminArea = hasPermission(user.panel, "manage-admin-area");
   const showAdminChildren = !collapsed && (adminOpen || pathname.startsWith("/admin"));
+  const userNotifications = useMemo(
+    () => filterNotificationsForViewer(notifications, { name: user.name, email: user.email }),
+    [notifications, user.email, user.name],
+  );
 
   useEffect(() => {
     applyTheme(theme);
@@ -214,8 +225,13 @@ export function Sidebar({
         <SidebarAccountMenu
           collapsed={collapsed}
           open={accountOpen}
+          notificationsOpen={notificationsOpen}
           user={user}
+          notifications={userNotifications}
           onOpenChange={setAccountOpen}
+          onNotificationsOpenChange={setNotificationsOpen}
+          onMarkNotificationRead={markNotificationRead}
+          onMarkNotificationsRead={markNotificationsRead}
           onSettings={() => {
             setAccountOpen(false);
             router.push("/configuracoes");
@@ -252,8 +268,13 @@ function userInitials(name: string) {
 function SidebarAccountMenu({
   collapsed,
   open,
+  notificationsOpen,
   user,
+  notifications,
   onOpenChange,
+  onNotificationsOpenChange,
+  onMarkNotificationRead,
+  onMarkNotificationsRead,
   onSettings,
   onBoard,
   onLogout,
@@ -262,8 +283,13 @@ function SidebarAccountMenu({
 }: {
   collapsed: boolean;
   open: boolean;
+  notificationsOpen: boolean;
   user: ReturnType<typeof useAuth>["user"];
+  notifications: ReturnType<typeof useFlowBoardStore>["notifications"];
   onOpenChange: (open: boolean) => void;
+  onNotificationsOpenChange: (open: boolean) => void;
+  onMarkNotificationRead: (notificationId: string) => void;
+  onMarkNotificationsRead: (notificationIds: string[]) => void;
   onSettings: () => void;
   onBoard: () => void;
   onLogout: () => void;
@@ -271,15 +297,18 @@ function SidebarAccountMenu({
   onThemeChange: (theme: HakiTheme) => void;
 }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const notificationButtonRef = useRef<HTMLButtonElement | null>(null);
+  const unreadCount = notifications.filter((notification) => !notification.read).length;
 
   useEffect(() => {
-    if (!open) {
+    if (!open && !notificationsOpen) {
       return;
     }
 
     function handleEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
         onOpenChange(false);
+        onNotificationsOpenChange(false);
       }
     }
 
@@ -290,6 +319,7 @@ function SidebarAccountMenu({
       }
 
       onOpenChange(false);
+      onNotificationsOpenChange(false);
     }
 
     document.addEventListener("keydown", handleEscape);
@@ -299,20 +329,28 @@ function SidebarAccountMenu({
       document.removeEventListener("keydown", handleEscape);
       document.removeEventListener("mousedown", handlePointerDown);
     };
-  }, [onOpenChange, open]);
+  }, [notificationsOpen, onNotificationsOpenChange, onOpenChange, open]);
 
   return (
     <div ref={rootRef} className={cn("relative", collapsed ? "flex justify-center" : "")}>
+      <div
+        className={cn(
+          "flex items-center text-left text-[#d6ddef]",
+          collapsed
+            ? "justify-center"
+            : "w-full gap-2 rounded-[1.15rem] border border-white/8 bg-white/[0.035] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]",
+        )}
+      >
         <button
           type="button"
           data-testid="sidebar-account-trigger"
           title={collapsed ? user.name : undefined}
           onClick={() => onOpenChange(!open)}
           className={cn(
-            "group flex items-center text-left text-[#d6ddef] transition-all duration-200 active:scale-[0.985]",
+            "group flex min-w-0 items-center text-left transition-all duration-200 active:scale-[0.985]",
             collapsed
               ? "size-11 justify-center rounded-full border border-transparent bg-transparent p-0 shadow-none hover:bg-white/[0.04]"
-              : "w-full gap-3 rounded-[1.15rem] border border-white/8 bg-white/[0.035] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:border-white/14 hover:bg-white/[0.065]",
+              : "min-w-0 flex-1 gap-3",
           )}
         >
           <span
@@ -325,18 +363,50 @@ function SidebarAccountMenu({
           >
             {userInitials(user.name)}
           </span>
+          {!collapsed ? (
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-medium text-white">{user.name}</span>
+            </span>
+          ) : null}
+        </button>
+
         {!collapsed ? (
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-medium text-white">{user.name}</span>
-            <span className="block truncate text-xs text-[#8996ad]">{user.email}</span>
-          </span>
+          <div className="flex shrink-0 items-center gap-1.5">
+            <button
+              ref={notificationButtonRef}
+              type="button"
+              aria-label="Abrir notificacoes"
+              onClick={() => onNotificationsOpenChange(!notificationsOpen)}
+              className="relative flex size-8 items-center justify-center rounded-full border border-white/8 bg-white/4 text-[#aab6cc] transition-colors hover:bg-white/8 hover:text-white"
+            >
+              <Bell size={15} />
+              {unreadCount > 0 ? (
+                <span className="absolute -right-0.5 -top-0.5 inline-flex min-w-[1rem] items-center justify-center rounded-full bg-[#dc3933] px-1 text-[10px] font-semibold leading-4 text-white">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              ) : null}
+            </button>
+
+            <button
+              type="button"
+              aria-label="Abrir menu da conta"
+              onClick={() => onOpenChange(!open)}
+              className="flex size-8 items-center justify-center rounded-full border border-white/8 bg-white/4 text-[#aab6cc] transition-colors hover:bg-white/8 hover:text-white"
+            >
+              <GearSix size={15} />
+            </button>
+          </div>
         ) : null}
-        {!collapsed ? (
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-white/8 bg-white/4 text-[#aab6cc] transition-colors group-hover:text-white">
-            <GearSix size={15} />
-          </span>
-        ) : null}
-      </button>
+      </div>
+
+      <NotificationsPopover
+        anchorRef={notificationButtonRef}
+        open={notificationsOpen}
+        notifications={notifications}
+        onClose={() => onNotificationsOpenChange(false)}
+        onMarkRead={onMarkNotificationRead}
+        onMarkAllRead={onMarkNotificationsRead}
+      />
 
       {open ? (
         <div

@@ -392,7 +392,11 @@ export function AddDemandPopover({
             <div className="space-y-2">
               <span className="text-sm font-medium text-[#eef2ff]">Texto da alteração</span>
               <div className="rounded-[1rem] border border-white/8 bg-white/[0.025] p-2.5">
-                <CommentEditor value={changeComment} onChange={setChangeComment} />
+                <CommentEditor
+                  value={changeComment}
+                  onChange={setChangeComment}
+                  mentionableMembers={board.members}
+                />
               </div>
             </div>
 

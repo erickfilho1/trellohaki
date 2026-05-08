@@ -15,6 +15,8 @@ import {
   Question,
   TextT,
 } from "@phosphor-icons/react";
+import type { MemberRecord } from "@/lib/flowboard-types";
+import { cleanProfileName } from "@/lib/account-settings";
 import { cn } from "@/lib/utils";
 
 const placeholderText = "Escrever um comentário...";
@@ -26,9 +28,11 @@ function normalizeHtml(html: string) {
 export function CommentEditor({
   value,
   onChange,
+  mentionableMembers = [],
 }: {
   value: string;
   onChange: (value: string) => void;
+  mentionableMembers?: MemberRecord[];
 }) {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [typeMenuOpen, setTypeMenuOpen] = useState(false);
@@ -116,6 +120,14 @@ export function CommentEditor({
     editor.chain().focus().insertContent(`<p>[Anexo: ${label.trim()}]</p>`).run();
   }
 
+  function insertMention(member: MemberRecord) {
+    if (!editor) {
+      return;
+    }
+
+    editor.chain().focus().insertContent(`@${cleanProfileName(member.name)} `).run();
+  }
+
   return (
     <div
       ref={wrapperRef}
@@ -192,6 +204,29 @@ export function CommentEditor({
       </div>
 
       <EditorContent editor={editor} />
+
+      {mentionableMembers.length > 0 ? (
+        <div className="border-t border-white/8 px-3 py-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-semibold tracking-[0.18em] text-[#8f98ab] uppercase">
+              Mencionar
+            </span>
+            {mentionableMembers.map((member) => (
+              <button
+                key={member.id}
+                type="button"
+                onClick={() => insertMention(member)}
+                className="inline-flex h-8 items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 text-xs font-medium text-[#dfe6f7] transition hover:border-white/16 hover:bg-white/[0.08]"
+              >
+                <span className="grid size-5 place-items-center rounded-full bg-[#2a2d34] text-[10px] font-semibold text-white">
+                  {member.initials}
+                </span>
+                <span>{cleanProfileName(member.name)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

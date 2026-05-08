@@ -16,11 +16,13 @@ export function CommentsActivity({
   comments,
   activity,
   currentUser,
+  mentionableMembers = [],
   onAddComment,
 }: {
   comments: CommentRecord[];
   activity: ActivityRecord[];
   currentUser?: MemberRecord;
+  mentionableMembers?: MemberRecord[];
   onAddComment: (text: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -76,7 +78,11 @@ export function CommentsActivity({
         <div className="flex-1">
           {expanded ? (
             <div className="rounded-[1rem] border border-white/10 bg-white/4 p-3">
-              <CommentEditor value={draft} onChange={setDraft} />
+              <CommentEditor
+                value={draft}
+                onChange={setDraft}
+                mentionableMembers={mentionableMembers}
+              />
               <div className="mt-3 flex items-center gap-2">
                 <Button
                   data-testid="save-comment"

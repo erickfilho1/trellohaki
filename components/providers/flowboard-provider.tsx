@@ -54,6 +54,7 @@ import {
   deleteSupabaseWorkspaceByLocalId,
   upsertSupabaseWorkspaceFromBoardEntity,
 } from "@/lib/supabase/workspaces";
+import { buildNotificationsFromBoards } from "@/lib/notifications";
 import type {
   BoardFiltersRecord,
   BoardRecord,
@@ -65,6 +66,7 @@ import type {
 } from "@/lib/flowboard-types";
 
 const STORAGE_KEY = "flowboard-local-state";
+const NOTIFICATION_READS_KEY = "flowboard-notification-reads";
 
 const FlowBoardContext = createContext<FlowBoardContextValue | null>(null);
 
@@ -74,6 +76,23 @@ function getInitialSnapshot() {
   }
 
   return getInitialSnapshotFromStorage(window.localStorage.getItem(STORAGE_KEY));
+}
+
+function getInitialNotificationReads() {
+  if (typeof window === "undefined") {
+    return [] as string[];
+  }
+
+  const raw = window.localStorage.getItem(NOTIFICATION_READS_KEY);
+  if (!raw) {
+    return [] as string[];
+  }
+
+  try {
+    return JSON.parse(raw) as string[];
+  } catch {
+    return [];
+  }
 }
 
 function newestBoardId(snapshot: BoardStoreSnapshot) {
@@ -87,6 +106,7 @@ export function FlowBoardProvider({
   children: React.ReactNode;
 }>) {
   const [snapshot, setSnapshot] = useState<BoardStoreSnapshot>(getInitialSnapshot);
+  const [notificationReadIds, setNotificationReadIds] = useState<string[]>(getInitialNotificationReads);
   const [hydrated, setHydrated] = useState(false);
   const [workspaceSyncTick, setWorkspaceSyncTick] = useState(0);
   const [boardContentSyncTick, setBoardContentSyncTick] = useState(0);
@@ -106,6 +126,17 @@ export function FlowBoardProvider({
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
   }, [hydrated, snapshot]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(
+      NOTIFICATION_READS_KEY,
+      JSON.stringify(Array.from(new Set(notificationReadIds))),
+    );
+  }, [notificationReadIds]);
 
   const hydrateFromSupabase = useCallback(async () => {
     try {
@@ -217,6 +248,10 @@ export function FlowBoardProvider({
   const adminUsers = useMemo(() => selectAdminUsers(snapshot), [snapshot]);
   const workspaceAccess = useMemo(() => selectWorkspaceAccess(snapshot), [snapshot]);
   const adminActivity = useMemo(() => selectAdminActivity(snapshot), [snapshot]);
+  const notifications = useMemo(
+    () => buildNotificationsFromBoards(boards, notificationReadIds),
+    [boards, notificationReadIds],
+  );
 
   const addBoard = useCallback((payload: { name: string; description: string; accent: string }) => {
     const next = addBoardToSnapshot(snapshot, payload);
@@ -407,6 +442,24 @@ export function FlowBoardProvider({
     queueBoardContentSync(boardId);
   }, [queueBoardContentSync]);
 
+  const markNotificationRead = useCallback((notificationId: string) => {
+    setNotificationReadIds((current) =>
+      current.includes(notificationId) ? current : [...current, notificationId],
+    );
+  }, []);
+
+  const markNotificationsRead = useCallback((notificationIds: string[]) => {
+    if (notificationIds.length === 0) {
+      return;
+    }
+
+    setNotificationReadIds((current) => {
+      const next = new Set(current);
+      notificationIds.forEach((notificationId) => next.add(notificationId));
+      return Array.from(next);
+    });
+  }, []);
+
   const getBoardStats = useCallback(
     (boardId: string) => ({
       ...selectBoardStats(snapshot, boardId),
@@ -420,6 +473,7 @@ export function FlowBoardProvider({
       boards,
       hydrated,
       filters,
+      notifications,
       adminUsers,
       workspaceAccess,
       adminActivity,
@@ -449,6 +503,8 @@ export function FlowBoardProvider({
       revokeWorkspaceAccess,
       renameDeliveredFolder,
       deleteDeliveredFolder,
+      markNotificationRead,
+      markNotificationsRead,
       getBoardStats,
     }),
     [
@@ -469,9 +525,12 @@ export function FlowBoardProvider({
       deleteCard,
       deleteDeliveredFolder,
       filters,
+      notifications,
       getBoardStats,
       grantWorkspaceAccess,
       hydrated,
+      markNotificationRead,
+      markNotificationsRead,
       moveCard,
       moveList,
       removeBoardLabel,
