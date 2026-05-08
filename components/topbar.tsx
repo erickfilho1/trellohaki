@@ -137,6 +137,7 @@ export function Topbar({
 
   return (
     <header
+      data-app-topbar="true"
       className={`relative z-[20] border-b border-white/7 bg-[#0b0b0b]/88 backdrop-blur ${
         compact ? "px-4 py-2.5 sm:px-6 lg:px-8" : "px-4 py-4 sm:px-6 lg:px-8"
       }`}

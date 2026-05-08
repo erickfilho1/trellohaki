@@ -111,6 +111,8 @@ export function Sidebar({
         {canUseAdminArea ? (
           <div className="space-y-1.5">
             <div
+              data-admin-group="true"
+              data-active={pathname.startsWith("/admin") ? "true" : undefined}
               className={cn(
                 "rounded-[1rem] border transition-all duration-300",
                 collapsed
@@ -128,6 +130,8 @@ export function Sidebar({
               >
                 <Link
                   href="/admin"
+                  data-sidebar-item="true"
+                  data-active={pathname === "/admin" ? "true" : undefined}
                   title={collapsed ? "Area admin" : undefined}
                   className={cn(
                     "group flex min-w-0 flex-1 items-center rounded-[0.95rem] border text-sm transition-all duration-300",
@@ -158,6 +162,8 @@ export function Sidebar({
                   <Link
                     href="/admin/gerenciamento"
                     data-testid="sidebar-link-gerenciamento"
+                    data-sidebar-item="true"
+                    data-active={pathname === "/admin/gerenciamento" ? "true" : undefined}
                     className={cn(
                       "ml-3 flex items-center gap-3 rounded-[0.95rem] border px-3 py-2.5 text-[13px] transition-all duration-300",
                       pathname === "/admin/gerenciamento"
@@ -186,6 +192,8 @@ export function Sidebar({
               key={item.href}
               href={item.href}
               data-testid={`sidebar-link-${item.label.toLowerCase().replaceAll(" ", "-")}`}
+              data-sidebar-item="true"
+              data-active={active ? "true" : undefined}
               title={collapsed ? item.label : undefined}
               className={cn(
                 "group flex items-center rounded-[1rem] border text-sm transition-all duration-300",
