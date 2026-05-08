@@ -2,41 +2,46 @@
 
 import type { LabelRecord } from "@/lib/flowboard-types";
 
-export type PomodoroTaskPreset = "landing-page" | "video" | "design" | "custom";
-
-export type PomodoroPresetDefinition = {
-  id: PomodoroTaskPreset;
+export type PomodoroTaskDefinition = {
+  id: string;
   label: string;
   subtitle: string;
   focusSeconds: number;
+  builtin?: boolean;
 };
 
-export const POMODORO_PRESETS: Record<PomodoroTaskPreset, PomodoroPresetDefinition> = {
-  "landing-page": {
+export const POMODORO_FOCUS_FLOW_SECONDS = 25 * 60;
+
+export const DEFAULT_POMODORO_TASKS: PomodoroTaskDefinition[] = [
+  {
     id: "landing-page",
     label: "LP / Site",
-    subtitle: "Tempo padr\u00e3o para landing pages e webdesign.",
+    subtitle: "Landing pages, paginas institucionais e webdesign.",
     focusSeconds: 2 * 60 * 60,
+    builtin: true,
   },
-  video: {
+  {
     id: "video",
-    label: "V\u00eddeo",
-    subtitle: "Sess\u00e3o padr\u00e3o para edi\u00e7\u00e3o e ajustes de v\u00eddeo.",
+    label: "Video",
+    subtitle: "Edicao, motion e ajustes em conteudo audiovisual.",
     focusSeconds: 90 * 60,
+    builtin: true,
   },
-  design: {
+  {
     id: "design",
     label: "Arte",
-    subtitle: "Sess\u00e3o curta para pe\u00e7as, artes e tarefas visuais.",
+    subtitle: "Pecas graficas, design e demandas criativas.",
     focusSeconds: 40 * 60,
+    builtin: true,
   },
-  custom: {
+  {
     id: "custom",
     label: "Personalizado",
-    subtitle: "Comece manualmente e ajuste a dura\u00e7\u00e3o como quiser.",
-    focusSeconds: 25 * 60,
+    subtitle: "Tempo livre para sessoes ajustadas manualmente.",
+    focusSeconds: POMODORO_FOCUS_FLOW_SECONDS,
+    builtin: true,
   },
-};
+];
 
 export const POMODORO_BREAK_OPTIONS = [
   { label: "5 min", value: 5 * 60 },
@@ -44,22 +49,22 @@ export const POMODORO_BREAK_OPTIONS = [
   { label: "15 min", value: 15 * 60 },
 ] as const;
 
-export function inferPomodoroPreset(labels: LabelRecord[], title: string) {
+export function inferPomodoroTaskId(labels: LabelRecord[], title: string) {
   const haystack = `${labels.map((label) => label.name).join(" ")} ${title}`.toLowerCase();
 
   if (/(lp|landing|site|webdesign|site\/lp|lp\/site)/i.test(haystack)) {
-    return "landing-page" as const;
+    return "landing-page";
   }
 
-  if (/(video|reel|edicao|edi\u00e7\u00e3o|motion)/i.test(haystack)) {
-    return "video" as const;
+  if (/(video|reel|edicao|edicao|motion)/i.test(haystack)) {
+    return "video";
   }
 
   if (/(arte|design|criativo|banner|kv|social)/i.test(haystack)) {
-    return "design" as const;
+    return "design";
   }
 
-  return "custom" as const;
+  return "custom";
 }
 
 export function formatPomodoroClock(totalSeconds: number) {
@@ -73,4 +78,16 @@ export function formatPomodoroClock(totalSeconds: number) {
   }
 
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+export function formatPomodoroDuration(totalSeconds: number) {
+  const safe = Math.max(0, totalSeconds);
+  const hours = Math.floor(safe / 3600);
+  const minutes = Math.floor((safe % 3600) / 60);
+
+  if (hours > 0) {
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`;
+  }
+
+  return `${String(minutes).padStart(2, "0")}:00`;
 }

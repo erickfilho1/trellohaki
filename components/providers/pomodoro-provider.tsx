@@ -11,11 +11,13 @@ import {
   type ReactNode,
 } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useFlowBoardStore } from "@/components/providers/flowboard-provider";
 import { PomodoroWidget } from "@/components/pomodoro-widget";
 import {
-  inferPomodoroPreset,
-  POMODORO_PRESETS,
-  type PomodoroTaskPreset,
+  DEFAULT_POMODORO_TASKS,
+  inferPomodoroTaskId,
+  POMODORO_FOCUS_FLOW_SECONDS,
+  type PomodoroTaskDefinition,
 } from "@/lib/pomodoro";
 import type { LabelRecord } from "@/lib/flowboard-types";
 
@@ -34,14 +36,19 @@ type PomodoroState = {
   open: boolean;
   position: { x: number; y: number };
   linkedCard: PomodoroLinkedCard | null;
-  preset: PomodoroTaskPreset;
+  taskId: string;
+  tasks: PomodoroTaskDefinition[];
   mode: PomodoroMode;
   status: PomodoroStatus;
   focusSeconds: number;
+  taskRemainingSeconds: number;
+  segmentSeconds: number;
   breakSeconds: number;
   remainingSeconds: number;
   completedSessions: number;
   autoRestartFocus: boolean;
+  awaitingBreakDecision: boolean;
+  completionPrompt: boolean;
 };
 
 type PomodoroContextValue = {
@@ -53,24 +60,38 @@ type PomodoroContextValue = {
   pause: () => void;
   reset: () => void;
   skip: () => void;
+  startBreak: () => void;
+  continueWithoutBreak: () => void;
+  confirmTaskFinished: () => void;
+  continueTaskAfterPrompt: () => void;
   setBreakSeconds: (value: number) => void;
-  setPreset: (preset: PomodoroTaskPreset) => void;
+  setTask: (taskId: string) => void;
+  setFocusSeconds: (value: number) => void;
+  addCustomTask: (payload: { label: string; minutes: number }) => void;
   setAutoRestartFocus: (value: boolean) => void;
   setPosition: (position: { x: number; y: number }) => void;
 };
+
+const INITIAL_TASK =
+  DEFAULT_POMODORO_TASKS.find((task) => task.id === "custom") ?? DEFAULT_POMODORO_TASKS[0];
 
 const INITIAL_STATE: PomodoroState = {
   open: false,
   position: { x: 48, y: 118 },
   linkedCard: null,
-  preset: "custom",
+  taskId: INITIAL_TASK.id,
+  tasks: DEFAULT_POMODORO_TASKS,
   mode: "focus",
   status: "idle",
-  focusSeconds: POMODORO_PRESETS.custom.focusSeconds,
+  focusSeconds: INITIAL_TASK.focusSeconds,
+  taskRemainingSeconds: INITIAL_TASK.focusSeconds,
+  segmentSeconds: Math.min(POMODORO_FOCUS_FLOW_SECONDS, INITIAL_TASK.focusSeconds),
   breakSeconds: 5 * 60,
-  remainingSeconds: POMODORO_PRESETS.custom.focusSeconds,
+  remainingSeconds: Math.min(POMODORO_FOCUS_FLOW_SECONDS, INITIAL_TASK.focusSeconds),
   completedSessions: 0,
   autoRestartFocus: true,
+  awaitingBreakDecision: false,
+  completionPrompt: false,
 };
 
 const PomodoroContext = createContext<PomodoroContextValue | null>(null);
@@ -106,12 +127,41 @@ function playPomodoroBell() {
   }, 900);
 }
 
+function getNextFocusChunk(totalRemainingSeconds: number) {
+  return Math.max(0, Math.min(POMODORO_FOCUS_FLOW_SECONDS, totalRemainingSeconds));
+}
+
+function buildTaskState(
+  current: PomodoroState,
+  selectedTask: PomodoroTaskDefinition,
+  nextTasks?: PomodoroTaskDefinition[],
+): PomodoroState {
+  const totalSeconds = selectedTask.focusSeconds;
+  const chunk = getNextFocusChunk(totalSeconds);
+
+  return {
+    ...current,
+    taskId: selectedTask.id,
+    tasks: nextTasks ?? current.tasks,
+    mode: "focus",
+    status: "idle",
+    focusSeconds: totalSeconds,
+    taskRemainingSeconds: totalSeconds,
+    segmentSeconds: chunk,
+    remainingSeconds: chunk,
+    completedSessions: 0,
+    awaitingBreakDecision: false,
+    completionPrompt: false,
+  };
+}
+
 export function PomodoroProvider({
   children,
 }: {
   children: ReactNode;
 }) {
   const { user } = useAuth();
+  const { updateCard } = useFlowBoardStore();
   const [state, setState] = useState<PomodoroState>(INITIAL_STATE);
   const tickingRef = useRef<number | null>(null);
   const canUsePomodoro = user.panel === "admin" || user.panel === "colaborador";
@@ -123,20 +173,59 @@ export function PomodoroProvider({
     }
   }, []);
 
-  const setPreset = useCallback((preset: PomodoroTaskPreset) => {
+  const setTask = useCallback((taskId: string) => {
     setState((current) => {
-      const nextFocusSeconds = POMODORO_PRESETS[preset].focusSeconds;
-      const nextRemaining =
-        current.mode === "focus" && current.status !== "running"
-          ? nextFocusSeconds
-          : current.remainingSeconds;
+      const selectedTask =
+        current.tasks.find((task) => task.id === taskId) ??
+        current.tasks.find((task) => task.id === "custom") ??
+        DEFAULT_POMODORO_TASKS[0];
 
-      return {
-        ...current,
-        preset,
-        focusSeconds: nextFocusSeconds,
-        remainingSeconds: nextRemaining,
+      return buildTaskState(current, selectedTask);
+    });
+  }, []);
+
+  const setFocusSeconds = useCallback((value: number) => {
+    const safeValue = Math.max(5 * 60, Math.min(8 * 60 * 60, value));
+
+    setState((current) => {
+      const nextTasks = current.tasks.map((task) =>
+        task.id === current.taskId
+          ? {
+              ...task,
+              focusSeconds: safeValue,
+            }
+          : task,
+      );
+
+      const selectedTask =
+        nextTasks.find((task) => task.id === current.taskId) ??
+        nextTasks.find((task) => task.id === "custom") ??
+        DEFAULT_POMODORO_TASKS[0];
+
+      return buildTaskState(current, selectedTask, nextTasks);
+    });
+  }, []);
+
+  const addCustomTask = useCallback((payload: { label: string; minutes: number }) => {
+    const label = payload.label.trim();
+    const minutes = Math.max(5, Math.min(8 * 60, payload.minutes));
+
+    if (!label) {
+      return;
+    }
+
+    setState((current) => {
+      const taskId = `custom-${crypto.randomUUID().slice(0, 8)}`;
+      const totalSeconds = minutes * 60;
+      const nextTask: PomodoroTaskDefinition = {
+        id: taskId,
+        label,
+        subtitle: "Tarefa criada manualmente no pomodoro.",
+        focusSeconds: totalSeconds,
       };
+      const nextTasks = [...current.tasks, nextTask];
+
+      return buildTaskState(current, nextTask, nextTasks);
     });
   }, []);
 
@@ -146,18 +235,20 @@ export function PomodoroProvider({
         return;
       }
 
-      const preset = inferPomodoroPreset(payload.labels, payload.cardTitle);
+      setState((current) => {
+        const availableTasks = current.tasks.length > 0 ? current.tasks : DEFAULT_POMODORO_TASKS;
+        const inferredTaskId = inferPomodoroTaskId(payload.labels, payload.cardTitle);
+        const selectedTask =
+          availableTasks.find((task) => task.id === inferredTaskId) ??
+          availableTasks.find((task) => task.id === "custom") ??
+          DEFAULT_POMODORO_TASKS[0];
 
-      setState((current) => ({
-        ...current,
-        open: true,
-        linkedCard: payload,
-        preset,
-        mode: "focus",
-        status: "idle",
-        focusSeconds: POMODORO_PRESETS[preset].focusSeconds,
-        remainingSeconds: POMODORO_PRESETS[preset].focusSeconds,
-      }));
+        return {
+          ...buildTaskState(current, selectedTask, availableTasks),
+          open: true,
+          linkedCard: payload,
+        };
+      });
     },
     [canUsePomodoro],
   );
@@ -167,7 +258,16 @@ export function PomodoroProvider({
   }, []);
 
   const start = useCallback(() => {
-    setState((current) => ({ ...current, status: "running" }));
+    setState((current) => {
+      if (current.awaitingBreakDecision || current.completionPrompt || current.remainingSeconds <= 0) {
+        return current;
+      }
+
+      return {
+        ...current,
+        status: "running",
+      };
+    });
   }, []);
 
   const pause = useCallback(() => {
@@ -175,23 +275,147 @@ export function PomodoroProvider({
   }, []);
 
   const reset = useCallback(() => {
-    setState((current) => ({
-      ...current,
-      status: "idle",
-      remainingSeconds: current.mode === "focus" ? current.focusSeconds : current.breakSeconds,
-    }));
+    setState((current) => {
+      const selectedTask =
+        current.tasks.find((task) => task.id === current.taskId) ??
+        current.tasks.find((task) => task.id === "custom") ??
+        DEFAULT_POMODORO_TASKS[0];
+
+      return buildTaskState(current, selectedTask);
+    });
+  }, []);
+
+  const startBreak = useCallback(() => {
+    setState((current) => {
+      if (!current.awaitingBreakDecision || current.taskRemainingSeconds <= 0) {
+        return current;
+      }
+
+      return {
+        ...current,
+        mode: "break",
+        status: "running",
+        segmentSeconds: current.breakSeconds,
+        remainingSeconds: current.breakSeconds,
+        awaitingBreakDecision: false,
+      };
+    });
+  }, []);
+
+  const continueWithoutBreak = useCallback(() => {
+    setState((current) => {
+      if ((!current.awaitingBreakDecision && !current.completionPrompt) || current.taskRemainingSeconds <= 0) {
+        return current;
+      }
+
+      const nextChunk = getNextFocusChunk(current.taskRemainingSeconds);
+
+      return {
+        ...current,
+        mode: "focus",
+        status: "running",
+        segmentSeconds: nextChunk,
+        remainingSeconds: nextChunk,
+        awaitingBreakDecision: false,
+        completionPrompt: false,
+      };
+    });
+  }, []);
+
+  const confirmTaskFinished = useCallback(() => {
+    setState((current) => {
+      if (!current.linkedCard) {
+        return current;
+      }
+
+      updateCard(
+        current.linkedCard.boardId,
+        current.linkedCard.listId,
+        current.linkedCard.cardId,
+        { completed: true },
+        "Voce concluiu esta demanda pelo Pomodoro",
+      );
+
+      return {
+        ...current,
+        completionPrompt: false,
+        status: "idle",
+      };
+    });
+  }, [updateCard]);
+
+  const continueTaskAfterPrompt = useCallback(() => {
+    setState((current) => {
+      if (!current.completionPrompt) {
+        return current;
+      }
+
+      const extraSeconds = POMODORO_FOCUS_FLOW_SECONDS;
+
+      return {
+        ...current,
+        mode: "focus",
+        status: "running",
+        focusSeconds: current.focusSeconds + extraSeconds,
+        taskRemainingSeconds: extraSeconds,
+        segmentSeconds: extraSeconds,
+        remainingSeconds: extraSeconds,
+        completionPrompt: false,
+      };
+    });
   }, []);
 
   const skip = useCallback(() => {
     setState((current) => {
-      const nextMode = current.mode === "focus" ? "break" : "focus";
-      const nextRemaining = nextMode === "focus" ? current.focusSeconds : current.breakSeconds;
+      if (current.completionPrompt) {
+        return current;
+      }
+
+      if (current.awaitingBreakDecision) {
+        const nextChunk = getNextFocusChunk(current.taskRemainingSeconds);
+        return {
+          ...current,
+          mode: "focus",
+          status: "running",
+          segmentSeconds: nextChunk,
+          remainingSeconds: nextChunk,
+          awaitingBreakDecision: false,
+        };
+      }
+
+      if (current.mode === "break") {
+        const nextChunk = getNextFocusChunk(current.taskRemainingSeconds);
+        return {
+          ...current,
+          mode: "focus",
+          status: current.autoRestartFocus ? "running" : "idle",
+          segmentSeconds: nextChunk,
+          remainingSeconds: nextChunk,
+        };
+      }
+
+      const remainingAfterChunk = Math.max(0, current.taskRemainingSeconds - current.segmentSeconds);
+
+      if (remainingAfterChunk <= 0) {
+        return {
+          ...current,
+          taskRemainingSeconds: 0,
+          remainingSeconds: 0,
+          status: "paused",
+          completedSessions: current.completedSessions + 1,
+          completionPrompt: true,
+          awaitingBreakDecision: false,
+        };
+      }
 
       return {
         ...current,
-        mode: nextMode,
-        status: "idle",
-        remainingSeconds: nextRemaining,
+        taskRemainingSeconds: remainingAfterChunk,
+        remainingSeconds: 0,
+        status: "paused",
+        completedSessions: current.completedSessions + 1,
+        completionPrompt: false,
+        awaitingBreakDecision: true,
       };
     });
   }, []);
@@ -200,6 +424,8 @@ export function PomodoroProvider({
     setState((current) => ({
       ...current,
       breakSeconds: value,
+      segmentSeconds:
+        current.mode === "break" && current.status !== "running" ? value : current.segmentSeconds,
       remainingSeconds:
         current.mode === "break" && current.status !== "running" ? value : current.remainingSeconds,
     }));
@@ -235,20 +461,41 @@ export function PomodoroProvider({
         playPomodoroBell();
 
         if (current.mode === "focus") {
+          const remainingAfterChunk = Math.max(0, current.taskRemainingSeconds - current.segmentSeconds);
+          const completedSessions = current.completedSessions + 1;
+
+          if (remainingAfterChunk <= 0) {
+            return {
+              ...current,
+              status: "paused",
+              taskRemainingSeconds: 0,
+              remainingSeconds: 0,
+              completedSessions,
+              completionPrompt: true,
+              awaitingBreakDecision: false,
+            };
+          }
+
           return {
             ...current,
-            mode: "break",
-            status: "idle",
-            remainingSeconds: current.breakSeconds,
-            completedSessions: current.completedSessions + 1,
+            status: "paused",
+            taskRemainingSeconds: remainingAfterChunk,
+            remainingSeconds: 0,
+            completedSessions,
+            completionPrompt: false,
+            awaitingBreakDecision: true,
           };
         }
+
+        const nextChunk = getNextFocusChunk(current.taskRemainingSeconds);
 
         return {
           ...current,
           mode: "focus",
           status: current.autoRestartFocus ? "running" : "idle",
-          remainingSeconds: current.focusSeconds,
+          segmentSeconds: nextChunk,
+          remainingSeconds: nextChunk,
+          awaitingBreakDecision: false,
         };
       });
     }, 1000);
@@ -270,24 +517,36 @@ export function PomodoroProvider({
       pause,
       reset,
       skip,
+      startBreak,
+      continueWithoutBreak,
+      confirmTaskFinished,
+      continueTaskAfterPrompt,
       setBreakSeconds,
-      setPreset,
+      setTask,
+      setFocusSeconds,
+      addCustomTask,
       setAutoRestartFocus,
       setPosition,
     }),
     [
+      state,
       canUsePomodoro,
-      close,
       openForCard,
+      close,
+      start,
       pause,
       reset,
-      setAutoRestartFocus,
-      setBreakSeconds,
-      setPosition,
-      setPreset,
       skip,
-      start,
-      state,
+      startBreak,
+      continueWithoutBreak,
+      confirmTaskFinished,
+      continueTaskAfterPrompt,
+      setBreakSeconds,
+      setTask,
+      setFocusSeconds,
+      addCustomTask,
+      setAutoRestartFocus,
+      setPosition,
     ],
   );
 
