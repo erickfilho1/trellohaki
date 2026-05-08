@@ -2,16 +2,19 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  ArrowSquareOut,
   CaretDown,
   CaretRight,
   FadersHorizontal,
+  GearSix,
   Kanban,
   Lightning,
+  Moon,
   Package,
   ShieldCheck,
+  SignOut,
+  Sun,
 } from "@phosphor-icons/react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { SidebarToggleButton } from "@/components/sidebar-toggle-button";
@@ -37,6 +40,7 @@ export function Sidebar({
   const router = useRouter();
   const { logout, user } = useAuth();
   const [adminOpen, setAdminOpen] = useState(pathname.startsWith("/admin"));
+  const [accountOpen, setAccountOpen] = useState(false);
   const canUseAdminArea = hasPermission(user.panel, "manage-admin-area");
   const showAdminChildren = !collapsed && (adminOpen || pathname.startsWith("/admin"));
 
@@ -172,33 +176,21 @@ export function Sidebar({
       </nav>
 
       <div className="mt-auto space-y-3">
-        {!collapsed ? (
-          <div className="rounded-[1.25rem] border border-white/7 bg-white/3 p-3">
-            <p className="text-[11px] font-semibold tracking-[0.24em] text-[#74809a] uppercase">
-              Modo foco
-            </p>
-            <p className="mt-2 text-sm leading-6 text-[#cfd6e6]">
-              Recolha a barra lateral para deixar o quadro ocupar quase toda a tela.
-            </p>
-          </div>
-        ) : null}
-
-        <button
-          type="button"
-          data-testid="sidebar-logout"
-          title={collapsed ? "Desconectar" : undefined}
-          onClick={() => {
+        <SidebarAccountMenu
+          collapsed={collapsed}
+          open={accountOpen}
+          user={user}
+          onOpenChange={setAccountOpen}
+          onBoard={() => {
+            setAccountOpen(false);
+            router.push("/");
+          }}
+          onLogout={() => {
+            setAccountOpen(false);
             logout();
             router.replace("/login");
           }}
-          className={cn(
-            "flex w-full items-center rounded-[1rem] border border-white/8 bg-white/3 text-[#d6ddef] transition-colors hover:bg-white/8",
-            collapsed ? "justify-center px-0 py-3" : "gap-3 px-3 py-3",
-          )}
-        >
-          <ArrowSquareOut size={18} />
-          {!collapsed ? <span>Desconectar</span> : null}
-        </button>
+        />
       </div>
     </aside>
   );
@@ -206,4 +198,159 @@ export function Sidebar({
 
 function BadgeDot() {
   return <span className="ml-auto size-2 rounded-full bg-[#6e8dff]/80" />;
+}
+
+function userInitials(name: string) {
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
+function SidebarAccountMenu({
+  collapsed,
+  open,
+  user,
+  onOpenChange,
+  onBoard,
+  onLogout,
+}: {
+  collapsed: boolean;
+  open: boolean;
+  user: ReturnType<typeof useAuth>["user"];
+  onOpenChange: (open: boolean) => void;
+  onBoard: () => void;
+  onLogout: () => void;
+}) {
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [themeLabel, setThemeLabel] = useState("Escuro");
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onOpenChange(false);
+      }
+    }
+
+    function handlePointerDown(event: MouseEvent) {
+      const target = event.target as Node;
+      if (rootRef.current?.contains(target)) {
+        return;
+      }
+
+      onOpenChange(false);
+    }
+
+    document.addEventListener("keydown", handleEscape);
+    document.addEventListener("mousedown", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("mousedown", handlePointerDown);
+    };
+  }, [onOpenChange, open]);
+
+  return (
+    <div ref={rootRef} className={cn("relative", collapsed ? "flex justify-center" : "")}>
+      <button
+        type="button"
+        data-testid="sidebar-account-trigger"
+        title={collapsed ? user.name : undefined}
+        onClick={() => onOpenChange(!open)}
+        className={cn(
+          "group flex items-center border border-white/8 bg-white/[0.035] text-left text-[#d6ddef] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all duration-200 hover:border-white/14 hover:bg-white/[0.065] active:scale-[0.985]",
+          collapsed ? "size-11 justify-center rounded-[1rem] p-0" : "w-full gap-3 rounded-[1.15rem] px-3 py-2.5",
+        )}
+      >
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#1d2840] text-xs font-semibold text-white ring-1 ring-white/10 transition-transform duration-200 group-hover:scale-[1.04]">
+          {userInitials(user.name)}
+        </span>
+        {!collapsed ? (
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-medium text-white">{user.name}</span>
+            <span className="block truncate text-xs text-[#8996ad]">{user.email}</span>
+          </span>
+        ) : null}
+        {!collapsed ? (
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-white/8 bg-white/4 text-[#aab6cc] transition-colors group-hover:text-white">
+            <GearSix size={15} />
+          </span>
+        ) : null}
+      </button>
+
+      {open ? (
+        <div
+          data-testid="sidebar-account-popover"
+          className={cn(
+            "absolute bottom-[calc(100%+0.75rem)] z-[90] w-[284px] overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#090d14]/98 shadow-[0_28px_90px_-34px_rgba(0,0,0,0.98)] backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-150",
+            collapsed ? "left-0" : "left-0",
+          )}
+        >
+          <div className="border-b border-white/8 px-4 py-4">
+            <div className="flex items-center gap-3">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#1d2840] text-sm font-semibold text-white ring-1 ring-white/10">
+                {userInitials(user.name)}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[15px] font-semibold tracking-[-0.02em] text-white">{user.name}</p>
+                <p className="mt-0.5 truncate text-xs text-[#8e9ab2]">{user.email}</p>
+              </div>
+              <GearSix size={18} className="shrink-0 text-[#8e9ab2]" />
+            </div>
+          </div>
+
+          <div className="space-y-1 p-2">
+            <button
+              type="button"
+              onClick={() => setThemeLabel((current) => (current === "Escuro" ? "Sistema" : "Escuro"))}
+              className="flex h-12 w-full items-center justify-between rounded-[0.95rem] px-3 text-sm text-[#e9eefb] transition-colors hover:bg-white/6"
+            >
+              <span>Tema</span>
+              <span className="flex items-center gap-1 rounded-full border border-white/8 bg-white/5 p-1 text-[#9ba8bd]">
+                <span
+                  className={cn(
+                    "flex size-7 items-center justify-center rounded-full transition-colors",
+                    themeLabel === "Sistema" ? "bg-[#1f2635] text-white" : "text-[#9ba8bd]",
+                  )}
+                >
+                  <Sun size={14} />
+                </span>
+                <span
+                  className={cn(
+                    "flex size-7 items-center justify-center rounded-full transition-colors",
+                    themeLabel === "Escuro" ? "bg-[#1f2635] text-white" : "text-[#9ba8bd]",
+                  )}
+                >
+                  <Moon size={14} />
+                </span>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onBoard}
+              className="flex h-12 w-full items-center justify-between rounded-[0.95rem] px-3 text-sm text-[#e9eefb] transition-colors hover:bg-white/6 active:scale-[0.99]"
+            >
+              <span>Quadro</span>
+              <Kanban size={17} className="text-[#95a2ba]" />
+            </button>
+
+            <button
+              type="button"
+              onClick={onLogout}
+              className="flex h-12 w-full items-center justify-between rounded-[0.95rem] px-3 text-sm text-[#e9eefb] transition-colors hover:bg-white/6 active:scale-[0.99]"
+            >
+              <span>Logout</span>
+              <SignOut size={17} className="text-[#95a2ba]" />
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
 }

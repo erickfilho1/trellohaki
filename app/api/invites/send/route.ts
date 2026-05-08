@@ -1,7 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { buildInviteEmailHtml, buildInviteEmailSubject } from "@/lib/email/invite-template";
-import { resend, resendFromEmail } from "@/lib/email/resend";
+import { getResendClient, resendFromEmail } from "@/lib/email/resend";
+import { errorMessage, logError, logInfo, logWarn } from "@/lib/monitoring/logger";
 
 const ADMIN_EMAIL = "erickfilho281@gmail.com";
 
@@ -45,15 +46,38 @@ function isValidInvitePayload(payload: Partial<InviteSendPayload>): payload is I
 }
 
 export async function POST(request: Request) {
+  const start = Date.now();
+  const route = "/api/invites/send";
+  const requestId = request.headers.get("x-vercel-id");
+
+  try {
+    logInfo({
+      message: "invite_email_start",
+      route,
+      requestId,
+    });
+
   const authHeader = request.headers.get("authorization");
   const token = authHeader?.startsWith("Bearer ") ? authHeader.slice("Bearer ".length) : "";
 
   if (!token) {
+    logWarn({
+      message: "invite_email_missing_session",
+      route,
+      requestId,
+      durationMs: Date.now() - start,
+    });
     return NextResponse.json({ error: "Sessao ausente para enviar convite." }, { status: 401 });
   }
 
   const supabase = getSupabaseServerClient();
   if (!supabase) {
+    logError({
+      message: "invite_email_supabase_env_missing",
+      route,
+      requestId,
+      durationMs: Date.now() - start,
+    });
     return NextResponse.json({ error: "Supabase nao esta configurado no servidor." }, { status: 500 });
   }
 
@@ -61,15 +85,38 @@ export async function POST(request: Request) {
   const requesterEmail = data.user?.email?.trim().toLowerCase();
 
   if (userError || requesterEmail !== ADMIN_EMAIL) {
+    logWarn({
+      message: "invite_email_forbidden",
+      route,
+      requestId,
+      requesterEmail: requesterEmail ?? null,
+      supabaseError: userError?.message ?? null,
+      durationMs: Date.now() - start,
+    });
     return NextResponse.json({ error: "Somente o admin pode enviar convites." }, { status: 403 });
   }
 
   const payload = (await request.json()) as Partial<InviteSendPayload>;
   if (!isValidInvitePayload(payload)) {
+    logWarn({
+      message: "invite_email_invalid_payload",
+      route,
+      requestId,
+      to: payload.to ?? null,
+      durationMs: Date.now() - start,
+    });
     return NextResponse.json({ error: "Dados do convite incompletos." }, { status: 400 });
   }
 
+  const resend = getResendClient();
   if (!resend) {
+    logWarn({
+      message: "invite_email_resend_missing",
+      route,
+      requestId,
+      to: payload.to,
+      durationMs: Date.now() - start,
+    });
     return NextResponse.json(
       {
         error:
@@ -94,8 +141,36 @@ export async function POST(request: Request) {
   );
 
   if (emailError) {
+    logError({
+      message: "invite_email_resend_failed",
+      route,
+      requestId,
+      to: payload.to,
+      error: emailError.message,
+      durationMs: Date.now() - start,
+    });
     return NextResponse.json({ error: emailError.message }, { status: 400 });
   }
 
-  return NextResponse.json({ id: emailData?.id ?? null });
+  logInfo({
+    message: "invite_email_sent",
+    route,
+    requestId,
+    to: payload.to,
+    emailId: emailData?.id ?? null,
+    durationMs: Date.now() - start,
+  });
+
+    return NextResponse.json({ id: emailData?.id ?? null });
+  } catch (error) {
+    logError({
+      message: "invite_email_unhandled_error",
+      route,
+      requestId,
+      error: errorMessage(error),
+      durationMs: Date.now() - start,
+    });
+
+    return NextResponse.json({ error: "Nao foi possivel enviar o convite agora." }, { status: 500 });
+  }
 }

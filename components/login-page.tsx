@@ -36,7 +36,7 @@ export function LoginPage() {
   const title = useMemo(
     () =>
       mode === "login"
-        ? "Entrar no ClientBoard"
+        ? "Entrar no Painel Haki"
         : "Criar acesso autorizado",
     [mode],
   );
@@ -97,20 +97,20 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flowboard-scrollbar relative h-[100dvh] overflow-y-auto bg-[#0b0913] px-3 py-4 sm:px-5 sm:py-6">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(133,101,255,0.18),transparent_32rem)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(83,113,255,0.12),transparent_32rem)]" />
+    <div className="flowboard-scrollbar relative h-[100dvh] overflow-y-auto bg-[#100809] px-3 py-4 sm:px-5 sm:py-6">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(214,57,51,0.2),transparent_32rem)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(120,24,22,0.18),transparent_32rem)]" />
 
       <div className="relative mx-auto flex min-h-[calc(100dvh-2rem)] w-full max-w-[700px] items-center justify-center">
         <section className="flowboard-scrollbar w-full max-w-[580px] overflow-y-auto rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,#0d1018_0%,#0b0e15_100%)] px-5 py-6 shadow-[0_36px_120px_-44px_rgba(0,0,0,0.96)] sm:px-7 sm:py-7 lg:px-8 lg:py-8">
           <div className="mx-auto flex max-w-[420px] items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex size-11 items-center justify-center rounded-[1rem] border border-white/10 bg-[#151b27] text-[#9d87ff]">
+              <div className="flex size-11 items-center justify-center rounded-[1rem] border border-[#ff6a5f]/20 bg-[#221316] text-[#ff5a4f] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
                 <Lightning size={20} weight="fill" />
               </div>
               <div>
                 <p className="text-[1.55rem] font-semibold tracking-[-0.045em] text-white">
-                  ClientBoard
+                  Painel Haki
                 </p>
                 <p className="text-sm text-[#7e8ca7]">Acesso controlado por convite</p>
               </div>
@@ -141,7 +141,7 @@ export function LoginPage() {
                 className={cn(
                   "h-10 rounded-[0.85rem] px-4 text-sm transition-all",
                   mode === "login"
-                    ? "bg-[#1f2840] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                    ? "bg-[#321a1f] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
                     : "text-[#94a0b7] hover:text-white",
                 )}
               >
@@ -156,7 +156,7 @@ export function LoginPage() {
                 className={cn(
                   "h-10 rounded-[0.85rem] px-4 text-sm transition-all",
                   mode === "register"
-                    ? "bg-[#1f2840] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                    ? "bg-[#321a1f] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
                     : "text-[#94a0b7] hover:text-white",
                 )}
               >
@@ -247,7 +247,7 @@ export function LoginPage() {
               type="submit"
               data-testid="auth-submit-button"
               disabled={busy}
-              className="mt-1 h-12 w-full rounded-[1rem] border border-white/10 bg-[#6d5dfc] text-white hover:bg-[#7d6fff] disabled:opacity-60"
+              className="mt-1 h-12 w-full rounded-[1rem] border border-[#ff7268]/20 bg-[#d63a35] text-white shadow-[0_18px_46px_-28px_rgba(214,58,53,0.9)] hover:bg-[#ef5148] disabled:opacity-60"
             >
               {mode === "login" ? "Entrar no painel" : "Concluir registro"}
             </Button>
@@ -263,7 +263,7 @@ export function LoginPage() {
                     setMode("register");
                     setError("");
                   }}
-                  className="text-[#c9c2ff] underline-offset-4 hover:underline"
+                  className="text-[#ffaaa4] underline-offset-4 hover:underline"
                 >
                   Criar acesso agora
                 </button>
@@ -277,7 +277,7 @@ export function LoginPage() {
                     setMode("login");
                     setError("");
                   }}
-                  className="text-[#c9c2ff] underline-offset-4 hover:underline"
+                  className="text-[#ffaaa4] underline-offset-4 hover:underline"
                 >
                   Voltar para login
                 </button>

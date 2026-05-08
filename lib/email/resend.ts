@@ -2,7 +2,19 @@ import { Resend } from "resend";
 
 export const resendApiKey = process.env.RESEND_API_KEY;
 
-export const resend = resendApiKey ? new Resend(resendApiKey) : null;
+let resendClient: Resend | null = null;
+
+export function getResendClient() {
+  if (!resendApiKey) {
+    return null;
+  }
+
+  if (!resendClient) {
+    resendClient = new Resend(resendApiKey);
+  }
+
+  return resendClient;
+}
 
 export const resendFromEmail =
   process.env.RESEND_FROM_EMAIL || "ClientBoard <onboarding@resend.dev>";

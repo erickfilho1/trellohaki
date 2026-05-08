@@ -5,7 +5,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowUpRight,
   Copy,
-  EnvelopeSimple,
   LinkSimple,
   PaperPlaneTilt,
   Plus,
@@ -56,6 +55,28 @@ function buildInviteLink(boardId: string, email: string) {
 
   const origin = typeof window === "undefined" ? "https://clientboard.local" : window.location.origin;
   return `${origin}/login?${params.toString()}`;
+}
+
+function getInviteFailureMessage(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+
+  if (/Somente administradores/i.test(message)) {
+    return "Sua conta ainda nao esta com permissao de admin no Supabase. Entre novamente ou ajuste o perfil admin.";
+  }
+
+  if (/Email invalido/i.test(message)) {
+    return "Confira o email do convite. O Supabase recusou porque ele parece invalido.";
+  }
+
+  if (/Tipo de acesso invalido/i.test(message)) {
+    return "Escolha se o convite e para cliente ou colaborador antes de preparar.";
+  }
+
+  if (/Supabase nao esta configurado/i.test(message)) {
+    return "Supabase nao esta configurado neste ambiente. O convite nao pode ser gravado no backend agora.";
+  }
+
+  return message || "Nao foi possivel preparar o convite.";
 }
 
 function SectionShell({
@@ -369,7 +390,7 @@ export function AdminPage() {
     } catch (error) {
       setInviteStatus({
         type: "error",
-        message: error instanceof Error ? error.message : "Nao foi possivel preparar o convite.",
+        message: getInviteFailureMessage(error),
       });
     } finally {
       setPreparingInvite(false);
@@ -792,13 +813,6 @@ export function AdminPage() {
                     </div>
 
                     <div className="mt-4 flex flex-wrap gap-3">
-                      <Link
-                        href={invitePreview.emailHref}
-                        className="inline-flex h-11 items-center justify-center gap-2 rounded-[1rem] border border-white/10 bg-white/4 px-4 text-sm text-white transition-colors hover:bg-white/8"
-                      >
-                        <EnvelopeSimple size={16} />
-                        Mandar por email
-                      </Link>
                       <Link
                         href={invitePreview.whatsappHref}
                         target="_blank"
