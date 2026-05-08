@@ -14,6 +14,7 @@ import {
   Paperclip,
   Plus,
   Trash,
+  Timer,
   X,
 } from "@phosphor-icons/react";
 import { DEFAULT_BOARD_MEMBERS } from "@/lib/flowboard-constants";
@@ -33,6 +34,8 @@ import { FloatingPanel } from "@/components/floating-panel";
 import { LabelBadge } from "@/components/label-badge";
 import { LabelsPopover } from "@/components/labels-popover";
 import { MoveCardPopover } from "@/components/move-card-popover";
+import { useAuth } from "@/components/providers/auth-provider";
+import { usePomodoro } from "@/components/providers/pomodoro-provider";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -71,6 +74,8 @@ export function CardModal({
   onOpenChange: (open: boolean) => void;
   onUpdateCard: (updates: Partial<CardRecord>, activityText?: string) => void;
 }) {
+  const { user } = useAuth();
+  const { canUsePomodoro, openForCard } = usePomodoro();
   const currentUser = board.members[0] ?? DEFAULT_BOARD_MEMBERS[0];
   const { deleteCard, duplicateCard, moveCard, removeBoardLabel, saveCardTemplate, upsertBoardLabel } =
     useFlowBoardData(board.id);
@@ -260,6 +265,7 @@ export function CardModal({
     title.length > 90
       ? "min-h-[3rem] pt-0.5"
       : "min-h-[2.35rem] pt-[0.18rem]";
+  const canOpenPomodoro = canUsePomodoro && user.panel !== "cliente";
 
   function persistTitle() {
     const trimmed = title.trim();
@@ -830,6 +836,25 @@ export function CardModal({
                     <Paperclip size={16} />
                     Anexo
                   </Button>
+                  {canOpenPomodoro ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() =>
+                        openForCard({
+                          boardId: board.id,
+                          listId: list.id,
+                          cardId: card.id,
+                          cardTitle: card.title,
+                          labels: card.labels,
+                        })
+                      }
+                      className="h-11 rounded-[1rem] border-[#ff754d]/16 bg-[#24110d] text-[#ffd8cf] hover:bg-[#311711]"
+                    >
+                      <Timer size={16} />
+                      Pomodoro
+                    </Button>
+                  ) : null}
                 </div>
 
                 <section className="mt-8">
@@ -954,6 +979,7 @@ export function CardModal({
                     comments={card.comments}
                     activity={card.activity}
                     currentUser={currentUser}
+                    mentionableMembers={board.members.filter((member) => member.id !== currentUser.id)}
                     onAddComment={addComment}
                   />
                 </div>

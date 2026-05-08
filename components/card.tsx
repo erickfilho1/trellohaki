@@ -1,28 +1,25 @@
 "use client";
 
 import {
-  cloneElement,
-  isValidElement,
   useState,
-  type FocusEvent,
-  type MouseEvent as ReactMouseEvent,
-  type ReactElement,
 } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { createPortal } from "react-dom";
 import {
   CalendarBlank,
   ChatCircleText,
   Check,
   CheckSquare,
   Circle,
+  ClockCountdown,
   List,
   Paperclip,
   PencilSimpleLine,
 } from "@phosphor-icons/react";
 import { CardModal } from "@/components/card-modal";
+import { usePomodoro } from "@/components/providers/pomodoro-provider";
 import { LabelBadge } from "@/components/label-badge";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { useFlowBoardData } from "@/hooks/use-flowboard-store";
 import {
   formatDateTime,
@@ -35,13 +32,6 @@ import {
 } from "@/lib/flowboard-helpers";
 import type { CardRecord, LabelTone } from "@/lib/flowboard-types";
 import { cn } from "@/lib/utils";
-
-type TooltipTriggerProps = {
-  onMouseEnter?: (event: ReactMouseEvent<HTMLElement>) => void;
-  onMouseLeave?: (event: ReactMouseEvent<HTMLElement>) => void;
-  onFocus?: (event: FocusEvent<HTMLElement>) => void;
-  onBlur?: (event: FocusEvent<HTMLElement>) => void;
-};
 
 const LABEL_TONE_LABELS: Record<LabelTone, string> = {
   "green-dark": "verde escuro",
@@ -88,75 +78,7 @@ function getDueTooltipText(card: CardRecord) {
   return `Data de entrega: ${formatDateTime(card.dates.dueDate)}.`;
 }
 
-function MiniCardTooltip({
-  children,
-  content,
-  align = "center",
-}: {
-  children: ReactElement<TooltipTriggerProps>;
-  content: string;
-  align?: "left" | "center";
-}) {
-  const childProps = children.props;
-  const [open, setOpen] = useState(false);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
-
-  function updatePosition(target: HTMLElement) {
-    const rect = target.getBoundingClientRect();
-    setPosition({
-      top: rect.top - 10,
-      left: align === "left" ? rect.left : rect.left + rect.width / 2,
-    });
-  }
-
-  if (!isValidElement(children)) {
-    return children;
-  }
-
-  const trigger = cloneElement(children, {
-    onMouseEnter: (event: ReactMouseEvent<HTMLElement>) => {
-      updatePosition(event.currentTarget);
-      setOpen(true);
-      childProps.onMouseEnter?.(event);
-    },
-    onMouseLeave: (event: ReactMouseEvent<HTMLElement>) => {
-      setOpen(false);
-      childProps.onMouseLeave?.(event);
-    },
-    onFocus: (event: FocusEvent<HTMLElement>) => {
-      updatePosition(event.currentTarget);
-      setOpen(true);
-      childProps.onFocus?.(event);
-    },
-    onBlur: (event: FocusEvent<HTMLElement>) => {
-      setOpen(false);
-      childProps.onBlur?.(event);
-    },
-  });
-
-  return (
-    <>
-      {trigger}
-      {open && typeof document !== "undefined"
-        ? createPortal(
-            <div
-              className={cn(
-                "pointer-events-none fixed z-[180] min-w-max max-w-[15rem] rounded-[0.6rem] border border-black/10 bg-[#f2f0ec] px-3 py-1.5 text-[0.78rem] font-medium leading-5 text-[#24262b] shadow-[0_10px_30px_-18px_rgba(0,0,0,0.42)]",
-                align === "left" ? "translate-y-[-100%]" : "-translate-x-1/2 translate-y-[-100%]",
-              )}
-              style={{
-                top: position.top,
-                left: position.left,
-              }}
-            >
-              {content}
-            </div>,
-            document.body,
-          )
-        : null}
-    </>
-  );
-}
+const MiniCardTooltip = InfoTooltip;
 
 export function TaskCard({
   boardId,
@@ -170,8 +92,10 @@ export function TaskCard({
   dragging?: boolean;
 }) {
   const { board, updateCard } = useFlowBoardData(boardId);
+  const { isLinkedToCard } = usePomodoro();
   const [open, setOpen] = useState(false);
   const [labelsExpanded, setLabelsExpanded] = useState(false);
+  const pomodoroActive = isLinkedToCard(card.id);
 
   const list = board?.lists.find((item) => item.id === listId);
 
@@ -261,6 +185,14 @@ export function TaskCard({
       >
         {hasCover && coverSize === "header" ? (
           <div className="h-12 border-b border-black/10" style={coverStripStyle} />
+        ) : null}
+
+        {!dragging && pomodoroActive ? (
+          <MiniCardTooltip content="Pomodoro ativo neste cartao">
+            <span className="pointer-events-none absolute right-11 top-2 z-[2] inline-flex size-8 items-center justify-center rounded-[0.85rem] border border-[#ff655b]/28 bg-[#341613] text-[#ff655b] opacity-0 shadow-[0_10px_20px_-16px_rgba(255,101,91,0.72)] transition-opacity duration-180 group-hover:opacity-100">
+              <ClockCountdown size={14} weight="fill" />
+            </span>
+          </MiniCardTooltip>
         ) : null}
 
         {!dragging ? (

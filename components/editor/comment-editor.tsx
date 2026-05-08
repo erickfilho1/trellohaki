@@ -1,20 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { Editor } from "@tiptap/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
-import {
-  CaretDown,
-  DotsThree,
-  LinkSimple,
-  ListBullets,
-  Paperclip,
-  Plus,
-  Question,
-  TextT,
-} from "@phosphor-icons/react";
+import { CaretDown, DotsThree, LinkSimple, ListBullets, Paperclip, Plus, Question, TextT } from "@phosphor-icons/react";
+import type { MemberRecord } from "@/lib/flowboard-types";
+import { cleanProfileName } from "@/lib/account-settings";
 import { cn } from "@/lib/utils";
 
 const placeholderText = "Escrever um comentário...";
@@ -23,15 +17,63 @@ function normalizeHtml(html: string) {
   return html.replace(/\s+/g, " ").trim();
 }
 
+function getMentionMatch(editor: Editor | null) {
+  if (!editor) {
+    return null;
+  }
+
+  const selectionFrom = editor.state.selection.from;
+  const lookbehindSize = 60;
+  const from = Math.max(0, selectionFrom - lookbehindSize);
+  const textBefore = editor.state.doc.textBetween(from, selectionFrom, "\n", "\0");
+  const match = textBefore.match(/(?:^|\s)@([^\s@]{0,32})$/);
+
+  if (!match) {
+    return null;
+  }
+
+  const query = match[1] ?? "";
+  const mentionLength = query.length + 1;
+
+  return {
+    query,
+    range: {
+      from: selectionFrom - mentionLength,
+      to: selectionFrom,
+    },
+  };
+}
+
 export function CommentEditor({
   value,
   onChange,
+  mentionableMembers = [],
 }: {
   value: string;
   onChange: (value: string) => void;
+  mentionableMembers?: MemberRecord[];
 }) {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [typeMenuOpen, setTypeMenuOpen] = useState(false);
+  const [mentionOpen, setMentionOpen] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState("");
+  const [mentionRange, setMentionRange] = useState<{ from: number; to: number } | null>(null);
+  const [activeMentionIndex, setActiveMentionIndex] = useState(0);
+
+  const filteredMembers = mentionableMembers.filter((member) => {
+    const query = mentionQuery.trim().toLowerCase();
+    if (!query) {
+      return true;
+    }
+
+    const searchable = [
+      cleanProfileName(member.name).toLowerCase(),
+      member.handle.toLowerCase(),
+      member.initials.toLowerCase(),
+    ].join(" ");
+
+    return searchable.includes(query);
+  });
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -64,6 +106,32 @@ export function CommentEditor({
     },
     onUpdate: ({ editor: instance }) => {
       onChange(instance.getHTML());
+      const mentionMatch = getMentionMatch(instance);
+      if (!mentionMatch) {
+        setMentionOpen(false);
+        setMentionQuery("");
+        setMentionRange(null);
+        setActiveMentionIndex(0);
+        return;
+      }
+
+      setMentionOpen(true);
+      setMentionQuery(mentionMatch.query);
+      setMentionRange(mentionMatch.range);
+      setActiveMentionIndex(0);
+    },
+    onSelectionUpdate: ({ editor: instance }) => {
+      const mentionMatch = getMentionMatch(instance);
+      if (!mentionMatch) {
+        setMentionOpen(false);
+        setMentionQuery("");
+        setMentionRange(null);
+        return;
+      }
+
+      setMentionOpen(true);
+      setMentionQuery(mentionMatch.query);
+      setMentionRange(mentionMatch.range);
     },
   });
 
@@ -116,10 +184,71 @@ export function CommentEditor({
     editor.chain().focus().insertContent(`<p>[Anexo: ${label.trim()}]</p>`).run();
   }
 
+  function insertMention(member: MemberRecord) {
+    if (!editor) {
+      return;
+    }
+
+    const mentionName = cleanProfileName(member.name);
+    const mentionHref = `mention://${member.id}`;
+    const mentionContent = {
+      type: "text",
+      text: `@${mentionName}`,
+      marks: [{ type: "link", attrs: { href: mentionHref } }],
+    };
+
+    if (mentionRange) {
+      editor
+        .chain()
+        .focus()
+        .insertContentAt(mentionRange, [mentionContent, { type: "text", text: " " }])
+        .run();
+    } else {
+      editor.chain().focus().insertContent([mentionContent, { type: "text", text: " " }]).run();
+    }
+
+    setMentionOpen(false);
+    setMentionQuery("");
+    setMentionRange(null);
+    setActiveMentionIndex(0);
+  }
+
+  function handleEditorKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (!mentionOpen || filteredMembers.length === 0) {
+      return;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActiveMentionIndex((current) => (current + 1) % filteredMembers.length);
+      return;
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActiveMentionIndex((current) => (current - 1 + filteredMembers.length) % filteredMembers.length);
+      return;
+    }
+
+    if (event.key === "Enter" || event.key === "Tab") {
+      event.preventDefault();
+      insertMention(filteredMembers[activeMentionIndex] ?? filteredMembers[0]);
+      return;
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setMentionOpen(false);
+      setMentionQuery("");
+      setMentionRange(null);
+      setActiveMentionIndex(0);
+    }
+  }
+
   return (
     <div
       ref={wrapperRef}
-      className="relative overflow-hidden rounded-[1.1rem] border border-[#6f95f4]/55 bg-[#23262d] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+      className="relative overflow-visible rounded-[1.1rem] border border-[#6f95f4]/55 bg-[#23262d] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
     >
       <div className="flex flex-wrap items-center gap-1 border-b border-white/8 px-2.5 py-2">
         <div className="relative">
@@ -191,7 +320,69 @@ export function CommentEditor({
         </div>
       </div>
 
-      <EditorContent editor={editor} />
+      <div className="relative" onKeyDown={handleEditorKeyDown}>
+        <EditorContent editor={editor} />
+
+        {mentionOpen && filteredMembers.length > 0 ? (
+          <div className="absolute left-3 top-[calc(100%-0.8rem)] z-30 w-[min(21rem,calc(100%-1.5rem))] overflow-hidden rounded-[1rem] border border-white/10 bg-[#2a2d34] shadow-[0_26px_70px_-34px_rgba(0,0,0,0.96)]">
+            <div className="border-b border-white/8 px-3 py-2">
+              <p className="text-[11px] font-semibold tracking-[0.18em] text-[#8f98ab] uppercase">
+                Mencionar no quadro
+              </p>
+            </div>
+
+            <div className="max-h-64 overflow-y-auto py-1.5">
+              {filteredMembers.map((member, index) => (
+                <button
+                  key={member.id}
+                  type="button"
+                  onMouseDown={(event) => {
+                    event.preventDefault();
+                    insertMention(member);
+                  }}
+                  className={cn(
+                    "flex w-full items-center gap-3 px-3 py-2.5 text-left transition",
+                    index === activeMentionIndex ? "bg-[#343944]" : "hover:bg-white/[0.045]",
+                  )}
+                >
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full border border-white/8 bg-[#1f232b] text-sm font-semibold text-white">
+                    {member.initials}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium text-[#eef3ff]">
+                      {cleanProfileName(member.name)}
+                    </span>
+                    <span className="block truncate text-xs text-[#8f98ab]">{member.handle}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      {mentionableMembers.length > 0 ? (
+        <div className="border-t border-white/8 px-3 py-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-semibold tracking-[0.18em] text-[#8f98ab] uppercase">
+              Mencionar
+            </span>
+            {mentionableMembers.map((member) => (
+              <button
+                key={member.id}
+                type="button"
+                onClick={() => insertMention(member)}
+                className="inline-flex h-8 items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 text-xs font-medium text-[#dfe6f7] transition hover:border-white/16 hover:bg-white/[0.08]"
+              >
+                <span className="grid size-5 place-items-center rounded-full bg-[#1d2330] text-[10px] font-semibold text-white">
+                  {member.initials}
+                </span>
+                <span>@{cleanProfileName(member.name)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

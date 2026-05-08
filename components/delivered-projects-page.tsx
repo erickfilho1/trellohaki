@@ -192,7 +192,7 @@ export function DeliveredProjectsPage() {
 
       <div className="flowboard-scrollbar min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5 lg:px-6">
         <div className="mx-auto flex w-full max-w-[1720px] flex-col gap-5 pb-12">
-          <section className="rounded-[1.6rem] border border-white/8 bg-[linear-gradient(180deg,#131a26,#101520)] p-5">
+          <section className="rounded-[1.6rem] border border-white/8 bg-[linear-gradient(180deg,#151515,#101010)] p-5 shadow-[0_28px_80px_-48px_rgba(0,0,0,0.9)]">
             <div className="mb-4 flex items-center justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7f8bad]">
@@ -219,7 +219,7 @@ export function DeliveredProjectsPage() {
                         className={cn(
                           "relative min-w-[15rem] rounded-[1.2rem] border px-4 py-4 text-left transition-all duration-200",
                           active
-                            ? "border-white/16 bg-[#182131] text-white shadow-[0_18px_48px_-28px_rgba(0,0,0,0.85)]"
+                            ? "border-[#ff6b57]/34 bg-[#211211] text-white shadow-[0_18px_48px_-28px_rgba(0,0,0,0.85)]"
                             : "border-white/8 bg-white/[0.03] text-[#d5ddef] hover:bg-white/[0.05]",
                         )}
                       >
@@ -266,7 +266,7 @@ export function DeliveredProjectsPage() {
                         >
                           <div
                             ref={folderMenuPanelRef}
-                            className="w-[290px] overflow-hidden rounded-[1.2rem] border border-white/10 bg-[#23262f] p-1.5 shadow-[0_32px_90px_-36px_rgba(0,0,0,0.98)]"
+                            className="w-[290px] overflow-hidden rounded-[1.2rem] border border-white/10 bg-[#151515] p-1.5 shadow-[0_32px_90px_-36px_rgba(0,0,0,0.98)]"
                           >
                             {isEditing ? (
                               <div className="space-y-3 px-2 py-2">
@@ -297,7 +297,7 @@ export function DeliveredProjectsPage() {
                                 <div className="flex gap-2">
                                   <Button
                                     onClick={() => submitFolderRename(folder.id)}
-                                    className="h-10 flex-1 rounded-[0.95rem] border border-white/10 bg-[#4f79ff] text-white hover:bg-[#6388ff]"
+                                    className="h-10 flex-1 rounded-[0.95rem] border border-white/10 bg-[#dc3933] text-white hover:bg-[#ef5148]"
                                   >
                                     <Check size={16} />
                                     Salvar
@@ -364,7 +364,7 @@ export function DeliveredProjectsPage() {
                   />
                   <Button
                     onClick={handleCreateFolder}
-                    className="h-11 rounded-[1rem] border border-white/10 bg-[#4f79ff] px-4 text-white hover:bg-[#6388ff]"
+                    className="h-11 rounded-[1rem] border border-white/10 bg-[#dc3933] px-4 text-white hover:bg-[#ef5148]"
                   >
                     <FolderSimplePlus size={16} />
                   </Button>
@@ -373,7 +373,7 @@ export function DeliveredProjectsPage() {
             </div>
           </section>
 
-          <section className="rounded-[1.6rem] border border-white/8 bg-[linear-gradient(180deg,#131a26,#101520)] p-5">
+          <section className="rounded-[1.6rem] border border-white/8 bg-[linear-gradient(180deg,#151515,#101010)] p-5 shadow-[0_28px_80px_-48px_rgba(0,0,0,0.9)]">
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7f8bad]">
@@ -398,7 +398,7 @@ export function DeliveredProjectsPage() {
                 {folderCards.map((card) => (
                   <article
                     key={card.id}
-                    className="rounded-[1.35rem] border border-white/8 bg-[#111723] p-5"
+                    className="rounded-[1.35rem] border border-white/8 bg-[#111111] p-5"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div>

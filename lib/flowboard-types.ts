@@ -55,6 +55,22 @@ export type ActivityRecord = {
   text: string;
 };
 
+export type NotificationKind = "mention" | "comment";
+
+export type NotificationRecord = {
+  id: string;
+  kind: NotificationKind;
+  boardId: string;
+  boardName: string;
+  cardId: string;
+  cardTitle: string;
+  actor: MemberRecord;
+  recipient: MemberRecord;
+  excerpt: string;
+  createdAt: string;
+  read: boolean;
+};
+
 export type ChecklistItemRecord = {
   id: string;
   text: string;
@@ -210,6 +226,7 @@ export type FlowBoardContextValue = {
   boards: BoardRecord[];
   hydrated: boolean;
   filters: Record<string, BoardFiltersRecord>;
+  notifications: NotificationRecord[];
   adminUsers: AdminUser[];
   workspaceAccess: WorkspaceAccess[];
   adminActivity: AdminActivity[];
@@ -278,6 +295,8 @@ export type FlowBoardContextValue = {
   revokeWorkspaceAccess: (accessId: string) => void;
   renameDeliveredFolder: (boardId: string, folderId: string, name: string) => void;
   deleteDeliveredFolder: (boardId: string, folderId: string) => void;
+  markNotificationRead: (notificationId: string) => void;
+  markNotificationsRead: (notificationIds: string[]) => void;
   getBoardStats: (boardId: string) => {
     totalCards: number;
     filteredCards: number;

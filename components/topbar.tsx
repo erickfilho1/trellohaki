@@ -1,15 +1,24 @@
 "use client";
 
-import { useEffect, useRef, useState, type RefObject } from "react";
-import { FunnelSimple, ImageSquare, Lightning, ShareNetwork } from "@phosphor-icons/react";
-import { AutomationHoverPopover } from "@/components/automation-hover-popover";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { FunnelSimple, ImageSquare, Plus } from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
+import { AddDemandPopover, type AddDemandPayload } from "@/components/add-demand-popover";
 import { BoardBackgroundPopover } from "@/components/board-background-popover";
 import { FloatingPanel } from "@/components/floating-panel";
+import { MemberProfilePopover, type ProfilePopoverMember } from "@/components/member-profile-popover";
 import { useAuth } from "@/components/providers/auth-provider";
-import { UserMenuPopover } from "@/components/user-menu-popover";
-import { Avatar, AvatarFallback, AvatarGroup } from "@/components/ui/avatar";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarImage,
+} from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import type { BoardFiltersRecord, BoardRecord } from "@/lib/flowboard-types";
+import { cleanProfileName, resolveUserProfileIdentity } from "@/lib/account-settings";
+import type { BoardFiltersRecord, BoardRecord, MemberRecord } from "@/lib/flowboard-types";
 import { cn } from "@/lib/utils";
 
 function initialsFromName(name: string) {
@@ -20,12 +29,24 @@ function initialsFromName(name: string) {
     .join("");
 }
 
+function isCurrentBoardMember(member: MemberRecord, userName: string) {
+  const cleanName = cleanProfileName(member.name).toLowerCase();
+  const referenceName = cleanProfileName(userName).toLowerCase();
+
+  return (
+    member.name.toLowerCase().includes("(voce)") ||
+    member.id === "member-erick" ||
+    member.handle === "@erickfilho281" ||
+    cleanName === referenceName
+  );
+}
+
 export function Topbar({
   title,
   subtitle,
   eyebrow,
   board,
-  onShare,
+  onAddDemand,
   onFilter,
   onUpdateBoardAccent,
   filterButtonRef,
@@ -38,7 +59,7 @@ export function Topbar({
   subtitle?: string;
   eyebrow?: string;
   board?: BoardRecord;
-  onShare?: () => void;
+  onAddDemand?: (payload: AddDemandPayload) => void;
   onFilter?: () => void;
   onUpdateBoardAccent?: (accent: string) => void;
   filterButtonRef?: RefObject<HTMLButtonElement | null>;
@@ -47,13 +68,14 @@ export function Topbar({
   totalCount?: number;
   compact?: boolean;
 }) {
+  const router = useRouter();
   const { user, logout } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [automationOpen, setAutomationOpen] = useState(false);
   const [backgroundOpen, setBackgroundOpen] = useState(false);
+  const [demandOpen, setDemandOpen] = useState(false);
+  const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
   const backgroundButtonRef = useRef<HTMLButtonElement | null>(null);
-  const automationButtonRef = useRef<HTMLButtonElement | null>(null);
-  const automationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const demandButtonRef = useRef<HTMLButtonElement | null>(null);
+  const memberAnchorRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const activeFilterCount = filters
     ? [
         Boolean(filters.keyword.trim()),
@@ -73,14 +95,48 @@ export function Topbar({
         Boolean(filters.activityRange),
       ].filter(Boolean).length
     : 0;
+  const currentIdentity = useMemo(() => resolveUserProfileIdentity(user), [user]);
 
-  useEffect(() => {
-    return () => {
-      if (automationTimerRef.current) {
-        clearTimeout(automationTimerRef.current);
-      }
-    };
-  }, []);
+  const topbarMembers = useMemo<ProfilePopoverMember[]>(() => {
+    if (!board) {
+      return [];
+    }
+
+    const deduped = new Map<string, ProfilePopoverMember>();
+
+    board.members.forEach((member) => {
+      const current = isCurrentBoardMember(member, user.name);
+      deduped.set(member.id, {
+        id: member.id,
+        name: current ? currentIdentity.name : cleanProfileName(member.name),
+        secondary: current ? user.email : member.handle,
+        initials: current ? currentIdentity.initials : member.initials || initialsFromName(member.name),
+        avatarUrl: current ? currentIdentity.avatarUrl : member.avatar,
+        role: member.role,
+        isCurrentUser: current,
+      });
+    });
+
+    if (!Array.from(deduped.values()).some((member) => member.isCurrentUser)) {
+      deduped.set("current-user", {
+        id: "current-user",
+        name: currentIdentity.name,
+        secondary: user.email,
+        initials: currentIdentity.initials,
+        avatarUrl: currentIdentity.avatarUrl,
+        role: "Administrador",
+        isCurrentUser: true,
+      });
+    }
+
+    return Array.from(deduped.values());
+  }, [board, currentIdentity, user.email, user.name]);
+
+  const activeMember = topbarMembers.find((member) => member.id === activeMemberId) ?? null;
+  const activeMemberAnchorRef = useMemo(
+    () => ({ current: activeMemberId ? memberAnchorRefs.current[activeMemberId] ?? null : null }),
+    [activeMemberId],
+  );
 
   useEffect(() => {
     if (!backgroundOpen) {
@@ -94,7 +150,8 @@ export function Topbar({
       }
 
       const insideButton = backgroundButtonRef.current?.contains(target);
-      const insidePanel = target instanceof HTMLElement ? target.closest("[data-board-background-popover='true']") : null;
+      const insidePanel =
+        target instanceof HTMLElement ? target.closest("[data-board-background-popover='true']") : null;
 
       if (!insideButton && !insidePanel) {
         setBackgroundOpen(false);
@@ -116,28 +173,83 @@ export function Topbar({
     };
   }, [backgroundOpen]);
 
-  function openAutomation() {
-    if (automationTimerRef.current) {
-      clearTimeout(automationTimerRef.current);
-      automationTimerRef.current = null;
-    }
-    setAutomationOpen(true);
-  }
-
-  function closeAutomationWithDelay() {
-    if (automationTimerRef.current) {
-      clearTimeout(automationTimerRef.current);
+  useEffect(() => {
+    if (!demandOpen) {
+      return;
     }
 
-    automationTimerRef.current = setTimeout(() => {
-      setAutomationOpen(false);
-      automationTimerRef.current = null;
-    }, 140);
-  }
+    function handlePointerDown(event: MouseEvent) {
+      const target = event.target as Node | null;
+      if (!target) {
+        return;
+      }
+
+      const insideButton = demandButtonRef.current?.contains(target);
+      const insidePanel =
+        target instanceof HTMLElement ? target.closest("[data-add-demand-popover='true']") : null;
+
+      if (!insideButton && !insidePanel) {
+        setDemandOpen(false);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setDemandOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [demandOpen]);
+
+  useEffect(() => {
+    if (!activeMemberId) {
+      return;
+    }
+
+    const currentMemberId = activeMemberId;
+
+    function handlePointerDown(event: MouseEvent) {
+      const target = event.target as Node | null;
+      if (!target) {
+        return;
+      }
+
+      const anchor = memberAnchorRefs.current[currentMemberId];
+      const insideButton = anchor?.contains(target);
+      const insidePanel =
+        target instanceof HTMLElement ? target.closest("[data-member-profile-popover='true']") : null;
+
+      if (!insideButton && !insidePanel) {
+        setActiveMemberId(null);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setActiveMemberId(null);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [activeMemberId]);
 
   return (
     <header
-      className={`relative z-[20] border-b border-white/7 bg-[#101621]/78 backdrop-blur ${
+      data-app-topbar="true"
+      className={`relative z-[20] border-b border-white/7 bg-[#0b0b0b]/88 backdrop-blur ${
         compact ? "px-4 py-2.5 sm:px-6 lg:px-8" : "px-4 py-4 sm:px-6 lg:px-8"
       }`}
     >
@@ -155,14 +267,12 @@ export function Topbar({
           >
             {title}
           </h1>
-          {subtitle ? (
-            <p className="mt-1 truncate text-sm text-[#94a0b7]">{subtitle}</p>
-          ) : null}
+          {subtitle ? <p className="mt-1 truncate text-sm text-[#94a0b7]">{subtitle}</p> : null}
           {typeof filteredCount === "number" && typeof totalCount === "number" ? (
             <p className="mt-2 text-xs text-[#7f8bad]">
               {filteredCount === totalCount
-                ? `${totalCount} cards visiveis`
-                : `${filteredCount} de ${totalCount} cards visiveis`}
+                ? `${totalCount} cards visíveis`
+                : `${filteredCount} de ${totalCount} cards visíveis`}
             </p>
           ) : null}
         </div>
@@ -170,19 +280,20 @@ export function Topbar({
         <div className="flex items-center gap-3">
           {board && onUpdateBoardAccent ? (
             <>
-              <button
-                ref={backgroundButtonRef}
-                type="button"
-                onClick={() => setBackgroundOpen((current) => !current)}
-                title="Plano de fundo do quadro"
-                className={cn(
-                  "inline-flex items-center justify-center rounded-[1rem] border border-white/10 bg-white/[0.04] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 hover:-translate-y-[1px] hover:border-white/16 hover:bg-white/[0.08]",
-                  compact ? "size-10" : "size-11",
-                  backgroundOpen && "border-white/16 bg-white/[0.08]",
-                )}
-              >
-                <ImageSquare size={17} weight="duotone" />
-              </button>
+              <InfoTooltip content="Plano de fundo do quadro" side="bottom">
+                <button
+                  ref={backgroundButtonRef}
+                  type="button"
+                  onClick={() => setBackgroundOpen((current) => !current)}
+                  className={cn(
+                    "inline-flex items-center justify-center rounded-[1rem] border border-white/10 bg-white/[0.04] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 hover:-translate-y-[1px] hover:border-white/16 hover:bg-white/[0.08]",
+                    compact ? "size-10" : "size-11",
+                    backgroundOpen && "border-white/16 bg-white/[0.08]",
+                  )}
+                >
+                  <ImageSquare size={17} weight="duotone" />
+                </button>
+              </InfoTooltip>
 
               <FloatingPanel
                 anchorRef={backgroundButtonRef}
@@ -221,7 +332,7 @@ export function Topbar({
               <FunnelSimple size={16} />
               Filtro
               {activeFilterCount > 0 ? (
-                <span className="ml-1 rounded-full bg-[#4f79ff] px-2 py-0.5 text-[11px] text-white">
+                <span className="ml-1 rounded-full bg-[#dc3933] px-2 py-0.5 text-[11px] text-white">
                   {activeFilterCount}
                 </span>
               ) : null}
@@ -229,80 +340,105 @@ export function Topbar({
           ) : null}
 
           {board ? (
-            <>
-              <button
-                ref={automationButtonRef}
-                type="button"
-                onMouseEnter={openAutomation}
-                onMouseLeave={closeAutomationWithDelay}
-                title="Automações"
-                className={cn(
-                  "inline-flex items-center justify-center rounded-[1rem] border border-white/10 bg-white/[0.04] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 hover:-translate-y-[1px] hover:border-white/16 hover:bg-white/[0.08]",
-                  compact ? "size-10" : "size-11",
-                )}
-              >
-                <Lightning size={17} weight="duotone" />
-              </button>
-
-              <AutomationHoverPopover
-                anchorRef={automationButtonRef}
-                open={automationOpen}
-                onMouseEnter={openAutomation}
-                onMouseLeave={closeAutomationWithDelay}
-              />
-            </>
-          ) : null}
-
-          {board ? (
             <div className="relative">
               <AvatarGroup className="items-center">
-                <button
-                  type="button"
-                  data-testid="open-user-menu"
-                  onClick={() => setMenuOpen((current) => !current)}
-                  title={user.name}
-                  className="rounded-full transition-transform duration-150 hover:-translate-y-0.5"
-                >
-                  <Avatar className="bg-[#172132] ring-2 ring-[#101621]" size="default">
-                    <AvatarFallback className="bg-[#2a3550] text-[#eaf0ff]">
-                      {initialsFromName(user.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                </button>
-                {board.members
-                  .filter((member) => !member.name.includes("(voce)"))
-                  .slice(0, 1)
-                  .map((member) => (
-                    <div key={member.id} title={member.name}>
-                      <Avatar className="bg-[#0f2432] ring-2 ring-[#101621]" size="default">
-                        <AvatarFallback className="bg-[#13a9c9] text-[#073245]">
+                {topbarMembers.slice(0, 4).map((member) => (
+                  <InfoTooltip key={member.id} content={member.name} side="bottom">
+                    <button
+                      ref={(node) => {
+                        memberAnchorRefs.current[member.id] = node;
+                      }}
+                      type="button"
+                      data-testid={
+                        member.isCurrentUser
+                          ? "open-user-menu"
+                          : `open-member-menu-${member.id}`
+                      }
+                      onClick={() =>
+                        setActiveMemberId((current) => (current === member.id ? null : member.id))
+                      }
+                      className="rounded-full transition-transform duration-150 hover:-translate-y-0.5"
+                    >
+                      <Avatar className="bg-[#121212] ring-2 ring-[#0b0b0b]" size="default">
+                        {member.avatarUrl ? (
+                          <AvatarImage src={member.avatarUrl} alt={member.name} />
+                        ) : null}
+                        <AvatarFallback className="bg-[radial-gradient(circle_at_32%_20%,#313136,#17181c_50%,#0d0d0f)] text-[12px] font-semibold text-[#f5f7fb]">
                           {member.initials}
                         </AvatarFallback>
                       </Avatar>
-                    </div>
-                  ))}
+                    </button>
+                  </InfoTooltip>
+                ))}
+                {topbarMembers.length > 4 ? (
+                  <AvatarGroupCount className="bg-[#171717] text-[#f4f4f5] ring-[#0b0b0b]">
+                    +{topbarMembers.length - 4}
+                  </AvatarGroupCount>
+                ) : null}
               </AvatarGroup>
 
-              <UserMenuPopover
-                user={user}
-                open={menuOpen}
-                onClose={() => setMenuOpen(false)}
-                onLogout={logout}
+              <MemberProfilePopover
+                anchorRef={activeMemberAnchorRef}
+                open={Boolean(activeMember)}
+                member={activeMember}
+                board={board}
+                onClose={() => setActiveMemberId(null)}
+                onBoard={() => {
+                  setActiveMemberId(null);
+                  router.push("/");
+                }}
+                onSettings={() => {
+                  setActiveMemberId(null);
+                  router.push("/configuracoes");
+                }}
+                onLogout={() => {
+                  setActiveMemberId(null);
+                  void logout().then(() => {
+                    router.replace("/login");
+                  });
+                }}
               />
             </div>
           ) : null}
 
           {board ? (
-            <Button
-              data-testid="share-board-primary"
-              onClick={onShare}
-              className={`rounded-[1rem] border border-white/10 bg-[#4f79ff] px-4 text-white hover:bg-[#6388ff] ${
-                compact ? "h-10" : "h-11"
-              }`}
-            >
-              <ShareNetwork size={16} />
-              Compartilhar
-            </Button>
+            <>
+              <InfoTooltip content="Novo fluxo" side="bottom">
+                <Button
+                  ref={demandButtonRef}
+                  data-testid="open-add-demand"
+                  onClick={() => setDemandOpen((current) => !current)}
+                  className={`rounded-[1rem] border border-white/10 bg-[#dc3933] px-0 text-white shadow-[0_18px_36px_-24px_rgba(220,57,51,0.72)] hover:bg-[#ef5148] ${
+                    compact ? "size-10" : "size-11"
+                  }`}
+                  aria-label="Novo fluxo"
+                >
+                  <Plus size={16} weight="bold" />
+                </Button>
+              </InfoTooltip>
+
+              <FloatingPanel
+                anchorRef={demandButtonRef}
+                open={demandOpen}
+                align="end"
+                placement="bottom"
+                offset={12}
+                estimatedWidth={420}
+                estimatedHeight={680}
+                className="w-[min(26rem,calc(100vw-24px))]"
+              >
+                <div data-add-demand-popover="true">
+                  <AddDemandPopover
+                    board={board}
+                    onCreate={(payload) => {
+                      onAddDemand?.(payload);
+                      setDemandOpen(false);
+                    }}
+                    onClose={() => setDemandOpen(false)}
+                  />
+                </div>
+              </FloatingPanel>
+            </>
           ) : null}
         </div>
       </div>

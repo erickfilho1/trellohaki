@@ -24,10 +24,10 @@ import { syncSupabaseWorkspacesFromBoards } from "@/lib/supabase/workspaces";
 import { cn } from "@/lib/utils";
 
 const ACCENT_OPTIONS = [
-  "from-[#244d64] via-[#25334f] to-[#302440]",
+  "from-[#2a2a2a] via-[#181818] to-[#0f0f0f]",
   "from-[#6b3f12] via-[#83501b] to-[#4f2916]",
   "from-[#1d5a40] via-[#194632] to-[#132d22]",
-  "from-[#2c4a87] via-[#202b59] to-[#201a40]",
+  "from-[#45201f] via-[#251312] to-[#111111]",
 ];
 
 function slugFromEmail(email: string) {
@@ -92,8 +92,9 @@ function SectionShell({
 }) {
   return (
     <section
+      data-light-panel="true"
       className={cn(
-        "glass-panel rounded-[1.9rem] border border-white/8 bg-[linear-gradient(180deg,#161d29_0%,#111722_100%)] p-5 shadow-[0_28px_80px_-46px_rgba(0,0,0,0.95)]",
+        "glass-panel rounded-[1.9rem] border border-white/8 bg-[linear-gradient(180deg,#151515_0%,#101010_100%)] p-5 shadow-[0_28px_80px_-46px_rgba(0,0,0,0.95)]",
         className,
       )}
     >
@@ -120,7 +121,8 @@ function WorkspaceCard({
   return (
     <Link
       href={`/boards/${boardId}`}
-      className="group relative block min-w-[228px] max-w-[228px] rounded-[1.9rem] border border-white/8 bg-[linear-gradient(180deg,#151c28_0%,#121825_100%)] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/14 hover:bg-[#182030]"
+      data-workspace-card="true"
+      className="group relative block min-w-[228px] max-w-[228px] rounded-[1.9rem] border border-white/8 bg-[linear-gradient(180deg,#151515_0%,#101010_100%)] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/14 hover:bg-[#181818]"
     >
       <div className={cn("relative h-28 overflow-hidden rounded-[1.45rem] bg-gradient-to-br", accent)}>
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.12),transparent_58%)]" />
@@ -490,7 +492,7 @@ export function AdminPage() {
                       />
                     </label>
 
-                    <div className="rounded-[1.2rem] border border-white/8 bg-[#101621] p-4">
+                    <div className="rounded-[1.2rem] border border-white/8 bg-[#111] p-4">
                       <p className="text-[11px] font-semibold tracking-[0.24em] text-[#7a89a5] uppercase">
                         Previa do quadro
                       </p>
@@ -534,7 +536,7 @@ export function AdminPage() {
                 <div className="mt-5 flex justify-end">
                   <Button
                     onClick={handleCreateWorkspace}
-                    className="h-11 rounded-[1rem] border border-white/10 bg-[#4f79ff] px-5 text-white hover:bg-[#6388ff]"
+                    className="h-11 rounded-[1rem] border border-white/10 bg-[#dc3933] px-5 text-white hover:bg-[#ef5148]"
                   >
                     <Plus size={16} />
                     Criar quadro
@@ -566,7 +568,7 @@ export function AdminPage() {
                               className={cn(
                                 "rounded-[1rem] border px-3 py-3 text-left transition-all",
                                 active
-                                  ? "border-[#5d84ff]/45 bg-[#223253] text-white"
+                                  ? "border-[#ff6b57]/35 bg-[#211211] text-white"
                                   : "border-white/8 bg-white/3 text-[#aab5cb] hover:bg-white/6 hover:text-white",
                               )}
                             >
@@ -609,7 +611,7 @@ export function AdminPage() {
                     </label>
                   </div>
 
-                  <div className="rounded-[1.2rem] border border-white/8 bg-[#101621] p-4">
+                  <div className="rounded-[1.2rem] border border-white/8 bg-[#111] p-4">
                     <p className="text-[11px] font-semibold tracking-[0.24em] text-[#7a89a5] uppercase">
                       Previa do template
                     </p>
@@ -662,7 +664,7 @@ export function AdminPage() {
                 <div className="mt-5 flex justify-end">
                   <Button
                     onClick={handleDuplicateWorkspace}
-                    className="h-11 rounded-[1rem] border border-white/10 bg-[#4f79ff] px-5 text-white hover:bg-[#6388ff]"
+                    className="h-11 rounded-[1rem] border border-white/10 bg-[#dc3933] px-5 text-white hover:bg-[#ef5148]"
                   >
                     <Copy size={16} />
                     Duplicar template
@@ -711,7 +713,7 @@ export function AdminPage() {
                           className={cn(
                             "rounded-[1rem] border px-3 py-3 text-left transition-all",
                             active
-                              ? "border-[#5d84ff]/45 bg-[#223253] text-white"
+                              ? "border-[#ff6b57]/35 bg-[#211211] text-white"
                               : "border-white/8 bg-white/3 text-[#aab5cb] hover:bg-white/6 hover:text-white",
                           )}
                         >
@@ -741,13 +743,13 @@ export function AdminPage() {
                           className={cn(
                             "rounded-[1rem] border px-3 py-3 text-left transition-all",
                             active
-                              ? "border-[#5d84ff]/45 bg-[#223253] text-white"
+                              ? "border-[#ff6b57]/35 bg-[#211211] text-white"
                               : "border-white/8 bg-white/3 text-[#aab5cb] hover:bg-white/6 hover:text-white",
                           )}
                         >
                           <p className="truncate text-sm font-medium">{board.name}</p>
                           <div className="mt-2 flex items-center gap-2">
-                            <span className="h-2.5 w-2.5 rounded-full bg-[#7fa5ff]" />
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#ff6b57]" />
                             <span className="text-xs text-inherit/70">
                               {workspaceAccess.filter((access) => access.boardId === board.id).length} acessos ativos
                             </span>
@@ -762,7 +764,7 @@ export function AdminPage() {
                   <Button
                     onClick={handlePrepareInvite}
                     disabled={preparingInvite}
-                    className="h-11 rounded-[1rem] border border-white/10 bg-[#4f79ff] px-5 text-white hover:bg-[#6388ff]"
+                    className="h-11 rounded-[1rem] border border-white/10 bg-[#dc3933] px-5 text-white hover:bg-[#ef5148]"
                   >
                     <PaperPlaneTilt size={16} />
                     {preparingInvite ? "Preparando..." : "Preparar convite"}
@@ -783,7 +785,7 @@ export function AdminPage() {
                 ) : null}
               </div>
 
-              <div className="rounded-[1.5rem] border border-white/8 bg-[#0f1520] p-4">
+              <div className="rounded-[1.5rem] border border-white/8 bg-[#111111] p-4">
                 <p className="text-[11px] font-semibold tracking-[0.24em] text-[#7e8ca7] uppercase">
                   Preview do convite
                 </p>
@@ -806,7 +808,7 @@ export function AdminPage() {
                         </Badge>
                       </div>
 
-                      <div className="mt-4 rounded-[1rem] border border-white/8 bg-[#131b28] px-3 py-3">
+                      <div className="mt-4 rounded-[1rem] border border-white/8 bg-[#151515] px-3 py-3">
                         <p className="text-xs text-[#8ea0bb]">Link pronto</p>
                         <p className="mt-2 break-all text-sm text-white">{invitePreview.link}</p>
                       </div>

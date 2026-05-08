@@ -2,14 +2,28 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ClientLayout } from "@/components/client-layout";
+import { useAuth } from "@/components/providers/auth-provider";
 import { Topbar } from "@/components/topbar";
 import { BoardContainer } from "@/components/board-container";
 import { Board } from "@/components/board";
 import { FilterPanel } from "@/components/filter-panel";
+import { cleanProfileName } from "@/lib/account-settings";
+import { createComment } from "@/lib/flowboard-helpers";
 import { useFlowBoardData } from "@/hooks/use-flowboard-store";
 
 export function ClientBoardPage({ boardId }: { boardId?: string }) {
-  const { board, boards, filters, stats, updateFilters, clearFilters, updateBoard } = useFlowBoardData(boardId);
+  const { user } = useAuth();
+  const {
+    board,
+    boards,
+    filters,
+    stats,
+    updateFilters,
+    clearFilters,
+    updateBoard,
+    addCard,
+    updateCard,
+  } = useFlowBoardData(boardId);
   const [shareOpen, setShareOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const filterButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -21,6 +35,24 @@ export function ClientBoardPage({ boardId }: { boardId?: string }) {
 
     return boards[0];
   }, [board, boards]);
+
+  const currentMember = useMemo(() => {
+    if (!activeBoard) {
+      return undefined;
+    }
+
+    const cleanedUserName = cleanProfileName(user.name).toLowerCase();
+    return (
+      activeBoard.members.find((member) => {
+        const cleanedMemberName = cleanProfileName(member.name).toLowerCase();
+        return (
+          member.id === "member-erick" ||
+          member.handle === "@erickfilho281" ||
+          cleanedMemberName === cleanedUserName
+        );
+      }) ?? activeBoard.members[0]
+    );
+  }, [activeBoard, user.name]);
 
   useEffect(() => {
     if (!activeBoard || typeof window === "undefined") {
@@ -51,8 +83,33 @@ export function ClientBoardPage({ boardId }: { boardId?: string }) {
       <Topbar
         title={activeBoard.name}
         board={activeBoard}
-        onShare={() => setShareOpen(true)}
-        onFilter={() => setFilterOpen(true)}
+        onAddDemand={(payload) => {
+          if (payload.mode === "create-demand") {
+            addCard(activeBoard.id, payload.listId, {
+              title: payload.title,
+              description: payload.description ?? "",
+            });
+            return;
+          }
+
+          const targetList = activeBoard.lists.find((list) => list.id === payload.listId);
+          const targetCard = targetList?.cards.find((card) => card.id === payload.cardId);
+
+          if (!targetList || !targetCard || !currentMember) {
+            return;
+          }
+
+          updateCard(
+            activeBoard.id,
+            targetList.id,
+            targetCard.id,
+            {
+              comments: [...targetCard.comments, createComment(currentMember, payload.comment)],
+            },
+            "Você solicitou uma alteração neste card",
+          );
+        }}
+        onFilter={() => setFilterOpen((current) => !current)}
         onUpdateBoardAccent={(accent) => updateBoard(activeBoard.id, { accent })}
         filterButtonRef={filterButtonRef}
         filters={filters}

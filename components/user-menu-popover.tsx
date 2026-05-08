@@ -23,7 +23,7 @@ function initialsFromUser(user: AuthUser) {
 
 function UserMenuHeader({ user }: { user: AuthUser }) {
   return (
-    <div className="border-b border-[#0000001a] bg-[#6fa0f1] px-4 py-4">
+    <div className="border-b border-white/8 bg-[linear-gradient(135deg,#191919,#2a1513)] px-4 py-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <Avatar className="bg-[#182131] shadow-[0_10px_24px_-18px_rgba(0,0,0,0.8)]" size="lg">

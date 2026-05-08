@@ -77,7 +77,7 @@ function SectionShell({
   return (
     <section
       className={cn(
-        "rounded-[1.8rem] border border-white/8 bg-[linear-gradient(180deg,#141b28_0%,#101723_100%)] p-5 shadow-[0_28px_80px_-46px_rgba(0,0,0,0.95)] sm:p-6",
+        "rounded-[1.8rem] border border-white/8 bg-[linear-gradient(180deg,#151515_0%,#101010_100%)] p-5 shadow-[0_28px_80px_-46px_rgba(0,0,0,0.95)] sm:p-6",
         className,
       )}
     >
@@ -244,8 +244,8 @@ export function AdminManagementPage() {
                         className={cn(
                           "group min-w-[230px] max-w-[230px] rounded-[1.6rem] border p-4 text-left transition-all duration-200",
                           active
-                            ? "border-[#7da3ff]/45 bg-[#1b2740]"
-                            : "border-white/8 bg-white/[0.03] hover:border-white/14 hover:bg-white/[0.05]",
+                            ? "border-[#ff6b57]/35 bg-[#211211]"
+                            : "border-white/8 bg-white/[0.025] hover:border-white/14 hover:bg-white/[0.05]",
                         )}
                       >
                         <div
@@ -288,7 +288,7 @@ export function AdminManagementPage() {
                 >
                   <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
                     <div className="space-y-5">
-                      <div className="rounded-[1.55rem] border border-white/8 bg-[#0f1520] p-5">
+                      <div className="rounded-[1.55rem] border border-white/8 bg-[#111111] p-5">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                           <div className="min-w-0">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7d8cab]">
@@ -313,7 +313,7 @@ export function AdminManagementPage() {
                         <div className="mt-5 flex flex-wrap gap-3">
                           <Link
                             href={`/boards/${selectedBoard.id}`}
-                            className="inline-flex h-11 items-center justify-center gap-2 rounded-[1rem] border border-white/10 bg-[#4f79ff] px-4 text-sm text-white transition-colors hover:bg-[#6388ff]"
+                            className="inline-flex h-11 items-center justify-center gap-2 rounded-[1rem] border border-white/10 bg-[#dc3933] px-4 text-sm text-white transition-colors hover:bg-[#ef5148]"
                           >
                             <ArrowSquareOut size={16} />
                             Abrir quadro
@@ -330,7 +330,7 @@ export function AdminManagementPage() {
                         </div>
                       </div>
 
-                      <div className="rounded-[1.55rem] border border-white/8 bg-[#0f1520] p-5">
+                      <div className="rounded-[1.55rem] border border-white/8 bg-[#111111] p-5">
                         <div className="mb-4 flex items-center gap-3">
                           <div className="flex size-10 items-center justify-center rounded-[0.95rem] border border-white/10 bg-white/[0.04] text-white">
                             <Kanban size={18} />
@@ -378,7 +378,7 @@ export function AdminManagementPage() {
                       </div>
                     </div>
 
-                    <div className="rounded-[1.55rem] border border-white/8 bg-[#0f1520] p-5">
+                    <div className="rounded-[1.55rem] border border-white/8 bg-[#111111] p-5">
                       <div className="mb-4 flex items-center gap-3">
                         <div className="flex size-10 items-center justify-center rounded-[0.95rem] border border-white/10 bg-white/[0.04] text-white">
                           <ShieldCheck size={18} />
@@ -412,7 +412,7 @@ export function AdminManagementPage() {
                       {
                         label: "Admin",
                         value: panelMix.admin,
-                        tone: "bg-[#253452] text-[#dfe6ff]",
+                        tone: "bg-[#2a1a18] text-[#ffd8d2]",
                       },
                       {
                         label: "Cliente",
@@ -488,7 +488,7 @@ export function AdminManagementPage() {
                                   ? "bg-[#1f3b2f] text-[#ddffea]"
                                   : access.panel === "colaborador"
                                     ? "bg-[#4e3918] text-[#ffe8b2]"
-                                    : "bg-[#253452] text-[#dfe6ff]",
+                                    : "bg-[#2a1a18] text-[#ffd8d2]",
                               )}
                             >
                               painel {access.panel}

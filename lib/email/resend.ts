@@ -17,4 +17,4 @@ export function getResendClient() {
 }
 
 export const resendFromEmail =
-  process.env.RESEND_FROM_EMAIL || "ClientBoard <onboarding@resend.dev>";
+  process.env.RESEND_FROM_EMAIL || "Painel Haki <onboarding@resend.dev>";

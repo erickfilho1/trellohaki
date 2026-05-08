@@ -38,7 +38,7 @@ export function AuthGate({
 
   if (!hydrated) {
     return (
-      <div className="grid min-h-[100dvh] place-items-center bg-[#0b1018] text-[#cfd6e6]">
+      <div className="grid min-h-[100dvh] place-items-center bg-[#0b0b0b] text-[#cfd6e6]">
         <div className="rounded-[1.4rem] border border-white/8 bg-white/4 px-5 py-3 text-sm">
           Carregando portal...
         </div>
@@ -52,7 +52,7 @@ export function AuthGate({
     (authenticated && !canAccessCurrentPath)
   ) {
     return (
-      <div className="grid min-h-[100dvh] place-items-center bg-[#0b1018] text-[#cfd6e6]">
+      <div className="grid min-h-[100dvh] place-items-center bg-[#0b0b0b] text-[#cfd6e6]">
         <div className="rounded-[1.4rem] border border-white/8 bg-white/4 px-5 py-3 text-sm">
           Redirecionando...
         </div>

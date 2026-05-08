@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { TaskCard } from "@/components/card";
 import { FloatingPanel } from "@/components/floating-panel";
 import { ListActionsPopover } from "@/components/list-actions-popover";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useFlowBoardData } from "@/hooks/use-flowboard-store";
@@ -130,16 +131,17 @@ export function List({ boardId, list }: { boardId: string; list: ListRecord }) {
           </div>
 
           <div className="relative">
-            <button
-              ref={actionsButtonRef}
-              type="button"
-              title="Acoes da Lista"
-              data-testid={`list-actions-${list.id}`}
-              onClick={() => setActionsOpen((current) => !current)}
-              className="flex size-8.5 items-center justify-center rounded-[0.9rem] border border-white/8 bg-white/4 text-[#d6ddef] transition-colors hover:bg-white/8 hover:text-white"
-            >
-              <DotsThree size={18} weight="bold" />
-            </button>
+            <InfoTooltip content="Ações da lista" side="bottom">
+              <button
+                ref={actionsButtonRef}
+                type="button"
+                data-testid={`list-actions-${list.id}`}
+                onClick={() => setActionsOpen((current) => !current)}
+                className="flex size-8.5 items-center justify-center rounded-[0.9rem] border border-white/8 bg-white/4 text-[#d6ddef] transition-colors hover:bg-white/8 hover:text-white"
+              >
+                <DotsThree size={18} weight="bold" />
+              </button>
+            </InfoTooltip>
 
             {actionsOpen ? (
               <FloatingPanel
