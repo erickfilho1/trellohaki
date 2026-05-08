@@ -138,6 +138,84 @@
 }
 
 @layer utilities {
+  html[data-haki-theme="light"] body {
+    background-image:
+      radial-gradient(circle at top, rgba(255, 104, 91, 0.08), transparent 25rem),
+      linear-gradient(180deg, #f7f7f5 0%, #ececea 48%, #f7f7f5 100%);
+    color: #121212;
+  }
+
+  html[data-haki-theme="light"] [data-testid="client-sidebar"] {
+    border-color: rgba(12, 12, 12, 0.1) !important;
+    background: linear-gradient(180deg, #fbfbf9 0%, #ededeb 100%) !important;
+  }
+
+  html[data-haki-theme="light"] header {
+    border-color: rgba(12, 12, 12, 0.1) !important;
+    background: rgba(250, 250, 248, 0.88) !important;
+  }
+
+  html[data-haki-theme="light"] [data-testid="sidebar-account-popover"] {
+    border-color: rgba(12, 12, 12, 0.12) !important;
+    background: rgba(255, 255, 253, 0.98) !important;
+    color: #111111 !important;
+    box-shadow: 0 28px 90px -42px rgba(0, 0, 0, 0.52) !important;
+  }
+
+  html[data-haki-theme="light"] [data-testid="sidebar-account-popover"] .text-white,
+  html[data-haki-theme="light"] [data-testid="sidebar-account-popover"] .text-\[\#e9eefb\] {
+    color: #111111 !important;
+  }
+
+  html[data-haki-theme="light"] [data-testid="sidebar-account-popover"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-testid="sidebar-account-popover"] [class*="text-[#9"] {
+    color: #616b7c !important;
+  }
+
+  html[data-haki-theme="light"] .glass-panel {
+    border-color: rgba(12, 12, 12, 0.1) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #f3f3f1 100%) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      0 24px 70px -46px rgba(0, 0, 0, 0.42) !important;
+  }
+
+  html[data-haki-theme="light"] [data-testid="client-sidebar"] .text-white,
+  html[data-haki-theme="light"] header .text-white,
+  html[data-haki-theme="light"] .glass-panel .text-white {
+    color: #111111 !important;
+  }
+
+  html[data-haki-theme="light"] [data-testid="client-sidebar"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-testid="client-sidebar"] [class*="text-[#9"],
+  html[data-haki-theme="light"] header [class*="text-[#8"],
+  html[data-haki-theme="light"] header [class*="text-[#9"],
+  html[data-haki-theme="light"] .glass-panel [class*="text-[#8"],
+  html[data-haki-theme="light"] .glass-panel [class*="text-[#9"] {
+    color: #596273 !important;
+  }
+
+  html[data-haki-theme="light"] [data-testid="client-sidebar"] .bg-white\/4,
+  html[data-haki-theme="light"] [data-testid="client-sidebar"] .bg-white\/\[0\.035\],
+  html[data-haki-theme="light"] header .bg-white\/4,
+  html[data-haki-theme="light"] header .bg-white\/\[0\.04\],
+  html[data-haki-theme="light"] .glass-panel .bg-white\/4 {
+    background-color: rgba(17, 17, 17, 0.045) !important;
+  }
+
+  html[data-haki-theme="light"] input,
+  html[data-haki-theme="light"] textarea,
+  html[data-haki-theme="light"] select {
+    border-color: rgba(17, 17, 17, 0.14) !important;
+    background-color: rgba(255, 255, 255, 0.84) !important;
+    color: #111111 !important;
+  }
+
+  html[data-haki-theme="light"] input::placeholder,
+  html[data-haki-theme="light"] textarea::placeholder {
+    color: #727b8d !important;
+  }
+
   .flowboard-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: rgba(222, 228, 245, 0.24) transparent;

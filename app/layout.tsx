@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FlowBoard",
-  description: "FlowBoard is a Trello-style local productivity workspace.",
+  title: "Painel Haki",
+  description: "Painel Haki para operacao, clientes e entregas.",
 };
 
 export default function RootLayout({
@@ -31,7 +31,16 @@ export default function RootLayout({
     <html
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var t=localStorage.getItem('painel-haki-theme')==='light'?'light':'dark';document.documentElement.dataset.hakiTheme=t;document.documentElement.style.colorScheme=t==='light'?'light':'dark'}catch(e){}",
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <FlowBoardProvider>
           <AuthProvider>

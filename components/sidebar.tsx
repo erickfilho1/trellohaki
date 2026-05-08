@@ -27,6 +27,27 @@ const menuItems = [
   { href: "/configuracoes", label: "Configuracoes", icon: FadersHorizontal },
 ];
 
+const THEME_STORAGE_KEY = "painel-haki-theme";
+
+type HakiTheme = "dark" | "light";
+
+function readStoredTheme(): HakiTheme {
+  if (typeof window === "undefined") {
+    return "dark";
+  }
+
+  return window.localStorage.getItem(THEME_STORAGE_KEY) === "light" ? "light" : "dark";
+}
+
+function applyTheme(theme: HakiTheme) {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  document.documentElement.dataset.hakiTheme = theme;
+  document.documentElement.style.colorScheme = theme === "light" ? "light" : "dark";
+}
+
 export function Sidebar({
   collapsed,
   onToggle,
@@ -41,8 +62,14 @@ export function Sidebar({
   const { logout, user } = useAuth();
   const [adminOpen, setAdminOpen] = useState(pathname.startsWith("/admin"));
   const [accountOpen, setAccountOpen] = useState(false);
+  const [theme, setTheme] = useState<HakiTheme>(readStoredTheme);
   const canUseAdminArea = hasPermission(user.panel, "manage-admin-area");
   const showAdminChildren = !collapsed && (adminOpen || pathname.startsWith("/admin"));
+
+  useEffect(() => {
+    applyTheme(theme);
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
 
   return (
     <aside
@@ -190,6 +217,8 @@ export function Sidebar({
             logout();
             router.replace("/login");
           }}
+          theme={theme}
+          onThemeChange={setTheme}
         />
       </div>
     </aside>
@@ -215,6 +244,8 @@ function SidebarAccountMenu({
   onOpenChange,
   onBoard,
   onLogout,
+  theme,
+  onThemeChange,
 }: {
   collapsed: boolean;
   open: boolean;
@@ -222,9 +253,10 @@ function SidebarAccountMenu({
   onOpenChange: (open: boolean) => void;
   onBoard: () => void;
   onLogout: () => void;
+  theme: HakiTheme;
+  onThemeChange: (theme: HakiTheme) => void;
 }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const [themeLabel, setThemeLabel] = useState("Escuro");
 
   useEffect(() => {
     if (!open) {
@@ -305,31 +337,63 @@ function SidebarAccountMenu({
           </div>
 
           <div className="space-y-1 p-2">
-            <button
-              type="button"
-              onClick={() => setThemeLabel((current) => (current === "Escuro" ? "Sistema" : "Escuro"))}
-              className="flex h-12 w-full items-center justify-between rounded-[0.95rem] px-3 text-sm text-[#e9eefb] transition-colors hover:bg-white/6"
+            <div
+              className="flex h-14 w-full items-center justify-between rounded-[1rem] border border-white/10 px-3 text-sm text-[#e9eefb] transition-colors hover:bg-white/6"
             >
               <span>Tema</span>
               <span className="flex items-center gap-1 rounded-full border border-white/8 bg-white/5 p-1 text-[#9ba8bd]">
                 <span
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Usar tema claro"
+                  aria-pressed={theme === "light"}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onThemeChange("light");
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      onThemeChange("light");
+                    }
+                  }}
                   className={cn(
-                    "flex size-7 items-center justify-center rounded-full transition-colors",
-                    themeLabel === "Sistema" ? "bg-[#222] text-white" : "text-[#9ba8bd]",
+                    "flex size-8 items-center justify-center rounded-full transition-all duration-200",
+                    theme === "light"
+                      ? "bg-[#f7f7f7] text-[#111] shadow-[0_8px_20px_-12px_rgba(255,255,255,0.8)]"
+                      : "text-[#9ba8bd] hover:bg-white/6 hover:text-white",
                   )}
                 >
                   <Sun size={14} />
                 </span>
                 <span
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Usar tema escuro"
+                  aria-pressed={theme === "dark"}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onThemeChange("dark");
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      onThemeChange("dark");
+                    }
+                  }}
                   className={cn(
-                    "flex size-7 items-center justify-center rounded-full transition-colors",
-                    themeLabel === "Escuro" ? "bg-[#222] text-white" : "text-[#9ba8bd]",
+                    "flex size-8 items-center justify-center rounded-full transition-all duration-200",
+                    theme === "dark"
+                      ? "bg-[#222] text-white shadow-[0_8px_20px_-12px_rgba(0,0,0,0.95)]"
+                      : "text-[#6e7686] hover:bg-black/5 hover:text-[#111]",
                   )}
                 >
                   <Moon size={14} />
                 </span>
               </span>
-            </button>
+            </div>
 
             <button
               type="button"
