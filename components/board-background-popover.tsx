@@ -12,6 +12,10 @@ const BOARD_BACKGROUND_OPTIONS = [
   "from-[#0f4c5c] via-[#19405a] to-[#232348]",
   "from-[#5e1f3b] via-[#402039] to-[#261826]",
   "from-[#4a5f1f] via-[#31411d] to-[#182414]",
+  "from-[#0b0b0b] via-[#131313] to-[#202020]",
+  "from-[#1e1c27] via-[#2b1f38] to-[#4a2231]",
+  "from-[#102028] via-[#153443] to-[#1d5a6c]",
+  "from-[#17140f] via-[#2c2418] to-[#59462a]",
 ];
 
 export function BoardBackgroundPopover({
