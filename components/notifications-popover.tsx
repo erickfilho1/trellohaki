@@ -69,10 +69,10 @@ export function NotificationsPopover({
       anchorRef={anchorRef}
       open={open}
       align="end"
-      placement="bottom"
+      placement="auto"
       offset={12}
       estimatedWidth={430}
-      estimatedHeight={560}
+      estimatedHeight={520}
       className="w-[min(27rem,calc(100vw-24px))]"
     >
       <div

@@ -465,6 +465,20 @@
     text-underline-offset: 0.18em;
   }
 
+  .flowboard-rich-editor .flowboard-mention-chip,
+  .flowboard-rich-copy .flowboard-mention-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid rgba(137, 174, 255, 0.22);
+    background: linear-gradient(180deg, rgba(122, 160, 255, 0.18), rgba(111, 149, 244, 0.12));
+    padding: 0.12rem 0.5rem;
+    color: #c7dbff;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
   .flowboard-rich-editor hr,
   .flowboard-rich-copy hr {
     margin: 1rem 0;

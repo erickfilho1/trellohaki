@@ -46,7 +46,17 @@ function buildMentionTokens(member: MemberRecord) {
   ).map((item) => item.value);
 }
 
+function extractMentionIdsFromHtml(content: string) {
+  const matches = [...content.matchAll(/data-mention-id="([^"]+)"/g)];
+  return [...new Set(matches.map((match) => match[1]).filter(Boolean))];
+}
+
 export function extractMentionedMembers(content: string, members: MemberRecord[], authorId?: string) {
+  const explicitMentionIds = extractMentionIdsFromHtml(content);
+  if (explicitMentionIds.length > 0) {
+    return members.filter((member) => explicitMentionIds.includes(member.id) && member.id !== authorId);
+  }
+
   const plainText = normalizeText(stripHtml(content));
   if (!plainText.includes("@")) {
     return [] as MemberRecord[];
@@ -131,7 +141,7 @@ export function filterNotificationsForViewer(
 }
 
 export function insertMentionValue(currentHtml: string, member: MemberRecord) {
-  const mentionValue = `@${cleanProfileName(member.name)} `;
+  const mentionValue = `<span data-mention-id="${member.id}" data-mention-name="${cleanProfileName(member.name)}" class="flowboard-mention-chip">@${cleanProfileName(member.name)}</span>&nbsp;`;
   if (!currentHtml.trim()) {
     return `<p>${mentionValue}</p>`;
   }
