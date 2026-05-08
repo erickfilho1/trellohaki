@@ -222,7 +222,7 @@ export function Topbar({
               <FunnelSimple size={16} />
               Filtro
               {activeFilterCount > 0 ? (
-                <span className="ml-1 rounded-full bg-[#4f79ff] px-2 py-0.5 text-[11px] text-white">
+                <span className="ml-1 rounded-full bg-[#dc3933] px-2 py-0.5 text-[11px] text-white">
                   {activeFilterCount}
                 </span>
               ) : null}
@@ -276,7 +276,7 @@ export function Topbar({
                   .map((member) => (
                     <div key={member.id} title={member.name}>
                       <Avatar className="bg-[#151515] ring-2 ring-[#0b0b0b]" size="default">
-                        <AvatarFallback className="bg-[#13a9c9] text-[#073245]">
+                        <AvatarFallback className="bg-[#1f1f1f] text-[#f4f4f5]">
                           {member.initials}
                         </AvatarFallback>
                       </Avatar>
@@ -297,7 +297,7 @@ export function Topbar({
             <Button
               data-testid="share-board-primary"
               onClick={onShare}
-              className={`rounded-[1rem] border border-white/10 bg-[#4f79ff] px-4 text-white hover:bg-[#6388ff] ${
+              className={`rounded-[1rem] border border-white/10 bg-[#dc3933] px-4 text-white hover:bg-[#ef5148] ${
                 compact ? "h-10" : "h-11"
               }`}
             >
