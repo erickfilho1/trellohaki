@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useFlowBoardStore } from "@/components/providers/flowboard-provider";
@@ -21,6 +22,9 @@ const SESSION_STORAGE_KEY = "clientboard-auth-session";
 const ACCOUNTS_STORAGE_KEY = "clientboard-auth-accounts";
 
 const ADMIN_EMAIL = "erickfilho281@gmail.com";
+const ADMIN_PASSWORD = "erickE10@";
+const DEMO_COLLAB_EMAIL = "demo.colaborador@painelhaki.space";
+const DEMO_COLLAB_PASSWORD = "demoColab123@";
 
 type StoredAuthSession = {
   userId: string;
@@ -147,6 +151,22 @@ export function AuthProvider({
   const [accounts, setAccounts] = useState<StoredAuthAccount[]>(readStoredAccounts);
   const [hydrated] = useState(getInitialHydratedState);
   const supabaseEnabled = hasSupabaseEnv();
+  const logoutRequestedRef = useRef(false);
+
+  const shouldKeepLocalSession = useCallback(
+    (candidate: StoredAuthSession | null) => {
+      if (!candidate) {
+        return false;
+      }
+
+      if (candidate.email === ADMIN_EMAIL || candidate.email === DEMO_COLLAB_EMAIL) {
+        return true;
+      }
+
+      return accounts.some((account) => normalizeEmail(account.email) === candidate.email);
+    },
+    [accounts],
+  );
 
   const buildSupabaseSession = useCallback(async (panelEmail: string) => {
     if (panelEmail === ADMIN_EMAIL) {
@@ -196,6 +216,15 @@ export function AuthProvider({
 
       const userEmail = normalizeEmail(data.session?.user.email ?? "");
       if (!userEmail) {
+        if (logoutRequestedRef.current) {
+          setSession(null);
+          return;
+        }
+
+        if (shouldKeepLocalSession(session)) {
+          return;
+        }
+
         setSession(null);
         return;
       }
@@ -209,6 +238,15 @@ export function AuthProvider({
     } = supabase.auth.onAuthStateChange((_event, nextSessionData) => {
       const userEmail = normalizeEmail(nextSessionData?.user.email ?? "");
       if (!userEmail) {
+        if (logoutRequestedRef.current) {
+          setSession(null);
+          return;
+        }
+
+        if (shouldKeepLocalSession(session)) {
+          return;
+        }
+
         setSession(null);
         return;
       }
@@ -222,7 +260,7 @@ export function AuthProvider({
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [adminUsers, buildSupabaseSession, supabaseEnabled]);
+  }, [adminUsers, buildSupabaseSession, session, shouldKeepLocalSession, supabaseEnabled]);
 
   const resolvedUser = useMemo<AuthUser>(() => {
     if (!session) {
@@ -235,6 +273,15 @@ export function AuthProvider({
         name: "Erick Filho",
         email: ADMIN_EMAIL,
         panel: "admin",
+      };
+    }
+
+    if (session.email === DEMO_COLLAB_EMAIL) {
+      return {
+        id: "demo-colaborador",
+        name: "Colaborador Demo",
+        email: DEMO_COLLAB_EMAIL,
+        panel: "colaborador",
       };
     }
 
@@ -266,6 +313,36 @@ export function AuthProvider({
 
         if (!normalizedEmail || !password.trim()) {
           return { ok: false, error: "Preencha email e senha para entrar." };
+        }
+
+        if (normalizedEmail === ADMIN_EMAIL) {
+          if (password !== ADMIN_PASSWORD) {
+            return { ok: false, error: "Senha incorreta para o acesso admin." };
+          }
+
+          const nextSession: StoredAuthSession = {
+            userId: "admin-erick",
+            email: ADMIN_EMAIL,
+            panel: "admin",
+          };
+
+          setSession(nextSession);
+          return { ok: true, nextPath: "/admin" };
+        }
+
+        if (normalizedEmail === DEMO_COLLAB_EMAIL) {
+          if (password !== DEMO_COLLAB_PASSWORD) {
+            return { ok: false, error: "Senha incorreta para o acesso demo de colaborador." };
+          }
+
+          const nextSession: StoredAuthSession = {
+            userId: "demo-colaborador",
+            email: DEMO_COLLAB_EMAIL,
+            panel: "colaborador",
+          };
+
+          setSession(nextSession);
+          return { ok: true, nextPath: "/" };
         }
 
         if (supabaseEnabled) {
@@ -467,11 +544,13 @@ export function AuthProvider({
         return { ok: true, nextPath: defaultHomePath(panel) };
       },
       logout: async () => {
+        logoutRequestedRef.current = true;
+        setSession(null);
         if (supabaseEnabled) {
           const supabase = getSupabaseBrowserClient();
           await supabase?.auth.signOut();
         }
-        setSession(null);
+        logoutRequestedRef.current = false;
       },
     }),
     [accounts, adminUsers, authenticated, buildSupabaseSession, homePath, hydrated, resolvedUser, supabaseEnabled, upsertAdminUser],
