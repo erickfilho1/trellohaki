@@ -216,6 +216,10 @@ export function Sidebar({
           open={accountOpen}
           user={user}
           onOpenChange={setAccountOpen}
+          onSettings={() => {
+            setAccountOpen(false);
+            router.push("/configuracoes");
+          }}
           onBoard={() => {
             setAccountOpen(false);
             router.push("/");
@@ -250,6 +254,7 @@ function SidebarAccountMenu({
   open,
   user,
   onOpenChange,
+  onSettings,
   onBoard,
   onLogout,
   theme,
@@ -259,6 +264,7 @@ function SidebarAccountMenu({
   open: boolean;
   user: ReturnType<typeof useAuth>["user"];
   onOpenChange: (open: boolean) => void;
+  onSettings: () => void;
   onBoard: () => void;
   onLogout: () => void;
   theme: HakiTheme;
@@ -340,7 +346,14 @@ function SidebarAccountMenu({
                 <p className="truncate text-[15px] font-semibold tracking-[-0.02em] text-white">{user.name}</p>
                 <p className="mt-0.5 truncate text-xs text-[#8e9ab2]">{user.email}</p>
               </div>
-              <GearSix size={18} className="shrink-0 text-[#8e9ab2]" />
+              <button
+                type="button"
+                onClick={onSettings}
+                aria-label="Abrir configurações"
+                className="grid size-9 shrink-0 place-items-center rounded-full border border-white/8 bg-white/[0.035] text-[#8e9ab2] transition hover:border-white/16 hover:bg-white/[0.08] hover:text-white"
+              >
+                <GearSix size={17} />
+              </button>
             </div>
           </div>
 
