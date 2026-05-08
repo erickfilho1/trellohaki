@@ -8,39 +8,8 @@ import { ClientLayout } from "@/components/client-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useFlowBoardData } from "@/hooks/use-flowboard-store";
+import { ACCOUNT_SETTINGS_STORAGE_KEY, initialsFromName, readStoredAccountSettings } from "@/lib/account-settings";
 import { cn } from "@/lib/utils";
-
-const SETTINGS_STORAGE_KEY = "painel-haki-account-settings";
-
-type StoredSettings = {
-  displayName: string;
-  avatarDataUrl: string;
-};
-
-function initialsFromName(name: string) {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
-
-function readStoredSettings(): Partial<StoredSettings> {
-  if (typeof window === "undefined") {
-    return {};
-  }
-
-  const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
-  if (!raw) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(raw) as Partial<StoredSettings>;
-  } catch {
-    return {};
-  }
-}
 
 export function SettingsPage() {
   const router = useRouter();
@@ -53,7 +22,7 @@ export function SettingsPage() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const stored = readStoredSettings();
+    const stored = readStoredAccountSettings();
     setDisplayName(stored.displayName || user.name);
     setAvatarDataUrl(stored.avatarDataUrl || user.avatarUrl || "");
   }, [user.avatarUrl, user.name]);
@@ -63,11 +32,11 @@ export function SettingsPage() {
 
   function saveSettings() {
     window.localStorage.setItem(
-      SETTINGS_STORAGE_KEY,
+      ACCOUNT_SETTINGS_STORAGE_KEY,
       JSON.stringify({
         displayName: displayName.trim() || user.name,
         avatarDataUrl,
-      } satisfies StoredSettings),
+      }),
     );
     setSaved(true);
     window.setTimeout(() => setSaved(false), 1800);

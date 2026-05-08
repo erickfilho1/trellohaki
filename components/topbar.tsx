@@ -1,16 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { FunnelSimple, ImageSquare, Lightning, Plus } from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
 import { AddDemandPopover, type AddDemandPayload } from "@/components/add-demand-popover";
 import { AutomationHoverPopover } from "@/components/automation-hover-popover";
 import { BoardBackgroundPopover } from "@/components/board-background-popover";
 import { FloatingPanel } from "@/components/floating-panel";
+import { MemberProfilePopover, type ProfilePopoverMember } from "@/components/member-profile-popover";
 import { useAuth } from "@/components/providers/auth-provider";
-import { UserMenuPopover } from "@/components/user-menu-popover";
-import { Avatar, AvatarFallback, AvatarGroup } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import type { BoardFiltersRecord, BoardRecord } from "@/lib/flowboard-types";
+import { cleanProfileName, resolveUserProfileIdentity } from "@/lib/account-settings";
+import type { BoardFiltersRecord, BoardRecord, MemberRecord } from "@/lib/flowboard-types";
 import { cn } from "@/lib/utils";
 
 function initialsFromName(name: string) {
@@ -19,6 +21,18 @@ function initialsFromName(name: string) {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
+}
+
+function isCurrentBoardMember(member: MemberRecord, userName: string) {
+  const cleanName = cleanProfileName(member.name).toLowerCase();
+  const referenceName = cleanProfileName(userName).toLowerCase();
+
+  return (
+    member.name.toLowerCase().includes("(voce)") ||
+    member.id === "member-erick" ||
+    member.handle === "@erickfilho281" ||
+    cleanName === referenceName
+  );
 }
 
 export function Topbar({
@@ -48,14 +62,16 @@ export function Topbar({
   totalCount?: number;
   compact?: boolean;
 }) {
+  const router = useRouter();
   const { user, logout } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [automationOpen, setAutomationOpen] = useState(false);
   const [backgroundOpen, setBackgroundOpen] = useState(false);
   const [demandOpen, setDemandOpen] = useState(false);
+  const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
   const backgroundButtonRef = useRef<HTMLButtonElement | null>(null);
   const automationButtonRef = useRef<HTMLButtonElement | null>(null);
   const demandButtonRef = useRef<HTMLButtonElement | null>(null);
+  const memberAnchorRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const automationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeFilterCount = filters
     ? [
@@ -76,6 +92,47 @@ export function Topbar({
         Boolean(filters.activityRange),
       ].filter(Boolean).length
     : 0;
+  const currentIdentity = useMemo(() => resolveUserProfileIdentity(user), [user]);
+  const topbarMembers = useMemo<ProfilePopoverMember[]>(() => {
+    if (!board) {
+      return [];
+    }
+
+    const deduped = new Map<string, ProfilePopoverMember>();
+
+    board.members.forEach((member) => {
+      const current = isCurrentBoardMember(member, user.name);
+      const entry: ProfilePopoverMember = {
+        id: member.id,
+        name: current ? currentIdentity.name : cleanProfileName(member.name),
+        secondary: current ? user.email : member.handle,
+        initials: current ? currentIdentity.initials : member.initials || initialsFromName(member.name),
+        avatarUrl: current ? currentIdentity.avatarUrl : member.avatar,
+        role: member.role,
+        isCurrentUser: current,
+      };
+      deduped.set(member.id, entry);
+    });
+
+    if (!Array.from(deduped.values()).some((member) => member.isCurrentUser)) {
+      deduped.set("current-user", {
+        id: "current-user",
+        name: currentIdentity.name,
+        secondary: user.email,
+        initials: currentIdentity.initials,
+        avatarUrl: currentIdentity.avatarUrl,
+        role: "Administrador",
+        isCurrentUser: true,
+      });
+    }
+
+    return Array.from(deduped.values());
+  }, [board, currentIdentity, user.email, user.name]);
+  const activeMember = topbarMembers.find((member) => member.id === activeMemberId) ?? null;
+  const activeMemberAnchorRef = useMemo(
+    () => ({ current: activeMemberId ? memberAnchorRefs.current[activeMemberId] ?? null : null }),
+    [activeMemberId],
+  );
 
   useEffect(() => {
     return () => {
@@ -152,6 +209,43 @@ export function Topbar({
       document.removeEventListener("keydown", handleEscape);
     };
   }, [demandOpen]);
+
+  useEffect(() => {
+    if (!activeMemberId) {
+      return;
+    }
+
+    const currentMemberId = activeMemberId;
+
+    function handlePointerDown(event: MouseEvent) {
+      const target = event.target as Node | null;
+      if (!target) {
+        return;
+      }
+
+      const anchor = memberAnchorRefs.current[currentMemberId];
+      const insideButton = anchor?.contains(target);
+      const insidePanel = target instanceof HTMLElement ? target.closest("[data-member-profile-popover='true']") : null;
+
+      if (!insideButton && !insidePanel) {
+        setActiveMemberId(null);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setActiveMemberId(null);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [activeMemberId]);
 
   function openAutomation() {
     if (automationTimerRef.current) {
@@ -294,38 +388,53 @@ export function Topbar({
           {board ? (
             <div className="relative">
               <AvatarGroup className="items-center">
-                <button
-                  type="button"
-                  data-testid="open-user-menu"
-                  onClick={() => setMenuOpen((current) => !current)}
-                  title={user.name}
-                  className="rounded-full transition-transform duration-150 hover:-translate-y-0.5"
-                >
-                  <Avatar className="bg-[#161616] ring-2 ring-[#0b0b0b]" size="default">
-                    <AvatarFallback className="bg-[#242424] text-[#f4f4f5]">
-                      {initialsFromName(user.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                </button>
-                {board.members
-                  .filter((member) => !member.name.includes("(voce)"))
-                  .slice(0, 1)
-                  .map((member) => (
-                    <div key={member.id} title={member.name}>
-                      <Avatar className="bg-[#151515] ring-2 ring-[#0b0b0b]" size="default">
-                        <AvatarFallback className="bg-[#1f1f1f] text-[#f4f4f5]">
-                          {member.initials}
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
-                  ))}
+                {topbarMembers.slice(0, 4).map((member) => (
+                  <button
+                    key={member.id}
+                    ref={(node) => {
+                      memberAnchorRefs.current[member.id] = node;
+                    }}
+                    type="button"
+                    data-testid={member.isCurrentUser ? "open-user-menu" : `open-member-menu-${member.id}`}
+                    onClick={() => setActiveMemberId((current) => (current === member.id ? null : member.id))}
+                    title={member.name}
+                    className="rounded-full transition-transform duration-150 hover:-translate-y-0.5"
+                  >
+                    <Avatar className="bg-[#121212] ring-2 ring-[#0b0b0b]" size="default">
+                      {member.avatarUrl ? <AvatarImage src={member.avatarUrl} alt={member.name} /> : null}
+                      <AvatarFallback className="bg-[radial-gradient(circle_at_32%_20%,#313136,#17181c_50%,#0d0d0f)] text-[12px] font-semibold text-[#f5f7fb]">
+                        {member.initials}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                ))}
+                {topbarMembers.length > 4 ? (
+                  <AvatarGroupCount className="bg-[#171717] text-[#f4f4f5] ring-[#0b0b0b]">
+                    +{topbarMembers.length - 4}
+                  </AvatarGroupCount>
+                ) : null}
               </AvatarGroup>
 
-              <UserMenuPopover
-                user={user}
-                open={menuOpen}
-                onClose={() => setMenuOpen(false)}
-                onLogout={logout}
+              <MemberProfilePopover
+                anchorRef={activeMemberAnchorRef}
+                open={Boolean(activeMember)}
+                member={activeMember}
+                board={board}
+                onClose={() => setActiveMemberId(null)}
+                onBoard={() => {
+                  setActiveMemberId(null);
+                  router.push("/");
+                }}
+                onSettings={() => {
+                  setActiveMemberId(null);
+                  router.push("/configuracoes");
+                }}
+                onLogout={() => {
+                  setActiveMemberId(null);
+                  void logout().then(() => {
+                    router.replace("/login");
+                  });
+                }}
               />
             </div>
           ) : null}
