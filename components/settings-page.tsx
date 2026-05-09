@@ -8,36 +8,49 @@ import { ClientLayout } from "@/components/client-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useFlowBoardData } from "@/hooks/use-flowboard-store";
-import { ACCOUNT_SETTINGS_STORAGE_KEY, initialsFromName, readStoredAccountSettings } from "@/lib/account-settings";
+import { initialsFromName, readStoredAccountSettings } from "@/lib/account-settings";
 import { cn } from "@/lib/utils";
 
 export function SettingsPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const { logout, user } = useAuth();
+  const { logout, saveProfile, user } = useAuth();
   const { boards } = useFlowBoardData();
   const currentBoard = boards[0];
   const [displayName, setDisplayName] = useState(user.name);
   const [avatarDataUrl, setAvatarDataUrl] = useState("");
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const stored = readStoredAccountSettings();
+    const stored = readStoredAccountSettings(user.email);
     setDisplayName(stored.displayName || user.name);
     setAvatarDataUrl(stored.avatarDataUrl || user.avatarUrl || "");
-  }, [user.avatarUrl, user.name]);
+  }, [user.avatarUrl, user.email, user.name]);
 
-  const initials = useMemo(() => initialsFromName(displayName || user.name || "Painel Haki"), [displayName, user.name]);
+  const initials = useMemo(
+    () => initialsFromName(displayName || user.name || "Painel Haki"),
+    [displayName, user.name],
+  );
   const remainingChars = Math.max(0, 32 - displayName.length);
 
-  function saveSettings() {
-    window.localStorage.setItem(
-      ACCOUNT_SETTINGS_STORAGE_KEY,
-      JSON.stringify({
-        displayName: displayName.trim() || user.name,
-        avatarDataUrl,
-      }),
-    );
+  async function saveSettings() {
+    setSaving(true);
+    setError("");
+
+    const result = await saveProfile({
+      name: displayName.trim() || user.name,
+      avatarUrl: avatarDataUrl,
+    });
+
+    setSaving(false);
+
+    if (!result.ok) {
+      setError(result.error || "Não foi possível salvar suas configurações agora.");
+      return;
+    }
+
     setSaved(true);
     window.setTimeout(() => setSaved(false), 1800);
   }
@@ -135,9 +148,13 @@ export function SettingsPage() {
             </div>
 
             <div className="flex flex-col gap-4 border-t border-white/10 px-7 py-5 sm:flex-row sm:items-center sm:justify-between md:px-8">
-              <p className="text-sm text-[#a1a1aa]">Use no máximo 32 caracteres. Restam {remainingChars}.</p>
+              <div className="space-y-2">
+                <p className="text-sm text-[#a1a1aa]">Use no máximo 32 caracteres. Restam {remainingChars}.</p>
+                {error ? <p className="text-sm text-[#ff8f86]">{error}</p> : null}
+              </div>
               <Button
                 onClick={saveSettings}
+                disabled={saving}
                 className={cn(
                   "h-10 rounded-[0.85rem] px-5 text-sm font-semibold transition",
                   saved
@@ -146,7 +163,7 @@ export function SettingsPage() {
                 )}
               >
                 {saved ? <CheckCircle size={16} weight="fill" /> : null}
-                {saved ? "Salvo" : "Salvar"}
+                {saved ? "Salvo" : saving ? "Salvando..." : "Salvar"}
               </Button>
             </div>
           </section>
@@ -160,11 +177,11 @@ export function SettingsPage() {
                 </p>
                 <div className="mt-6 grid gap-3 sm:grid-cols-2">
                   <div className="rounded-[1rem] border border-white/10 bg-[#0b0b0b] p-4">
-                    <p className="text-xs tracking-[0.18em] text-[#8e8e93] uppercase">Email</p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-[#8e8e93]">Email</p>
                     <p className="mt-2 truncate text-sm font-medium text-white">{user.email || "sem email ativo"}</p>
                   </div>
                   <div className="rounded-[1rem] border border-white/10 bg-[#0b0b0b] p-4">
-                    <p className="text-xs tracking-[0.18em] text-[#8e8e93] uppercase">Perfil</p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-[#8e8e93]">Perfil</p>
                     <p className="mt-2 flex items-center gap-2 text-sm font-medium text-white">
                       <ShieldCheck size={16} className="text-[#dc3933]" />
                       {user.panel}

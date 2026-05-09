@@ -11,6 +11,8 @@ export type SupabaseProfile = {
   id: string;
   email: string;
   full_name: string | null;
+  avatar_url: string | null;
+  welcome_email_sent_at: string | null;
   kind: AdminUserKind;
   status: "ativo" | "pendente" | "desativado";
   company: string | null;
@@ -73,6 +75,75 @@ export async function fetchSupabaseProfileByEmail(email: string) {
 
   if (error) {
     return null;
+  }
+
+  return data;
+}
+
+export async function fetchSupabaseProfileById(id: string) {
+  const client = getClient();
+  if (!client) {
+    return null;
+  }
+
+  const { data, error } = await client
+    .from("profiles")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle<SupabaseProfile>();
+
+  if (error) {
+    return null;
+  }
+
+  return data;
+}
+
+export async function updateSupabaseProfileSettings({
+  id,
+  fullName,
+  avatarUrl,
+}: {
+  id: string;
+  fullName: string;
+  avatarUrl: string;
+}) {
+  const client = requireClient(getClient());
+
+  const { data, error } = await client
+    .from("profiles")
+    .update({
+      full_name: fullName.trim(),
+      avatar_url: avatarUrl.trim() || null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .select("*")
+    .single<SupabaseProfile>();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+export async function markSupabaseWelcomeEmailSent(id: string) {
+  const client = requireClient(getClient());
+
+  const { data, error } = await client
+    .from("profiles")
+    .update({
+      welcome_email_sent_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .is("welcome_email_sent_at", null)
+    .select("*")
+    .maybeSingle<SupabaseProfile>();
+
+  if (error) {
+    throw error;
   }
 
   return data;
