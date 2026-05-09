@@ -11,7 +11,7 @@ as $$
       from public.workspaces workspace
       join public.workspace_access access on access.workspace_id = workspace.id
       where workspace.local_id = p_workspace_local_id
-        and access.user_id = auth.uid()
+        and access.profile_id = auth.uid()
     );
 $$;
 
@@ -60,10 +60,10 @@ with check (
   and (
     public.is_admin()
     or (
-      storage.foldername(name)[1] = 'boards'
-      and public.can_access_workspace_by_local_id(storage.foldername(name)[2])
+      (storage.foldername(name))[1] = 'boards'
+      and public.can_access_workspace_by_local_id((storage.foldername(name))[2])
     )
-    or storage.foldername(name)[1] = 'project-summaries'
+    or (storage.foldername(name))[1] = 'project-summaries'
   )
 );
 
@@ -76,10 +76,10 @@ using (
   and (
     public.is_admin()
     or (
-      storage.foldername(name)[1] = 'boards'
-      and public.can_access_workspace_by_local_id(storage.foldername(name)[2])
+      (storage.foldername(name))[1] = 'boards'
+      and public.can_access_workspace_by_local_id((storage.foldername(name))[2])
     )
-    or storage.foldername(name)[1] = 'project-summaries'
+    or (storage.foldername(name))[1] = 'project-summaries'
   )
 )
 with check (
@@ -88,10 +88,10 @@ with check (
   and (
     public.is_admin()
     or (
-      storage.foldername(name)[1] = 'boards'
-      and public.can_access_workspace_by_local_id(storage.foldername(name)[2])
+      (storage.foldername(name))[1] = 'boards'
+      and public.can_access_workspace_by_local_id((storage.foldername(name))[2])
     )
-    or storage.foldername(name)[1] = 'project-summaries'
+    or (storage.foldername(name))[1] = 'project-summaries'
   )
 );
 
@@ -104,9 +104,9 @@ using (
   and (
     public.is_admin()
     or (
-      storage.foldername(name)[1] = 'boards'
-      and public.can_access_workspace_by_local_id(storage.foldername(name)[2])
+      (storage.foldername(name))[1] = 'boards'
+      and public.can_access_workspace_by_local_id((storage.foldername(name))[2])
     )
-    or storage.foldername(name)[1] = 'project-summaries'
+    or (storage.foldername(name))[1] = 'project-summaries'
   )
 );

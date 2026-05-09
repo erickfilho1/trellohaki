@@ -58,7 +58,22 @@ function buildInviteLink(boardId: string, email: string) {
 }
 
 function getInviteFailureMessage(error: unknown) {
-  const message = error instanceof Error ? error.message : String(error ?? "");
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "object" && error !== null
+        ? [
+            "message" in error && typeof error.message === "string" ? error.message : "",
+            "details" in error && typeof error.details === "string" ? error.details : "",
+            "hint" in error && typeof error.hint === "string" ? error.hint : "",
+            "error_description" in error && typeof error.error_description === "string"
+              ? error.error_description
+              : "",
+            "code" in error && typeof error.code === "string" ? `(${error.code})` : "",
+          ]
+            .filter(Boolean)
+            .join(" ")
+        : String(error ?? "");
 
   if (/Somente administradores/i.test(message)) {
     return "Sua conta ainda nao esta com permissao de admin no Supabase. Entre novamente ou ajuste o perfil admin.";
@@ -74,6 +89,10 @@ function getInviteFailureMessage(error: unknown) {
 
   if (/Supabase nao esta configurado/i.test(message)) {
     return "Supabase nao esta configurado neste ambiente. O convite nao pode ser gravado no backend agora.";
+  }
+
+  if (/duplicate key value violates unique constraint/i.test(message)) {
+    return "Ja existe um registro antigo para esse email no backend. O convite foi reaproveitado, mas vale revisar o usuario no Supabase se ele foi apagado manualmente.";
   }
 
   return message || "Nao foi possivel preparar o convite.";

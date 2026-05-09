@@ -133,11 +133,6 @@ export async function POST(request: Request) {
       subject: buildInviteEmailSubject(payload.boardName),
       html: buildInviteEmailHtml(payload),
     },
-    {
-      headers: {
-        "Idempotency-Key": `clientboard-invite-${payload.to.trim().toLowerCase()}-${payload.boardName}`,
-      },
-    },
   );
 
   if (emailError) {
