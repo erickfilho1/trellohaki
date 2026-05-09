@@ -4,6 +4,8 @@ create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text unique not null,
   full_name text,
+  avatar_url text,
+  welcome_email_sent_at timestamptz,
   kind text not null check (kind in ('admin', 'cliente', 'colaborador')),
   status text not null default 'pendente' check (status in ('ativo', 'pendente', 'desativado')),
   company text,
@@ -179,6 +181,12 @@ using (
       and admin_profile.kind = 'admin'
   )
 );
+
+create policy "profiles self update"
+on public.profiles
+for update
+using (auth.uid() = id)
+with check (auth.uid() = id);
 
 create policy "workspace members can read workspaces"
 on public.workspaces

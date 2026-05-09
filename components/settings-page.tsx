@@ -15,8 +15,20 @@ export function SettingsPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { logout, saveProfile, user } = useAuth();
-  const { boards } = useFlowBoardData();
-  const currentBoard = boards[0];
+  const { boards, workspaceAccess } = useFlowBoardData();
+  const currentBoard = useMemo(() => {
+    if (user.panel === "admin") {
+      return boards[0];
+    }
+
+    const allowedBoardIds = new Set(
+      workspaceAccess
+        .filter((access) => access.userId === user.id)
+        .map((access) => access.boardId),
+    );
+
+    return boards.find((board) => allowedBoardIds.has(board.id)) ?? boards[0];
+  }, [boards, user.id, user.panel, workspaceAccess]);
   const [displayName, setDisplayName] = useState(user.name);
   const [avatarDataUrl, setAvatarDataUrl] = useState("");
   const [saved, setSaved] = useState(false);

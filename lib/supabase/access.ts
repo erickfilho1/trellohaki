@@ -149,7 +149,10 @@ export async function markSupabaseWelcomeEmailSent(id: string) {
   return data;
 }
 
-export async function getRegistrationInvite(email: string): Promise<RegistrationInvite | null> {
+export async function getRegistrationInvite(
+  email: string,
+  workspaceLocalId?: string | null,
+): Promise<RegistrationInvite | null> {
   const client = getClient();
   if (!client) {
     return null;
@@ -157,6 +160,7 @@ export async function getRegistrationInvite(email: string): Promise<Registration
 
   const { data, error } = await client.rpc("get_registration_invite", {
     p_email: normalizeEmail(email),
+    p_workspace_local_id: workspaceLocalId?.trim() || null,
   });
 
   if (error || !Array.isArray(data) || data.length === 0) {

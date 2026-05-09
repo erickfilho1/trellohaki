@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/providers/auth-provider";
 import { canAccessPath } from "@/lib/permissions";
+
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
 
 export function AuthGate({
   children,
@@ -12,8 +16,14 @@ export function AuthGate({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { authenticated, hydrated, homePath, user } = useAuth();
   const isLoginRoute = pathname === "/login";
+  const inviteMode = searchParams.get("mode") === "register";
+  const inviteEmail = normalizeEmail(searchParams.get("email") ?? "");
+  const isInviteRegisterRoute = isLoginRoute && inviteMode && Boolean(inviteEmail);
+  const inviteTargetsAnotherUser =
+    isInviteRegisterRoute && authenticated && inviteEmail !== normalizeEmail(user.email || "");
   const canAccessCurrentPath = isLoginRoute || canAccessPath(user.panel, pathname);
 
   useEffect(() => {
@@ -26,7 +36,7 @@ export function AuthGate({
       return;
     }
 
-    if (authenticated && isLoginRoute) {
+    if (authenticated && isLoginRoute && !inviteTargetsAnotherUser) {
       router.replace(homePath);
       return;
     }
@@ -34,7 +44,15 @@ export function AuthGate({
     if (authenticated && !canAccessCurrentPath) {
       router.replace(homePath);
     }
-  }, [authenticated, canAccessCurrentPath, hydrated, homePath, isLoginRoute, router]);
+  }, [
+    authenticated,
+    canAccessCurrentPath,
+    hydrated,
+    homePath,
+    inviteTargetsAnotherUser,
+    isLoginRoute,
+    router,
+  ]);
 
   if (!hydrated) {
     return (
@@ -48,7 +66,7 @@ export function AuthGate({
 
   if (
     (!authenticated && !isLoginRoute) ||
-    (authenticated && isLoginRoute) ||
+    (authenticated && isLoginRoute && !inviteTargetsAnotherUser) ||
     (authenticated && !canAccessCurrentPath)
   ) {
     return (

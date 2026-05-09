@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Eye,
@@ -18,20 +18,43 @@ type AuthMode = "login" | "register";
 export function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login, register } = useAuth();
-  const [mode, setMode] = useState<AuthMode>(
-    searchParams.get("mode") === "register" ? "register" : "login",
-  );
+  const { authenticated, login, logout, register, user } = useAuth();
+  const searchMode = searchParams.get("mode") === "register" ? "register" : "login";
+  const inviteBoardId = searchParams.get("board");
+  const inviteEmail = searchParams.get("email") ?? "";
+  const [mode, setMode] = useState<AuthMode>(searchMode);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({
     name: "",
-    email: searchParams.get("email") ?? "",
+    email: inviteEmail,
     password: "",
     confirmPassword: "",
   });
+
+  useEffect(() => {
+    setMode(searchMode);
+  }, [searchMode]);
+
+  useEffect(() => {
+    setForm((current) => ({
+      ...current,
+      email: inviteEmail || current.email,
+    }));
+  }, [inviteEmail]);
+
+  useEffect(() => {
+    if (
+      authenticated &&
+      searchMode === "register" &&
+      inviteEmail.trim() &&
+      user.email.trim().toLowerCase() !== inviteEmail.trim().toLowerCase()
+    ) {
+      void logout();
+    }
+  }, [authenticated, inviteEmail, logout, searchMode, user.email]);
 
   const title = useMemo(
     () =>
@@ -69,6 +92,7 @@ export function LoginPage() {
           name: form.name,
           email: form.email,
           password: form.password,
+          boardId: inviteBoardId,
         });
 
         if (!result.ok) {

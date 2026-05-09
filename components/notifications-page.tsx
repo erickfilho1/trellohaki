@@ -16,10 +16,23 @@ type NotificationFilter = "all" | "unread" | "mentions";
 
 export function NotificationsPage() {
   const { user } = useAuth();
-  const { boards, notifications, markNotificationRead, markNotificationsRead } = useFlowBoardStore();
+  const { boards, notifications, workspaceAccess, markNotificationRead, markNotificationsRead } =
+    useFlowBoardStore();
   const [filter, setFilter] = useState<NotificationFilter>("unread");
   const [query, setQuery] = useState("");
-  const projectName = boards[0]?.name ?? "Painel Haki";
+  const projectName = useMemo(() => {
+    if (user.panel === "admin") {
+      return boards[0]?.name ?? "Painel Haki";
+    }
+
+    const allowedBoardIds = new Set(
+      workspaceAccess
+        .filter((access) => access.userId === user.id)
+        .map((access) => access.boardId),
+    );
+
+    return boards.find((board) => allowedBoardIds.has(board.id))?.name ?? "Painel Haki";
+  }, [boards, user.id, user.panel, workspaceAccess]);
 
   const viewerNotifications = useMemo(
     () => filterNotificationsForViewer(notifications, { name: user.name, email: user.email }),

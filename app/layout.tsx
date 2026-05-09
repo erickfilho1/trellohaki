@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -46,7 +47,17 @@ export default function RootLayout({
         <FlowBoardProvider>
           <AuthProvider>
             <PomodoroProvider>
-              <AuthGate>{children}</AuthGate>
+              <Suspense
+                fallback={
+                  <div className="grid min-h-[100dvh] place-items-center bg-[#0b0b0b] text-[#cfd6e6]">
+                    <div className="rounded-[1.4rem] border border-white/8 bg-white/4 px-5 py-3 text-sm">
+                      Carregando portal...
+                    </div>
+                  </div>
+                }
+              >
+                <AuthGate>{children}</AuthGate>
+              </Suspense>
             </PomodoroProvider>
           </AuthProvider>
         </FlowBoardProvider>

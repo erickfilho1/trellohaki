@@ -5,6 +5,7 @@ import { Check, DotsThree, Eye, FolderSimplePlus, PencilSimple, SealCheck, Trash
 import { ClientLayout } from "@/components/client-layout";
 import { DeliveredProjectSummaryModal } from "@/components/delivered-project-summary-modal";
 import { FloatingPanel } from "@/components/floating-panel";
+import { useAuth } from "@/components/providers/auth-provider";
 import { Topbar } from "@/components/topbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +23,15 @@ function getDeliveredListCards(board: NonNullable<ReturnType<typeof useFlowBoard
 }
 
 export function DeliveredProjectsPage() {
-  const { boards, updateBoard, updateCard, renameDeliveredFolder, deleteDeliveredFolder } = useFlowBoardData();
+  const { user } = useAuth();
+  const {
+    boards,
+    workspaceAccess,
+    updateBoard,
+    updateCard,
+    renameDeliveredFolder,
+    deleteDeliveredFolder,
+  } = useFlowBoardData();
   const [activeBoardId] = useState<string | null>(() => {
     if (typeof window === "undefined") {
       return null;
@@ -39,13 +48,27 @@ export function DeliveredProjectsPage() {
   const folderMenuAnchorRef = useRef<HTMLButtonElement | null>(null);
   const folderMenuPanelRef = useRef<HTMLDivElement | null>(null);
 
+  const accessibleBoards = useMemo(() => {
+    if (user.panel === "admin") {
+      return boards;
+    }
+
+    const allowedBoardIds = new Set(
+      workspaceAccess
+        .filter((access) => access.userId === user.id)
+        .map((access) => access.boardId),
+    );
+
+    return boards.filter((candidate) => allowedBoardIds.has(candidate.id));
+  }, [boards, user.id, user.panel, workspaceAccess]);
+
   const activeBoard = useMemo(() => {
-    if (!boards.length) {
+    if (!accessibleBoards.length) {
       return undefined;
     }
 
-    return boards.find((board) => board.id === activeBoardId) ?? boards[0];
-  }, [activeBoardId, boards]);
+    return accessibleBoards.find((board) => board.id === activeBoardId) ?? accessibleBoards[0];
+  }, [accessibleBoards, activeBoardId]);
 
   const deliveredCards = useMemo(() => {
     if (!activeBoard) {

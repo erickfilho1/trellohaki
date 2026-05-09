@@ -26,6 +26,7 @@ export function ClientBoardPage({ boardId }: { boardId?: string }) {
   const {
     board,
     boards,
+    workspaceAccess,
     filters,
     stats,
     updateFilters,
@@ -38,13 +39,27 @@ export function ClientBoardPage({ boardId }: { boardId?: string }) {
   const [filterOpen, setFilterOpen] = useState(false);
   const filterButtonRef = useRef<HTMLButtonElement | null>(null);
 
+  const accessibleBoards = useMemo(() => {
+    if (user.panel === "admin") {
+      return boards;
+    }
+
+    const allowedBoardIds = new Set(
+      workspaceAccess
+        .filter((access) => access.userId === user.id)
+        .map((access) => access.boardId),
+    );
+
+    return boards.filter((candidate) => allowedBoardIds.has(candidate.id));
+  }, [boards, user.id, user.panel, workspaceAccess]);
+
   const activeBoard = useMemo(() => {
-    if (board) {
+    if (board && accessibleBoards.some((candidate) => candidate.id === board.id)) {
       return board;
     }
 
-    return boards[0];
-  }, [board, boards]);
+    return accessibleBoards[0];
+  }, [accessibleBoards, board]);
 
   const currentMember = useMemo(() => {
     if (!activeBoard) {

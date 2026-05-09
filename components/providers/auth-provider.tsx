@@ -66,7 +66,12 @@ type AuthContextValue = {
   hydrated: boolean;
   homePath: string;
   login: (payload: { email: string; password: string }) => Promise<AuthResult>;
-  register: (payload: { name: string; email: string; password: string }) => Promise<AuthResult>;
+  register: (payload: {
+    name: string;
+    email: string;
+    password: string;
+    boardId?: string | null;
+  }) => Promise<AuthResult>;
   saveProfile: (payload: { name: string; avatarUrl: string }) => Promise<AuthResult>;
   logout: () => Promise<void>;
 };
@@ -190,13 +195,9 @@ export function AuthProvider({
         return false;
       }
 
-      if (candidate.email === ADMIN_EMAIL || candidate.email === DEMO_COLLAB_EMAIL) {
-        return true;
-      }
-
-      return accounts.some((account) => normalizeEmail(account.email) === candidate.email);
+      return candidate.email === ADMIN_EMAIL || candidate.email === DEMO_COLLAB_EMAIL;
     },
-    [accounts],
+    [],
   );
 
   const buildSupabaseSession = useCallback(async (panelEmail: string) => {
@@ -354,15 +355,17 @@ export function AuthProvider({
     }
 
     const invitedUser = adminUsers.find((user) => normalizeEmail(user.email) === session.email);
-    if (!invitedUser) {
-      return FALLBACK_USER;
-    }
+    const fallbackName =
+      profile?.full_name?.trim() ||
+      invitedUser?.name ||
+      session.email.split("@")[0] ||
+      "Painel Haki";
 
     return {
       id: session.userId,
-      name: profile?.full_name?.trim() || invitedUser.name,
-      email: profile?.email || invitedUser.email,
-      avatarUrl: profile?.avatar_url || invitedUser.avatarUrl,
+      name: fallbackName,
+      email: profile?.email || invitedUser?.email || session.email,
+      avatarUrl: profile?.avatar_url || invitedUser?.avatarUrl,
       panel: session.panel,
     };
   }, [adminUsers, profile, session]);
@@ -577,7 +580,7 @@ export function AuthProvider({
         void loadProfileForSession(nextSession);
         return { ok: true, nextPath: defaultHomePath(account.panel) };
       },
-      register: async ({ name, email, password }) => {
+      register: async ({ name, email, password, boardId }) => {
         const normalizedEmail = normalizeEmail(email);
         const trimmedName = name.trim();
 
@@ -593,7 +596,9 @@ export function AuthProvider({
         }
 
         const invitedUser = adminUsers.find((user) => normalizeEmail(user.email) === normalizedEmail);
-        const remoteInvite = supabaseEnabled ? await getRegistrationInvite(normalizedEmail) : null;
+        const remoteInvite = supabaseEnabled
+          ? await getRegistrationInvite(normalizedEmail, boardId)
+          : null;
         if (!invitedUser && !remoteInvite) {
           return {
             ok: false,
@@ -670,7 +675,8 @@ export function AuthProvider({
           return {
             ok: true,
             nextPath: "/login",
-            error: "Conta criada. Se o projeto exigir confirmacao de email, conclua a etapa e depois entre.",
+            error:
+              "Conta criada. Se o projeto exigir confirmacao de email, conclua a etapa e depois entre.",
           };
         }
 
@@ -764,6 +770,7 @@ export function AuthProvider({
         logoutRequestedRef.current = true;
         setSession(null);
         setProfile(null);
+        writeStoredSession(null);
         if (supabaseEnabled) {
           const supabase = getSupabaseBrowserClient();
           await supabase?.auth.signOut();
