@@ -90,7 +90,7 @@ export function MemberProfilePopover({
               <p className="text-[11px] tracking-[0.18em] text-[#7f889c] uppercase">Papel</p>
               <p className="mt-2 flex items-center gap-2 text-sm font-medium text-white">
                 <ShieldCheck size={15} className="text-[#dc3933]" />
-                {member.role ?? (member.isCurrentUser ? "Administrador" : "Membro do quadro")}
+                {member.role ?? "Membro do quadro"}
               </p>
             </div>
           </div>

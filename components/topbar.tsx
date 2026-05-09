@@ -8,6 +8,7 @@ import { BoardBackgroundPopover } from "@/components/board-background-popover";
 import { FloatingPanel } from "@/components/floating-panel";
 import { MemberProfilePopover, type ProfilePopoverMember } from "@/components/member-profile-popover";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useFlowBoardStore } from "@/components/providers/flowboard-provider";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import {
   Avatar,
@@ -41,6 +42,14 @@ function isCurrentBoardMember(member: MemberRecord, userName: string) {
   );
 }
 
+function panelRoleLabel(panel: "admin" | "cliente" | "colaborador") {
+  if (panel === "admin") {
+    return "Administrador";
+  }
+
+  return panel === "colaborador" ? "Colaborador" : "Cliente";
+}
+
 export function Topbar({
   title,
   subtitle,
@@ -70,6 +79,7 @@ export function Topbar({
 }) {
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { adminUsers, workspaceAccess } = useFlowBoardStore();
   const [backgroundOpen, setBackgroundOpen] = useState(false);
   const [demandOpen, setDemandOpen] = useState(false);
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
@@ -103,34 +113,86 @@ export function Topbar({
     }
 
     const deduped = new Map<string, ProfilePopoverMember>();
+    const accessRoleByUserId = new Map(
+      workspaceAccess
+        .filter((access) => access.boardId === board.id)
+        .map((access) => [access.userId, access.boardRole]),
+    );
+
+    const pushMember = (member: ProfilePopoverMember) => {
+      deduped.set(member.id, member);
+    };
 
     board.members.forEach((member) => {
       const current = isCurrentBoardMember(member, user.name);
-      deduped.set(member.id, {
+      const normalizedHandle = member.handle.replace(/^@/, "").toLowerCase();
+      const normalizedName = cleanProfileName(member.name).toLowerCase();
+      const mappedAdminUser =
+        adminUsers.find((adminUser) => {
+          const adminEmailHandle = adminUser.email.split("@")[0]?.toLowerCase() ?? "";
+          return (
+            adminEmailHandle === normalizedHandle ||
+            cleanProfileName(adminUser.name).toLowerCase() === normalizedName
+          );
+        }) ?? null;
+      pushMember({
         id: member.id,
         name: current ? currentIdentity.name : cleanProfileName(member.name),
         secondary: current ? user.email : member.handle,
         initials: current ? currentIdentity.initials : member.initials || initialsFromName(member.name),
         avatarUrl: current ? currentIdentity.avatarUrl : member.avatar,
-        role: member.role,
+        role: mappedAdminUser ? accessRoleByUserId.get(mappedAdminUser.id) ?? member.role : member.role,
         isCurrentUser: current,
       });
     });
 
+    workspaceAccess
+      .filter((access) => access.boardId === board.id)
+      .forEach((access) => {
+        const accessUser = adminUsers.find((adminUser) => adminUser.id === access.userId);
+        if (!accessUser) {
+          return;
+        }
+
+        const isCurrentUser =
+          accessUser.email.toLowerCase() === user.email.toLowerCase() ||
+          accessUser.name.toLowerCase() === cleanProfileName(user.name).toLowerCase();
+
+        pushMember({
+          id: accessUser.id,
+          name: isCurrentUser ? currentIdentity.name : cleanProfileName(accessUser.name),
+          secondary: isCurrentUser ? user.email : accessUser.email,
+          initials: isCurrentUser ? currentIdentity.initials : initialsFromName(accessUser.name),
+          avatarUrl: isCurrentUser ? currentIdentity.avatarUrl : accessUser.avatarUrl,
+          role: access.boardRole,
+          isCurrentUser,
+        });
+      });
+
     if (!Array.from(deduped.values()).some((member) => member.isCurrentUser)) {
-      deduped.set("current-user", {
+      pushMember({
         id: "current-user",
         name: currentIdentity.name,
         secondary: user.email,
         initials: currentIdentity.initials,
         avatarUrl: currentIdentity.avatarUrl,
-        role: "Administrador",
+        role: panelRoleLabel(user.panel),
         isCurrentUser: true,
       });
     }
 
-    return Array.from(deduped.values());
-  }, [board, currentIdentity, user.email, user.name]);
+    return Array.from(deduped.values()).sort((left, right) => {
+      if (left.isCurrentUser && !right.isCurrentUser) {
+        return -1;
+      }
+
+      if (!left.isCurrentUser && right.isCurrentUser) {
+        return 1;
+      }
+
+      return left.name.localeCompare(right.name, "pt-BR");
+    });
+  }, [adminUsers, board, currentIdentity, user.email, user.name, user.panel, workspaceAccess]);
 
   const activeMember = topbarMembers.find((member) => member.id === activeMemberId) ?? null;
   const activeMemberAnchorRef = useMemo(
