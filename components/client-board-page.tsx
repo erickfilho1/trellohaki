@@ -15,6 +15,14 @@ import { useFlowBoardData } from "@/hooks/use-flowboard-store";
 export function ClientBoardPage({ boardId }: { boardId?: string }) {
   const pathname = usePathname();
   const { user } = useAuth();
+  const [preferredBoardId, setPreferredBoardId] = useState<string | null>(() => {
+    if (typeof window === "undefined" || boardId) {
+      return null;
+    }
+
+    return window.localStorage.getItem("flowboard-active-board-id");
+  });
+  const resolvedBoardId = boardId ?? preferredBoardId ?? undefined;
   const {
     board,
     boards,
@@ -25,7 +33,7 @@ export function ClientBoardPage({ boardId }: { boardId?: string }) {
     updateBoard,
     addCard,
     updateCard,
-  } = useFlowBoardData(boardId);
+  } = useFlowBoardData(resolvedBoardId);
   const [shareOpen, setShareOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const filterButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -62,6 +70,10 @@ export function ClientBoardPage({ boardId }: { boardId?: string }) {
     }
 
     window.localStorage.setItem("flowboard-active-board-id", activeBoard.id);
+
+    if (!boardId) {
+      setPreferredBoardId(activeBoard.id);
+    }
   }, [activeBoard]);
 
   useEffect(() => {
