@@ -377,7 +377,7 @@ function SidebarAccountMenu({
               type="button"
               aria-label="Abrir notificacoes"
               onClick={() => onNotificationsOpenChange(!notificationsOpen)}
-              className="relative flex size-8 items-center justify-center rounded-full border border-white/8 bg-white/4 text-[#aab6cc] transition-colors hover:bg-white/8 hover:text-white"
+            className="relative flex size-8 items-center justify-center rounded-full border border-white/8 bg-white/4 text-[#b8b8bd] transition-colors hover:border-white/14 hover:bg-white/8 hover:text-white"
             >
               <Bell size={15} />
               {unreadCount > 0 ? (
@@ -391,7 +391,7 @@ function SidebarAccountMenu({
               type="button"
               aria-label="Abrir menu da conta"
               onClick={() => onOpenChange(!open)}
-              className="flex size-8 items-center justify-center rounded-full border border-white/8 bg-white/4 text-[#aab6cc] transition-colors hover:bg-white/8 hover:text-white"
+              className="flex size-8 items-center justify-center rounded-full border border-white/8 bg-white/4 text-[#b8b8bd] transition-colors hover:border-white/14 hover:bg-white/8 hover:text-white"
             >
               <GearSix size={15} />
             </button>
@@ -423,13 +423,13 @@ function SidebarAccountMenu({
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[15px] font-semibold tracking-[-0.02em] text-white">{user.name}</p>
-                <p className="mt-0.5 truncate text-xs text-[#8e9ab2]">{user.email}</p>
+                <p className="mt-0.5 truncate text-xs text-[#8f8f95]">{user.email}</p>
               </div>
               <button
                 type="button"
                 onClick={onSettings}
                 aria-label="Abrir configurações"
-                className="grid size-9 shrink-0 place-items-center rounded-full border border-white/8 bg-white/[0.035] text-[#8e9ab2] transition hover:border-white/16 hover:bg-white/[0.08] hover:text-white"
+                className="grid size-9 shrink-0 place-items-center rounded-full border border-white/8 bg-white/[0.035] text-[#b2b2b8] transition hover:border-white/16 hover:bg-white/[0.08] hover:text-white"
               >
                 <GearSix size={17} />
               </button>
@@ -438,10 +438,10 @@ function SidebarAccountMenu({
 
           <div className="space-y-1 p-2">
             <div
-              className="flex h-14 w-full items-center justify-between rounded-[1rem] border border-white/10 px-3 text-sm text-[#e9eefb] transition-colors hover:bg-white/6"
+              className="flex h-14 w-full items-center justify-between rounded-[1rem] border border-white/10 px-3 text-sm text-[#f0f0f2] transition-colors hover:bg-white/6"
             >
               <span>Tema</span>
-              <span className="flex items-center gap-1 rounded-full border border-white/8 bg-white/5 p-1 text-[#9ba8bd]">
+              <span className="flex items-center gap-1 rounded-full border border-white/8 bg-white/5 p-1 text-[#9f9fa6]">
                 <span
                   role="button"
                   tabIndex={0}
@@ -461,8 +461,8 @@ function SidebarAccountMenu({
                   className={cn(
                     "flex size-8 items-center justify-center rounded-full transition-all duration-200",
                     theme === "light"
-                      ? "bg-[#f7f7f7] text-[#111] shadow-[0_8px_20px_-12px_rgba(255,255,255,0.8)]"
-                      : "text-[#9ba8bd] hover:bg-white/6 hover:text-white",
+                      ? "bg-[#f7f7f7] text-[#111] shadow-[0_8px_20px_-12px_rgba(255,255,255,0.7)]"
+                      : "text-[#a8a8ae] hover:bg-white/6 hover:text-white",
                   )}
                 >
                   <Sun size={14} />
@@ -486,8 +486,8 @@ function SidebarAccountMenu({
                   className={cn(
                     "flex size-8 items-center justify-center rounded-full transition-all duration-200",
                     theme === "dark"
-                      ? "bg-[#222] text-white shadow-[0_8px_20px_-12px_rgba(0,0,0,0.95)]"
-                      : "text-[#6e7686] hover:bg-black/5 hover:text-[#111]",
+                      ? "bg-[#2b1814] text-[#ff6b57] shadow-[0_10px_22px_-14px_rgba(220,57,51,0.5)]"
+                      : "text-[#6f6f76] hover:bg-black/5 hover:text-[#111]",
                   )}
                 >
                   <Moon size={14} />
@@ -498,19 +498,19 @@ function SidebarAccountMenu({
             <button
               type="button"
               onClick={onBoard}
-              className="flex h-12 w-full items-center justify-between rounded-[0.95rem] px-3 text-sm text-[#e9eefb] transition-colors hover:bg-white/6 active:scale-[0.99]"
+              className="flex h-12 w-full items-center justify-between rounded-[0.95rem] px-3 text-sm text-[#f0f0f2] transition-colors hover:bg-white/6 active:scale-[0.99]"
             >
               <span>Quadro</span>
-              <Kanban size={17} className="text-[#95a2ba]" />
+              <Kanban size={17} className="text-[#ababaf]" />
             </button>
 
             <button
               type="button"
               onClick={onLogout}
-              className="flex h-12 w-full items-center justify-between rounded-[0.95rem] px-3 text-sm text-[#e9eefb] transition-colors hover:bg-white/6 active:scale-[0.99]"
+              className="flex h-12 w-full items-center justify-between rounded-[0.95rem] px-3 text-sm text-[#f0f0f2] transition-colors hover:bg-white/6 active:scale-[0.99]"
             >
               <span>Logout</span>
-              <SignOut size={17} className="text-[#95a2ba]" />
+              <SignOut size={17} className="text-[#ababaf]" />
             </button>
           </div>
         </div>
