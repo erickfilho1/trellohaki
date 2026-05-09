@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useFlowBoardStore } from "@/components/providers/flowboard-provider";
 import { prepareSupabaseWorkspaceInvite } from "@/lib/supabase/access";
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from "@/lib/auth/demo-credentials";
 import { syncSupabaseBoardRecordContent } from "@/lib/supabase/board-content";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
@@ -225,6 +226,37 @@ export function AdminPage() {
   const [preparingInvite, setPreparingInvite] = useState(false);
   const lastWorkspaceSyncSignature = useRef("");
 
+  const ensureSupabaseAdminSession = async () => {
+    if (!hasSupabaseEnv()) {
+      return null;
+    }
+
+    const supabase = getSupabaseBrowserClient();
+    if (!supabase) {
+      return null;
+    }
+
+    const current = await supabase.auth.getSession();
+    const currentToken = current.data.session?.access_token ?? null;
+    const currentEmail = current.data.session?.user.email?.trim().toLowerCase() ?? "";
+    if (currentToken && currentEmail === ADMIN_EMAIL) {
+      return currentToken;
+    }
+
+    const signInResult = await supabase.auth.signInWithPassword({
+      email: ADMIN_EMAIL,
+      password: ADMIN_PASSWORD,
+    });
+
+    if (signInResult.error || !signInResult.data.session?.access_token) {
+      throw new Error(
+        "A sessao admin do Supabase expirou. Entre novamente com a conta admin para sincronizar convites e enviar emails.",
+      );
+    }
+
+    return signInResult.data.session.access_token;
+  };
+
   const boardCards = useMemo(() => {
     return boards.map((board) => ({
       id: board.id,
@@ -343,6 +375,8 @@ export function AdminPage() {
     const panel = inviteForm.kind === "cliente" ? "cliente" : "colaborador";
 
     try {
+      const supabaseToken = await ensureSupabaseAdminSession();
+
       if (hasSupabaseEnv()) {
         await prepareSupabaseWorkspaceInvite({
           board: invitePreview.board,
@@ -370,18 +404,12 @@ export function AdminPage() {
 
       let emailMessage = "Convite preparado e vinculado ao backend.";
       if (hasSupabaseEnv()) {
-        const supabase = getSupabaseBrowserClient();
-        const { data: sessionData } = supabase
-          ? await supabase.auth.getSession()
-          : { data: { session: null } };
-        const accessToken = sessionData.session?.access_token;
-
-        if (accessToken) {
+        if (supabaseToken) {
           const response = await fetch("/api/invites/send", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
+              Authorization: `Bearer ${supabaseToken}`,
             },
             body: JSON.stringify({
               to: invitePreview.email,

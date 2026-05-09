@@ -11,20 +11,25 @@ import {
 } from "react";
 import { useFlowBoardStore } from "@/components/providers/flowboard-provider";
 import {
+  fetchSupabaseProfileById,
   fetchSupabaseProfileByEmail,
   getRegistrationInvite,
   panelFromProfile,
+  updateSupabaseProfileSettings,
+  type SupabaseProfile,
 } from "@/lib/supabase/access";
+import { writeStoredAccountSettings } from "@/lib/account-settings";
+import {
+  ADMIN_EMAIL,
+  ADMIN_PASSWORD,
+  DEMO_COLLAB_EMAIL,
+  DEMO_COLLAB_PASSWORD,
+} from "@/lib/auth/demo-credentials";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 
 const SESSION_STORAGE_KEY = "clientboard-auth-session";
 const ACCOUNTS_STORAGE_KEY = "clientboard-auth-accounts";
-
-const ADMIN_EMAIL = "erickfilho281@gmail.com";
-const ADMIN_PASSWORD = "erickE10@";
-const DEMO_COLLAB_EMAIL = "demo.colaborador@painelhaki.space";
-const DEMO_COLLAB_PASSWORD = "demoColab123@";
 
 type StoredAuthSession = {
   userId: string;
@@ -62,6 +67,7 @@ type AuthContextValue = {
   homePath: string;
   login: (payload: { email: string; password: string }) => Promise<AuthResult>;
   register: (payload: { name: string; email: string; password: string }) => Promise<AuthResult>;
+  saveProfile: (payload: { name: string; avatarUrl: string }) => Promise<AuthResult>;
   logout: () => Promise<void>;
 };
 
@@ -141,6 +147,30 @@ function defaultHomePath(panel: AuthUser["panel"]) {
   return panel === "admin" ? "/admin" : "/";
 }
 
+async function triggerWelcomeEmail(payload: {
+  accessToken: string;
+  email: string;
+  name: string;
+  boardName: string;
+  accessLink: string;
+  accessKind: "cliente" | "colaborador";
+}) {
+  await fetch("/api/welcome/send", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${payload.accessToken}`,
+    },
+    body: JSON.stringify({
+      to: payload.email,
+      recipientName: payload.name,
+      boardName: payload.boardName,
+      accessLink: payload.accessLink,
+      accessKind: payload.accessKind,
+    }),
+  }).catch(() => undefined);
+}
+
 export function AuthProvider({
   children,
 }: {
@@ -149,6 +179,7 @@ export function AuthProvider({
   const { adminUsers, upsertAdminUser } = useFlowBoardStore();
   const [session, setSession] = useState<StoredAuthSession | null>(readStoredSession);
   const [accounts, setAccounts] = useState<StoredAuthAccount[]>(readStoredAccounts);
+  const [profile, setProfile] = useState<SupabaseProfile | null>(null);
   const [hydrated] = useState(getInitialHydratedState);
   const supabaseEnabled = hasSupabaseEnv();
   const logoutRequestedRef = useRef(false);
@@ -189,6 +220,31 @@ export function AuthProvider({
     };
   }, []);
 
+  const loadProfileForSession = useCallback(
+    async (candidate: StoredAuthSession | null) => {
+      if (!candidate || !supabaseEnabled) {
+        setProfile(null);
+        return null;
+      }
+
+      if (
+        candidate.userId === "admin-erick" ||
+        candidate.userId === "demo-colaborador"
+      ) {
+        setProfile(null);
+        return null;
+      }
+
+      const nextProfile =
+        (await fetchSupabaseProfileById(candidate.userId)) ??
+        (await fetchSupabaseProfileByEmail(candidate.email));
+
+      setProfile(nextProfile);
+      return nextProfile;
+    },
+    [supabaseEnabled],
+  );
+
   useEffect(() => {
     writeStoredSession(session);
   }, [session]);
@@ -218,6 +274,7 @@ export function AuthProvider({
       if (!userEmail) {
         if (logoutRequestedRef.current) {
           setSession(null);
+          setProfile(null);
           return;
         }
 
@@ -226,11 +283,13 @@ export function AuthProvider({
         }
 
         setSession(null);
+        setProfile(null);
         return;
       }
 
       const nextSession = await buildSupabaseSession(userEmail);
       setSession(nextSession);
+      void loadProfileForSession(nextSession);
     });
 
     const {
@@ -240,6 +299,7 @@ export function AuthProvider({
       if (!userEmail) {
         if (logoutRequestedRef.current) {
           setSession(null);
+          setProfile(null);
           return;
         }
 
@@ -248,11 +308,13 @@ export function AuthProvider({
         }
 
         setSession(null);
+        setProfile(null);
         return;
       }
 
       void buildSupabaseSession(userEmail).then((nextSession) => {
         setSession(nextSession);
+        void loadProfileForSession(nextSession);
       });
     });
 
@@ -260,7 +322,11 @@ export function AuthProvider({
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [adminUsers, buildSupabaseSession, session, shouldKeepLocalSession, supabaseEnabled]);
+  }, [adminUsers, buildSupabaseSession, loadProfileForSession, session, shouldKeepLocalSession, supabaseEnabled]);
+
+  useEffect(() => {
+    void loadProfileForSession(session);
+  }, [loadProfileForSession, session]);
 
   const resolvedUser = useMemo<AuthUser>(() => {
     if (!session) {
@@ -269,18 +335,20 @@ export function AuthProvider({
 
     if (session.email === ADMIN_EMAIL) {
       return {
-        id: "admin-erick",
-        name: "Erick Filho",
+        id: session.userId,
+        name: profile?.full_name?.trim() || "Erick Filho",
         email: ADMIN_EMAIL,
+        avatarUrl: profile?.avatar_url || undefined,
         panel: "admin",
       };
     }
 
     if (session.email === DEMO_COLLAB_EMAIL) {
       return {
-        id: "demo-colaborador",
-        name: "Colaborador Demo",
+        id: session.userId,
+        name: profile?.full_name?.trim() || "Colaborador Demo",
         email: DEMO_COLLAB_EMAIL,
+        avatarUrl: profile?.avatar_url || undefined,
         panel: "colaborador",
       };
     }
@@ -291,13 +359,13 @@ export function AuthProvider({
     }
 
     return {
-      id: invitedUser.id,
-      name: invitedUser.name,
-      email: invitedUser.email,
-      avatarUrl: invitedUser.avatarUrl,
+      id: session.userId,
+      name: profile?.full_name?.trim() || invitedUser.name,
+      email: profile?.email || invitedUser.email,
+      avatarUrl: profile?.avatar_url || invitedUser.avatarUrl,
       panel: session.panel,
     };
-  }, [adminUsers, session]);
+  }, [adminUsers, profile, session]);
 
   const authenticated = Boolean(session && resolvedUser.id !== FALLBACK_USER.id);
   const homePath = defaultHomePath(resolvedUser.panel);
@@ -310,6 +378,7 @@ export function AuthProvider({
       homePath,
       login: async ({ email, password }) => {
         const normalizedEmail = normalizeEmail(email);
+        const invitedUser = adminUsers.find((user) => normalizeEmail(user.email) === normalizedEmail);
 
         if (!normalizedEmail || !password.trim()) {
           return { ok: false, error: "Preencha email e senha para entrar." };
@@ -320,6 +389,61 @@ export function AuthProvider({
             return { ok: false, error: "Senha incorreta para o acesso admin." };
           }
 
+          if (supabaseEnabled) {
+            const supabase = getSupabaseBrowserClient();
+            if (!supabase) {
+              return { ok: false, error: "Cliente Supabase indisponivel." };
+            }
+
+            let authUser = null as Awaited<ReturnType<typeof supabase.auth.signInWithPassword>>["data"]["user"];
+            let authError = null as Awaited<ReturnType<typeof supabase.auth.signInWithPassword>>["error"];
+
+            const { data, error } = await supabase.auth.signInWithPassword({
+              email: normalizedEmail,
+              password,
+            });
+            authUser = data.user;
+            authError = error;
+
+            if (authError) {
+              const { data: createdData, error: createdError } = await supabase.auth.signUp({
+                email: normalizedEmail,
+                password,
+                options: {
+                  data: {
+                    name: "Erick Filho",
+                    kind: "admin",
+                    panel: "admin",
+                  },
+                },
+              });
+
+              if (!createdError && createdData.user) {
+                authUser = createdData.user;
+                authError = null;
+              }
+            }
+
+            if (authError || !authUser) {
+              return {
+                ok: false,
+                error: authError?.message ?? "Nao foi possivel autenticar o admin no Supabase.",
+              };
+            }
+
+            const nextSession = await buildSupabaseSession(normalizedEmail);
+            if (!nextSession) {
+              return {
+                ok: false,
+                error: "A conta admin autenticou, mas o perfil admin ainda nao ficou ativo no Supabase.",
+              };
+            }
+
+            setSession(nextSession);
+            void loadProfileForSession(nextSession);
+            return { ok: true, nextPath: "/admin" };
+          }
+
           const nextSession: StoredAuthSession = {
             userId: "admin-erick",
             email: ADMIN_EMAIL,
@@ -327,6 +451,7 @@ export function AuthProvider({
           };
 
           setSession(nextSession);
+          void loadProfileForSession(nextSession);
           return { ok: true, nextPath: "/admin" };
         }
 
@@ -342,6 +467,7 @@ export function AuthProvider({
           };
 
           setSession(nextSession);
+          void loadProfileForSession(nextSession);
           return { ok: true, nextPath: "/" };
         }
 
@@ -395,10 +521,34 @@ export function AuthProvider({
           }
 
           setSession(nextSession);
+          void loadProfileForSession(nextSession);
+
+          if (data.session?.access_token && nextSession.panel !== "admin") {
+            const currentProfile = await fetchSupabaseProfileByEmail(normalizedEmail);
+            const boardName = currentProfile?.company || invitedUser?.company || "Painel Haki";
+            const accessKind = nextSession.panel === "colaborador" ? "colaborador" : "cliente";
+            const accessLink =
+              typeof window !== "undefined"
+                ? `${window.location.origin}${defaultHomePath(nextSession.panel)}`
+                : defaultHomePath(nextSession.panel);
+
+            void triggerWelcomeEmail({
+              accessToken: data.session.access_token,
+              email: normalizedEmail,
+              name:
+                currentProfile?.full_name?.trim() ||
+                invitedUser?.name ||
+                authUser.user_metadata?.name ||
+                "Novo acesso",
+              boardName,
+              accessLink,
+              accessKind,
+            });
+          }
+
           return { ok: true, nextPath: defaultHomePath(nextSession.panel) };
         }
 
-        const invitedUser = adminUsers.find((user) => normalizeEmail(user.email) === normalizedEmail);
         if (!invitedUser) {
           return {
             ok: false,
@@ -424,6 +574,7 @@ export function AuthProvider({
           panel: account.panel,
         };
         setSession(nextSession);
+        void loadProfileForSession(nextSession);
         return { ok: true, nextPath: defaultHomePath(account.panel) };
       },
       register: async ({ name, email, password }) => {
@@ -450,7 +601,8 @@ export function AuthProvider({
           };
         }
 
-        const accessKind = remoteInvite?.kind ?? invitedUser?.kind ?? "cliente";
+        const rawAccessKind = remoteInvite?.kind ?? invitedUser?.kind ?? "cliente";
+        const accessKind = rawAccessKind === "colaborador" ? "colaborador" : "cliente";
         const panel = accessKind === "colaborador" ? "colaborador" : "cliente";
 
         if (supabaseEnabled) {
@@ -493,6 +645,25 @@ export function AuthProvider({
 
           if (nextSession) {
             setSession(nextSession);
+            void loadProfileForSession(nextSession);
+
+            const accessLink =
+              typeof window !== "undefined"
+                ? `${window.location.origin}${defaultHomePath(nextSession.panel)}`
+                : defaultHomePath(nextSession.panel);
+
+            const accessToken = data.session?.access_token;
+            if (accessToken) {
+              void triggerWelcomeEmail({
+                accessToken,
+                email: normalizedEmail,
+                name: trimmedName,
+                boardName: remoteInvite?.workspaceTitle ?? invitedUser?.company ?? "Painel Haki",
+                accessLink,
+                accessKind,
+              });
+            }
+
             return { ok: true, nextPath: defaultHomePath(nextSession.panel) };
           }
 
@@ -543,9 +714,56 @@ export function AuthProvider({
         setSession(nextSession);
         return { ok: true, nextPath: defaultHomePath(panel) };
       },
+      saveProfile: async ({ name, avatarUrl }) => {
+        if (!session) {
+          return { ok: false, error: "Nenhum usuario autenticado para atualizar o perfil." };
+        }
+
+        const nextName = name.trim();
+        if (!nextName) {
+          return { ok: false, error: "Informe um nome para salvar o perfil." };
+        }
+
+        if (!supabaseEnabled || session.userId === "admin-erick" || session.userId === "demo-colaborador") {
+          writeStoredAccountSettings(session.email, {
+            displayName: nextName,
+            avatarDataUrl: avatarUrl,
+          });
+          setProfile((current) =>
+            current
+              ? {
+                  ...current,
+                  full_name: nextName,
+                  avatar_url: avatarUrl || null,
+                }
+              : current,
+          );
+          return { ok: true };
+        }
+
+        try {
+          const nextProfile = await updateSupabaseProfileSettings({
+            id: session.userId,
+            fullName: nextName,
+            avatarUrl,
+          });
+          writeStoredAccountSettings(session.email, {
+            displayName: nextName,
+            avatarDataUrl: avatarUrl,
+          });
+          setProfile(nextProfile);
+          return { ok: true };
+        } catch (error) {
+          return {
+            ok: false,
+            error: error instanceof Error ? error.message : "Nao foi possivel salvar o perfil.",
+          };
+        }
+      },
       logout: async () => {
         logoutRequestedRef.current = true;
         setSession(null);
+        setProfile(null);
         if (supabaseEnabled) {
           const supabase = getSupabaseBrowserClient();
           await supabase?.auth.signOut();
@@ -553,7 +771,7 @@ export function AuthProvider({
         logoutRequestedRef.current = false;
       },
     }),
-    [accounts, adminUsers, authenticated, buildSupabaseSession, homePath, hydrated, resolvedUser, supabaseEnabled, upsertAdminUser],
+    [accounts, adminUsers, authenticated, buildSupabaseSession, homePath, hydrated, loadProfileForSession, resolvedUser, session, supabaseEnabled, upsertAdminUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
