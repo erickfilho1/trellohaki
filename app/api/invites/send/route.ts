@@ -149,23 +149,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Supabase nao esta configurado no servidor." }, { status: 500 });
   }
 
-  const workspacePayload = {
-    local_id: payload.board.id,
-    title: payload.board.name.trim() || "Quadro sem nome",
-    client_name: payload.board.name.trim() || "Cliente",
-    description: payload.board.description?.trim() ?? "",
-    accent: payload.board.accent?.trim() ?? "",
-    share_link: payload.board.shareLink?.trim() ?? "",
-    updated_at: new Date().toISOString(),
-  };
+  const { data: workspaceId, error: workspaceError } = await scopedSupabase.rpc(
+    "upsert_workspace_from_invite",
+    {
+      p_local_id: payload.board.id,
+      p_title: payload.board.name.trim() || "Quadro sem nome",
+      p_client_name: payload.board.name.trim() || "Cliente",
+      p_description: payload.board.description?.trim() ?? "",
+      p_accent: payload.board.accent?.trim() ?? "",
+      p_share_link: payload.board.shareLink?.trim() ?? "",
+    },
+  );
 
-  const { data: workspaceData, error: workspaceError } = await scopedSupabase
-    .from("workspaces")
-    .upsert(workspacePayload, { onConflict: "local_id" })
-    .select("id")
-    .single<{ id: string }>();
-
-  if (workspaceError || !workspaceData?.id) {
+  if (workspaceError || !workspaceId) {
     logError({
       message: "invite_email_workspace_upsert_failed",
       route,
@@ -181,7 +177,7 @@ export async function POST(request: Request) {
   }
 
   const { error: prepareInviteError } = await scopedSupabase.rpc("prepare_workspace_invite", {
-    p_workspace_id: workspaceData.id,
+    p_workspace_id: workspaceId,
     p_email: payload.to.trim().toLowerCase(),
     p_kind: payload.accessKind,
   });
