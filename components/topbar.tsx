@@ -18,8 +18,9 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { ADMIN_EMAIL } from "@/lib/auth/demo-credentials";
 import { cleanProfileName, resolveUserProfileIdentity } from "@/lib/account-settings";
-import type { BoardFiltersRecord, BoardRecord, MemberRecord } from "@/lib/flowboard-types";
+import type { BoardFiltersRecord, BoardRecord } from "@/lib/flowboard-types";
 import { cn } from "@/lib/utils";
 
 function initialsFromName(name: string) {
@@ -30,24 +31,20 @@ function initialsFromName(name: string) {
     .join("");
 }
 
-function isCurrentBoardMember(member: MemberRecord, userName: string) {
-  const cleanName = cleanProfileName(member.name).toLowerCase();
-  const referenceName = cleanProfileName(userName).toLowerCase();
-
-  return (
-    member.name.toLowerCase().includes("(voce)") ||
-    member.id === "member-erick" ||
-    member.handle === "@erickfilho281" ||
-    cleanName === referenceName
-  );
-}
-
 function panelRoleLabel(panel: "admin" | "cliente" | "colaborador") {
   if (panel === "admin") {
     return "Administrador";
   }
 
   return panel === "colaborador" ? "Colaborador" : "Cliente";
+}
+
+function normalizeIdentityKey(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function isPlaceholderWorkspaceUser(email: string) {
+  return normalizeIdentityKey(email).endsWith("@clientboard.local");
 }
 
 export function Topbar({
@@ -113,63 +110,62 @@ export function Topbar({
     }
 
     const deduped = new Map<string, ProfilePopoverMember>();
-    const accessRoleByUserId = new Map(
-      workspaceAccess
-        .filter((access) => access.boardId === board.id)
-        .map((access) => [access.userId, access.boardRole]),
-    );
+    const currentEmail = normalizeIdentityKey(user.email);
+    const currentName = cleanProfileName(user.name).toLowerCase();
+    const boardAccess = workspaceAccess.filter((access) => access.boardId === board.id);
+    const primaryAdmin =
+      adminUsers.find((adminUser) => normalizeIdentityKey(adminUser.email) === normalizeIdentityKey(ADMIN_EMAIL)) ??
+      null;
 
     const pushMember = (member: ProfilePopoverMember) => {
-      deduped.set(member.id, member);
+      const identityKey = normalizeIdentityKey(member.secondary || member.id);
+      if (!deduped.has(identityKey)) {
+        deduped.set(identityKey, member);
+      }
     };
 
-    board.members.forEach((member) => {
-      const current = isCurrentBoardMember(member, user.name);
-      const normalizedHandle = member.handle.replace(/^@/, "").toLowerCase();
-      const normalizedName = cleanProfileName(member.name).toLowerCase();
-      const mappedAdminUser =
-        adminUsers.find((adminUser) => {
-          const adminEmailHandle = adminUser.email.split("@")[0]?.toLowerCase() ?? "";
-          return (
-            adminEmailHandle === normalizedHandle ||
-            cleanProfileName(adminUser.name).toLowerCase() === normalizedName
-          );
-        }) ?? null;
+    boardAccess.forEach((access) => {
+      const accessUser = adminUsers.find((adminUser) => adminUser.id === access.userId);
+      if (!accessUser) {
+        return;
+      }
+
+      const normalizedEmail = normalizeIdentityKey(accessUser.email);
+      const normalizedName = cleanProfileName(accessUser.name).toLowerCase();
+      const isCurrentUser = normalizedEmail === currentEmail || normalizedName === currentName;
+
+      if (accessUser.kind === "admin" || isPlaceholderWorkspaceUser(accessUser.email)) {
+        return;
+      }
+
       pushMember({
-        id: member.id,
-        name: current ? currentIdentity.name : cleanProfileName(member.name),
-        secondary: current ? user.email : member.handle,
-        initials: current ? currentIdentity.initials : member.initials || initialsFromName(member.name),
-        avatarUrl: current ? currentIdentity.avatarUrl : member.avatar,
-        role: mappedAdminUser ? accessRoleByUserId.get(mappedAdminUser.id) ?? member.role : member.role,
-        isCurrentUser: current,
+        id: accessUser.id,
+        name: isCurrentUser ? currentIdentity.name : cleanProfileName(accessUser.name),
+        secondary: isCurrentUser ? user.email : accessUser.email,
+        initials: isCurrentUser ? currentIdentity.initials : initialsFromName(accessUser.name),
+        avatarUrl: isCurrentUser ? currentIdentity.avatarUrl : accessUser.avatarUrl,
+        role: access.boardRole,
+        isCurrentUser,
       });
     });
 
-    workspaceAccess
-      .filter((access) => access.boardId === board.id)
-      .forEach((access) => {
-        const accessUser = adminUsers.find((adminUser) => adminUser.id === access.userId);
-        if (!accessUser) {
-          return;
-        }
+    if (primaryAdmin) {
+      const isCurrentUser =
+        normalizeIdentityKey(primaryAdmin.email) === currentEmail ||
+        cleanProfileName(primaryAdmin.name).toLowerCase() === currentName;
 
-        const isCurrentUser =
-          accessUser.email.toLowerCase() === user.email.toLowerCase() ||
-          accessUser.name.toLowerCase() === cleanProfileName(user.name).toLowerCase();
-
-        pushMember({
-          id: accessUser.id,
-          name: isCurrentUser ? currentIdentity.name : cleanProfileName(accessUser.name),
-          secondary: isCurrentUser ? user.email : accessUser.email,
-          initials: isCurrentUser ? currentIdentity.initials : initialsFromName(accessUser.name),
-          avatarUrl: isCurrentUser ? currentIdentity.avatarUrl : accessUser.avatarUrl,
-          role: access.boardRole,
-          isCurrentUser,
-        });
+      pushMember({
+        id: primaryAdmin.id,
+        name: isCurrentUser ? currentIdentity.name : cleanProfileName(primaryAdmin.name),
+        secondary: isCurrentUser ? user.email : primaryAdmin.email,
+        initials: isCurrentUser ? currentIdentity.initials : initialsFromName(primaryAdmin.name),
+        avatarUrl: isCurrentUser ? currentIdentity.avatarUrl : primaryAdmin.avatarUrl,
+        role: "Administrador",
+        isCurrentUser,
       });
+    }
 
-    if (!Array.from(deduped.values()).some((member) => member.isCurrentUser)) {
+    if (!Array.from(deduped.values()).some((member) => member.isCurrentUser) && user.email) {
       pushMember({
         id: "current-user",
         name: currentIdentity.name,

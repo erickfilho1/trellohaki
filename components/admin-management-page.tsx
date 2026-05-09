@@ -48,6 +48,14 @@ function isClosedList(title: string) {
   return CLOSED_LIST_PATTERNS.some((pattern) => normalized.includes(pattern));
 }
 
+function normalizeIdentityKey(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function isPlaceholderWorkspaceUser(email: string) {
+  return normalizeIdentityKey(email).endsWith("@clientboard.local");
+}
+
 function StatRow({
   label,
   value,
@@ -132,7 +140,9 @@ export function AdminManagementPage() {
   }, [selectedBoard, workspaceAccess]);
 
   const selectedBoardUsers = useMemo(() => {
-    return selectedBoardAccess
+    const deduped = new Map<string, { access: WorkspaceAccess; user: (typeof adminUsers)[number] }>();
+
+    selectedBoardAccess
       .map((access) => {
         const user = adminUsers.find((item) => item.id === access.userId);
         if (!user) {
@@ -144,7 +154,24 @@ export function AdminManagementPage() {
           user,
         };
       })
-      .filter(Boolean) as Array<{ access: WorkspaceAccess; user: (typeof adminUsers)[number] }>;
+      .filter(Boolean)
+      .forEach((entry) => {
+        if (!entry) {
+          return;
+        }
+
+        const isCurrentAdmin = normalizeIdentityKey(entry.user.email) === "erickfilho281@gmail.com";
+        if (!isCurrentAdmin && (entry.user.kind === "admin" || isPlaceholderWorkspaceUser(entry.user.email))) {
+          return;
+        }
+
+        const key = normalizeIdentityKey(entry.user.email || entry.user.id);
+        if (!deduped.has(key)) {
+          deduped.set(key, entry);
+        }
+      });
+
+    return Array.from(deduped.values()) as Array<{ access: WorkspaceAccess; user: (typeof adminUsers)[number] }>;
   }, [adminUsers, selectedBoardAccess]);
 
   const activeCards = useMemo(() => {
