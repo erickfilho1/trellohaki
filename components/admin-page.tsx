@@ -16,7 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useFlowBoardStore } from "@/components/providers/flowboard-provider";
-import { prepareSupabaseWorkspaceInvite } from "@/lib/supabase/access";
 import { ADMIN_EMAIL, ADMIN_PASSWORD } from "@/lib/auth/demo-credentials";
 import { syncSupabaseBoardRecordContent } from "@/lib/supabase/board-content";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -377,14 +376,6 @@ export function AdminPage() {
     try {
       const supabaseToken = await ensureSupabaseAdminSession();
 
-      if (hasSupabaseEnv()) {
-        await prepareSupabaseWorkspaceInvite({
-          board: invitePreview.board,
-          email: invitePreview.email,
-          kind: inviteForm.kind,
-        });
-      }
-
       upsertAdminUser({
         id: userId,
         name: nextName,
@@ -417,6 +408,13 @@ export function AdminPage() {
               boardName: invitePreview.board.name,
               inviteLink: invitePreview.link,
               accessKind: inviteForm.kind,
+              board: {
+                id: invitePreview.board.id,
+                name: invitePreview.board.name,
+                description: invitePreview.board.description,
+                accent: invitePreview.board.accent,
+                shareLink: invitePreview.board.shareLink,
+              },
             }),
           });
           const result = (await response.json()) as { id?: string | null; error?: string };

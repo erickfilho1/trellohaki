@@ -12,6 +12,13 @@ type InviteSendPayload = {
   boardName: string;
   inviteLink: string;
   accessKind: "cliente" | "colaborador";
+  board: {
+    id: string;
+    name: string;
+    description?: string;
+    accent?: string;
+    shareLink?: string;
+  };
 };
 
 function getSupabaseServerClient() {
@@ -30,6 +37,27 @@ function getSupabaseServerClient() {
   });
 }
 
+function getSupabaseScopedServerClient(token: string) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !anonKey) {
+    return null;
+  }
+
+  return createClient(url, anonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+    global: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  });
+}
+
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -40,6 +68,8 @@ function isValidInvitePayload(payload: Partial<InviteSendPayload>): payload is I
       payload.recipientName &&
       payload.boardName &&
       payload.inviteLink &&
+      payload.board?.id &&
+      payload.board?.name &&
       (payload.accessKind === "cliente" || payload.accessKind === "colaborador") &&
       isValidEmail(payload.to),
   );
@@ -106,6 +136,66 @@ export async function POST(request: Request) {
       durationMs: Date.now() - start,
     });
     return NextResponse.json({ error: "Dados do convite incompletos." }, { status: 400 });
+  }
+
+  const scopedSupabase = getSupabaseScopedServerClient(token);
+  if (!scopedSupabase) {
+    logError({
+      message: "invite_email_scoped_supabase_missing",
+      route,
+      requestId,
+      durationMs: Date.now() - start,
+    });
+    return NextResponse.json({ error: "Supabase nao esta configurado no servidor." }, { status: 500 });
+  }
+
+  const workspacePayload = {
+    local_id: payload.board.id,
+    title: payload.board.name.trim() || "Quadro sem nome",
+    client_name: payload.board.name.trim() || "Cliente",
+    description: payload.board.description?.trim() ?? "",
+    accent: payload.board.accent?.trim() ?? "",
+    share_link: payload.board.shareLink?.trim() ?? "",
+    updated_at: new Date().toISOString(),
+  };
+
+  const { data: workspaceData, error: workspaceError } = await scopedSupabase
+    .from("workspaces")
+    .upsert(workspacePayload, { onConflict: "local_id" })
+    .select("id")
+    .single<{ id: string }>();
+
+  if (workspaceError || !workspaceData?.id) {
+    logError({
+      message: "invite_email_workspace_upsert_failed",
+      route,
+      requestId,
+      to: payload.to,
+      error: workspaceError?.message ?? "workspace_id_missing",
+      durationMs: Date.now() - start,
+    });
+    return NextResponse.json(
+      { error: workspaceError?.message ?? "Nao foi possivel sincronizar o quadro no Supabase." },
+      { status: 400 },
+    );
+  }
+
+  const { error: prepareInviteError } = await scopedSupabase.rpc("prepare_workspace_invite", {
+    p_workspace_id: workspaceData.id,
+    p_email: payload.to.trim().toLowerCase(),
+    p_kind: payload.accessKind,
+  });
+
+  if (prepareInviteError) {
+    logError({
+      message: "invite_email_prepare_failed",
+      route,
+      requestId,
+      to: payload.to,
+      error: prepareInviteError.message,
+      durationMs: Date.now() - start,
+    });
+    return NextResponse.json({ error: prepareInviteError.message }, { status: 400 });
   }
 
   const resend = getResendClient();
