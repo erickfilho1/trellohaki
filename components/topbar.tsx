@@ -39,6 +39,17 @@ function panelRoleLabel(panel: "admin" | "cliente" | "colaborador") {
   return panel === "colaborador" ? "Colaborador" : "Cliente";
 }
 
+function workspaceMemberRoleLabel(
+  panel: "admin" | "cliente" | "colaborador",
+  boardRole?: "Membro" | "Observador" | "Administrador",
+) {
+  if (panel === "admin" || boardRole === "Administrador") {
+    return "Administrador";
+  }
+
+  return panel === "colaborador" ? "Colaborador" : "Cliente";
+}
+
 function normalizeIdentityKey(value: string) {
   return value.trim().toLowerCase();
 }
@@ -114,8 +125,18 @@ export function Topbar({
     const currentName = cleanProfileName(user.name).toLowerCase();
     const boardAccess = workspaceAccess.filter((access) => access.boardId === board.id);
     const primaryAdmin =
-      adminUsers.find((adminUser) => normalizeIdentityKey(adminUser.email) === normalizeIdentityKey(ADMIN_EMAIL)) ??
-      null;
+      adminUsers.find((adminUser) => normalizeIdentityKey(adminUser.email) === normalizeIdentityKey(ADMIN_EMAIL)) ?? {
+        id: "admin-erick",
+        name: "Erick Filho",
+        email: ADMIN_EMAIL,
+        avatarUrl: undefined,
+        kind: "admin" as const,
+        status: "ativo" as const,
+        company: undefined,
+        title: "Administrador principal",
+        createdAt: "",
+        updatedAt: "",
+      };
 
     const pushMember = (member: ProfilePopoverMember) => {
       const identityKey = normalizeIdentityKey(member.secondary || member.id);
@@ -144,7 +165,7 @@ export function Topbar({
         secondary: isCurrentUser ? user.email : accessUser.email,
         initials: isCurrentUser ? currentIdentity.initials : initialsFromName(accessUser.name),
         avatarUrl: isCurrentUser ? currentIdentity.avatarUrl : accessUser.avatarUrl,
-        role: access.boardRole,
+        role: workspaceMemberRoleLabel(access.panel, access.boardRole),
         isCurrentUser,
       });
     });
