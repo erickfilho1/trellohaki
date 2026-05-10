@@ -353,6 +353,26 @@
     color: #5f6878 !important;
   }
 
+  html[data-haki-theme="light"] [data-light-label="true"] {
+    color: #191919 !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-muted="true"] {
+    color: #5f6878 !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-outline-action="true"] {
+    border-color: rgba(17, 17, 17, 0.12) !important;
+    background: rgba(17, 17, 17, 0.045) !important;
+    color: #171717 !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-outline-action="true"]:hover {
+    border-color: rgba(220, 57, 51, 0.22) !important;
+    background: rgba(220, 57, 51, 0.08) !important;
+    color: #171717 !important;
+  }
+
   html[data-haki-theme="light"] [data-light-keep-dark="true"] {
     color: #f6f7fb !important;
   }

@@ -138,7 +138,7 @@ export function SettingsPage() {
             <div className="grid items-center gap-8 px-7 py-8 md:grid-cols-[minmax(0,1fr)_auto] md:px-8">
               <div className="max-w-2xl">
                 <h2 className="text-[1.45rem] font-semibold tracking-[-0.04em] text-white">Avatar</h2>
-                <p className="mt-5 max-w-[58ch] text-[0.98rem] leading-7 text-[#d6d6d6]">
+                <p data-light-muted="true" className="mt-5 max-w-[58ch] text-[0.98rem] leading-7 text-[#d6d6d6]">
                   Esta é sua imagem no painel. Clique no avatar para enviar um arquivo do seu computador.
                 </p>
               </div>
@@ -169,7 +169,7 @@ export function SettingsPage() {
               />
             </div>
 
-            <div className="border-t border-white/10 px-7 py-5 text-sm text-[#a1a1aa] md:px-8">
+            <div data-light-muted="true" className="border-t border-white/10 px-7 py-5 text-sm text-[#a1a1aa] md:px-8">
               O avatar é opcional, mas ajuda a reconhecer responsáveis em comentários e convites.
             </div>
           </section>
@@ -180,12 +180,12 @@ export function SettingsPage() {
           >
             <div className="px-7 py-8 md:px-8">
               <h2 className="text-[1.45rem] font-semibold tracking-[-0.04em] text-white">Nome de exibição</h2>
-              <p className="mt-5 max-w-[68ch] text-[0.98rem] leading-7 text-[#d6d6d6]">
+              <p data-light-muted="true" className="mt-5 max-w-[68ch] text-[0.98rem] leading-7 text-[#d6d6d6]">
                 Use seu nome completo ou um nome curto que deixe claro quem está movimentando demandas.
               </p>
 
               <div className="mt-6 max-w-[420px] space-y-2">
-                <label className="text-sm font-medium text-[#f4f4f5]" htmlFor="display-name">
+                <label data-light-label="true" className="text-sm font-medium text-[#f4f4f5]" htmlFor="display-name">
                   Nome
                 </label>
                 <Input
@@ -200,7 +200,7 @@ export function SettingsPage() {
 
             <div className="flex flex-col gap-4 border-t border-white/10 px-7 py-5 sm:flex-row sm:items-center sm:justify-between md:px-8">
               <div className="space-y-2">
-                <p className="text-sm text-[#a1a1aa]">Use no máximo 32 caracteres. Restam {remainingChars}.</p>
+                <p data-light-muted="true" className="text-sm text-[#a1a1aa]">Use no máximo 32 caracteres. Restam {remainingChars}.</p>
                 {error ? <p className="text-sm text-[#ff8f86]">{error}</p> : null}
               </div>
               <Button
@@ -226,7 +226,7 @@ export function SettingsPage() {
             <div className="grid gap-6 px-7 py-8 md:grid-cols-[minmax(0,1fr)_auto] md:px-8">
               <div>
                 <h2 className="text-[1.45rem] font-semibold tracking-[-0.04em] text-white">Acesso</h2>
-                <p className="mt-5 max-w-[68ch] text-[0.98rem] leading-7 text-[#d6d6d6]">
+                <p data-light-muted="true" className="mt-5 max-w-[68ch] text-[0.98rem] leading-7 text-[#d6d6d6]">
                   Seu email fica vinculado ao painel correto. As permissões mudam conforme o perfil liberado no admin.
                 </p>
                 <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -234,14 +234,14 @@ export function SettingsPage() {
                     data-light-subtle="true"
                     className="rounded-[1rem] border border-white/10 bg-[#0b0b0b] p-4"
                   >
-                    <p className="text-xs uppercase tracking-[0.18em] text-[#8e8e93]">Email</p>
+                    <p data-light-muted="true" className="text-xs uppercase tracking-[0.18em] text-[#8e8e93]">Email</p>
                     <p className="mt-2 truncate text-sm font-medium text-white">{user.email || "sem email ativo"}</p>
                   </div>
                   <div
                     data-light-subtle="true"
                     className="rounded-[1rem] border border-white/10 bg-[#0b0b0b] p-4"
                   >
-                    <p className="text-xs uppercase tracking-[0.18em] text-[#8e8e93]">Perfil</p>
+                    <p data-light-muted="true" className="text-xs uppercase tracking-[0.18em] text-[#8e8e93]">Perfil</p>
                     <p className="mt-2 flex items-center gap-2 text-sm font-medium text-white">
                       <ShieldCheck size={16} className="text-[#dc3933]" />
                       {user.panel}
@@ -255,7 +255,7 @@ export function SettingsPage() {
                 >
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-[#f4f4f5]" htmlFor="new-password">
+                      <label data-light-label="true" className="text-sm font-medium text-[#f4f4f5]" htmlFor="new-password">
                         Nova senha
                       </label>
                       <Input
@@ -269,7 +269,7 @@ export function SettingsPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-[#f4f4f5]" htmlFor="confirm-password">
+                      <label data-light-label="true" className="text-sm font-medium text-[#f4f4f5]" htmlFor="confirm-password">
                         Confirmar senha
                       </label>
                       <Input
@@ -285,7 +285,7 @@ export function SettingsPage() {
 
                   <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="space-y-1">
-                      <p className="text-sm text-[#a1a1aa]">
+                      <p data-light-muted="true" className="text-sm text-[#a1a1aa]">
                         A nova senha e a confirmacao precisam bater para salvar no Supabase.
                       </p>
                       {passwordError ? <p className="text-sm text-[#ff8f86]">{passwordError}</p> : null}
@@ -310,6 +310,7 @@ export function SettingsPage() {
               </div>
 
               <Button
+                data-light-outline-action="true"
                 variant="outline"
                 onClick={() => {
                   logout();
