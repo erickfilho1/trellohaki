@@ -47,6 +47,15 @@ function titleFromEmail(email: string) {
     .join(" ");
 }
 
+function normalizeWorkspaceTitle(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
 function buildInviteLink(boardId: string, email: string) {
   const params = new URLSearchParams({
     email: email.trim().toLowerCase(),
@@ -195,12 +204,14 @@ function AccentPicker({
 export function AdminPage() {
   const {
     boards,
+    hydrated,
     adminUsers,
     workspaceAccess,
     upsertAdminUser,
     grantWorkspaceAccess,
     createWorkspace,
     duplicateWorkspace,
+    deleteWorkspace,
   } = useFlowBoardStore();
 
   const [creationMode, setCreationMode] = useState<"blank" | "template">("blank");
@@ -225,6 +236,11 @@ export function AdminPage() {
   } | null>(null);
   const [preparingInvite, setPreparingInvite] = useState(false);
   const lastWorkspaceSyncSignature = useRef("");
+
+  const boardsForSync = useMemo(
+    () => boards.filter((board) => board.id !== "board-hub"),
+    [boards],
+  );
 
   const ensureSupabaseAdminSession = async () => {
     if (!hasSupabaseEnv()) {
@@ -267,11 +283,11 @@ export function AdminPage() {
   }, [boards, workspaceAccess]);
 
   useEffect(() => {
-    if (!hasSupabaseEnv() || boards.length === 0) {
+    if (!hydrated || !hasSupabaseEnv() || boardsForSync.length === 0) {
       return;
     }
 
-    const signature = boards
+    const signature = boardsForSync
       .map((board) => `${board.id}:${board.name}:${board.description}:${board.accent}:${board.shareLink ?? ""}`)
       .join("|");
 
@@ -281,12 +297,35 @@ export function AdminPage() {
 
     lastWorkspaceSyncSignature.current = signature;
     void (async () => {
-      await syncSupabaseWorkspacesFromBoards(boards);
-      await Promise.all(boards.map((board) => syncSupabaseBoardRecordContent(board)));
+      await syncSupabaseWorkspacesFromBoards(boardsForSync);
+      await Promise.all(boardsForSync.map((board) => syncSupabaseBoardRecordContent(board)));
     })().catch((error) => {
       console.warn("Nao foi possivel sincronizar os quadros com o Supabase.", error);
     });
-  }, [boards]);
+  }, [boardsForSync, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+
+    const legacyBoard = boards.find((board) => board.id === "board-hub");
+    if (!legacyBoard) {
+      return;
+    }
+
+    const duplicateRealBoard = boards.find(
+      (board) =>
+        board.id !== "board-hub" &&
+        normalizeWorkspaceTitle(board.name) === normalizeWorkspaceTitle(legacyBoard.name),
+    );
+
+    if (!duplicateRealBoard) {
+      return;
+    }
+
+    deleteWorkspace("board-hub");
+  }, [boards, deleteWorkspace, hydrated]);
 
   const invitePreview = useMemo(() => {
     if (!inviteForm.email.trim() || !inviteForm.boardId) {
