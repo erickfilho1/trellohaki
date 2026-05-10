@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -11,10 +11,18 @@ import type { MemberRecord } from "@/lib/flowboard-types";
 import { cleanProfileName } from "@/lib/account-settings";
 import { cn } from "@/lib/utils";
 
-const placeholderText = "Escrever um comentário...";
+const placeholderText = "Escrever um comentario...";
 
 function normalizeHtml(html: string) {
   return html.replace(/\s+/g, " ").trim();
+}
+
+function normalizeMentionValue(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
 }
 
 function getMentionMatch(editor: Editor | null) {
@@ -23,7 +31,7 @@ function getMentionMatch(editor: Editor | null) {
   }
 
   const selectionFrom = editor.state.selection.from;
-  const lookbehindSize = 60;
+  const lookbehindSize = 80;
   const from = Math.max(0, selectionFrom - lookbehindSize);
   const textBefore = editor.state.doc.textBetween(from, selectionFrom, "\n", "\0");
   const match = textBefore.match(/(?:^|\s)@([^\s@]{0,32})$/);
@@ -60,17 +68,33 @@ export function CommentEditor({
   const [mentionRange, setMentionRange] = useState<{ from: number; to: number } | null>(null);
   const [activeMentionIndex, setActiveMentionIndex] = useState(0);
 
-  const filteredMembers = mentionableMembers.filter((member) => {
-    const query = mentionQuery.trim().toLowerCase();
+  const uniqueMentionableMembers = useMemo(() => {
+    const seen = new Set<string>();
+
+    return mentionableMembers.filter((member) => {
+      const key = member.id || member.handle || member.name;
+      if (seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    });
+  }, [mentionableMembers]);
+
+  const filteredMembers = uniqueMentionableMembers.filter((member) => {
+    const query = normalizeMentionValue(mentionQuery);
     if (!query) {
       return true;
     }
 
     const searchable = [
-      cleanProfileName(member.name).toLowerCase(),
-      member.handle.toLowerCase(),
-      member.initials.toLowerCase(),
-    ].join(" ");
+      cleanProfileName(member.name),
+      member.handle.replace(/^@/, ""),
+      member.initials,
+    ]
+      .map(normalizeMentionValue)
+      .join(" ");
 
     return searchable.includes(query);
   });
@@ -151,12 +175,10 @@ export function CommentEditor({
     return null;
   }
 
-  function toggleLink() {
-    if (!editor) {
-      return;
-    }
+  const editorInstance = editor;
 
-    const previousUrl = editor.getAttributes("link").href as string | undefined;
+  function toggleLink() {
+    const previousUrl = editorInstance.getAttributes("link").href as string | undefined;
     const url = window.prompt("Cole o link", previousUrl ?? "https://");
 
     if (url === null) {
@@ -164,31 +186,23 @@ export function CommentEditor({
     }
 
     if (!url.trim()) {
-      editor.chain().focus().unsetLink().run();
+      editorInstance.chain().focus().unsetLink().run();
       return;
     }
 
-    editor.chain().focus().extendMarkRange("link").setLink({ href: url.trim() }).run();
+    editorInstance.chain().focus().extendMarkRange("link").setLink({ href: url.trim() }).run();
   }
 
   function insertAttachmentMock() {
-    if (!editor) {
-      return;
-    }
-
     const label = window.prompt("Nome do anexo", "Arquivo do cliente");
     if (!label) {
       return;
     }
 
-    editor.chain().focus().insertContent(`<p>[Anexo: ${label.trim()}]</p>`).run();
+    editorInstance.chain().focus().insertContent(`<p>[Anexo: ${label.trim()}]</p>`).run();
   }
 
   function insertMention(member: MemberRecord) {
-    if (!editor) {
-      return;
-    }
-
     const mentionName = cleanProfileName(member.name);
     const mentionHref = `mention://${member.id}`;
     const mentionContent = {
@@ -198,13 +212,13 @@ export function CommentEditor({
     };
 
     if (mentionRange) {
-      editor
+      editorInstance
         .chain()
         .focus()
         .insertContentAt(mentionRange, [mentionContent, { type: "text", text: " " }])
         .run();
     } else {
-      editor.chain().focus().insertContent([mentionContent, { type: "text", text: " " }]).run();
+      editorInstance.chain().focus().insertContent([mentionContent, { type: "text", text: " " }]).run();
     }
 
     setMentionOpen(false);
@@ -266,7 +280,7 @@ export function CommentEditor({
               <button
                 type="button"
                 onClick={() => {
-                  editor.chain().focus().setParagraph().run();
+                  editorInstance.chain().focus().setParagraph().run();
                   setTypeMenuOpen(false);
                 }}
                 className="flex w-full rounded-[0.8rem] px-3 py-2 text-left text-sm text-[#dce4f5] transition-colors hover:bg-white/6"
@@ -276,24 +290,24 @@ export function CommentEditor({
               <button
                 type="button"
                 onClick={() => {
-                  editor.chain().focus().toggleHeading({ level: 3 }).run();
+                  editorInstance.chain().focus().toggleHeading({ level: 3 }).run();
                   setTypeMenuOpen(false);
                 }}
                 className="flex w-full rounded-[0.8rem] px-3 py-2 text-left text-sm text-[#dce4f5] transition-colors hover:bg-white/6"
               >
-                Título
+                Titulo
               </button>
             </div>
           ) : null}
         </div>
 
-        <ToolbarButton active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()}>
+        <ToolbarButton active={editorInstance.isActive("bold")} onClick={() => editorInstance.chain().focus().toggleBold().run()}>
           <span className="text-[15px] font-semibold">B</span>
         </ToolbarButton>
-        <ToolbarButton active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()}>
+        <ToolbarButton active={editorInstance.isActive("italic")} onClick={() => editorInstance.chain().focus().toggleItalic().run()}>
           <span className="text-[15px] italic">I</span>
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()}>
+        <ToolbarButton onClick={() => editorInstance.chain().focus().toggleBulletList().run()}>
           <ListBullets size={17} />
         </ToolbarButton>
         <ToolbarButton onClick={toggleLink}>
@@ -302,17 +316,17 @@ export function CommentEditor({
         <ToolbarButton onClick={insertAttachmentMock}>
           <Paperclip size={17} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().insertContent("<p></p>").run()}>
+        <ToolbarButton onClick={() => editorInstance.chain().focus().insertContent("<p></p>").run()}>
           <Plus size={17} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().insertContent("<p>• </p>").run()}>
+        <ToolbarButton onClick={() => editorInstance.chain().focus().insertContent("<p>• </p>").run()}>
           <DotsThree size={17} />
         </ToolbarButton>
 
         <div className="ml-auto">
           <ToolbarButton
             onClick={() =>
-              window.alert("Use a barra superior para negrito, itálico, listas, links e anexos mockados.")
+              window.alert("Use a barra superior para negrito, italico, listas, links e anexos mockados.")
             }
           >
             <Question size={17} />
@@ -320,18 +334,12 @@ export function CommentEditor({
         </div>
       </div>
 
-      <div className="relative" onKeyDown={handleEditorKeyDown}>
-        <EditorContent editor={editor} />
+      <div className="relative overflow-visible" onKeyDown={handleEditorKeyDown}>
+        <EditorContent editor={editorInstance} />
 
         {mentionOpen && filteredMembers.length > 0 ? (
-          <div className="absolute left-3 top-[calc(100%-0.8rem)] z-30 w-[min(21rem,calc(100%-1.5rem))] overflow-hidden rounded-[1rem] border border-white/10 bg-[#2a2d34] shadow-[0_26px_70px_-34px_rgba(0,0,0,0.96)]">
-            <div className="border-b border-white/8 px-3 py-2">
-              <p className="text-[11px] font-semibold tracking-[0.18em] text-[#8f98ab] uppercase">
-                Mencionar no quadro
-              </p>
-            </div>
-
-            <div className="max-h-64 overflow-y-auto py-1.5">
+          <div className="absolute left-3 top-[calc(100%+0.45rem)] z-40 w-[min(16rem,calc(100%-1.5rem))] overflow-hidden rounded-[0.9rem] border border-white/10 bg-[#2a2d34] shadow-[0_24px_60px_-30px_rgba(0,0,0,0.92)]">
+            <div className="max-h-48 overflow-y-auto py-1">
               {filteredMembers.map((member, index) => (
                 <button
                   key={member.id}
@@ -341,18 +349,18 @@ export function CommentEditor({
                     insertMention(member);
                   }}
                   className={cn(
-                    "flex w-full items-center gap-3 px-3 py-2.5 text-left transition",
+                    "flex w-full items-center gap-2.5 px-2.5 py-2 text-left transition",
                     index === activeMentionIndex ? "bg-[#343944]" : "hover:bg-white/[0.045]",
                   )}
                 >
-                  <span className="grid size-9 shrink-0 place-items-center rounded-full border border-white/8 bg-[#1f232b] text-sm font-semibold text-white">
+                  <span className="grid size-8 shrink-0 place-items-center rounded-full border border-white/8 bg-[#1f232b] text-[12px] font-semibold text-white">
                     {member.initials}
                   </span>
                   <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium text-[#eef3ff]">
+                    <span className="block truncate text-[13px] font-medium text-[#eef3ff]">
                       {cleanProfileName(member.name)}
                     </span>
-                    <span className="block truncate text-xs text-[#8f98ab]">{member.handle}</span>
+                    <span className="block truncate text-[11px] text-[#8f98ab]">{member.handle}</span>
                   </span>
                 </button>
               ))}
@@ -361,13 +369,13 @@ export function CommentEditor({
         ) : null}
       </div>
 
-      {mentionableMembers.length > 0 ? (
+      {uniqueMentionableMembers.length > 0 ? (
         <div className="border-t border-white/8 px-3 py-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[11px] font-semibold tracking-[0.18em] text-[#8f98ab] uppercase">
               Mencionar
             </span>
-            {mentionableMembers.map((member) => (
+            {uniqueMentionableMembers.map((member) => (
               <button
                 key={member.id}
                 type="button"

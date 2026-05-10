@@ -979,7 +979,7 @@ export function CardModal({
                     comments={card.comments}
                     activity={card.activity}
                     currentUser={currentUser}
-                    mentionableMembers={board.members.filter((member) => member.id !== currentUser.id)}
+                    mentionableMembers={board.members}
                     onAddComment={addComment}
                   />
                 </div>
