@@ -12,6 +12,7 @@ import {
 import { useFlowBoardStore } from "@/components/providers/flowboard-provider";
 import {
   claimSupabaseWorkspaceInvites,
+  ensureSupabaseCurrentProfile,
   fetchSupabaseProfileById,
   fetchSupabaseProfileByEmail,
   getRegistrationInvite,
@@ -207,7 +208,9 @@ export function AuthProvider({
     [],
   );
 
-  const buildSupabaseSession = useCallback(async (panelEmail: string) => {
+  const buildSupabaseSession = useCallback(async (payload: { userId?: string; email: string }) => {
+    const panelEmail = normalizeEmail(payload.email);
+
     if (panelEmail === ADMIN_EMAIL) {
       return {
         userId: "admin-erick",
@@ -216,7 +219,10 @@ export function AuthProvider({
       };
     }
 
-    const profile = await fetchSupabaseProfileByEmail(panelEmail);
+    const profile =
+      (payload.userId ? await fetchSupabaseProfileById(payload.userId) : null) ??
+      (await fetchSupabaseProfileByEmail(panelEmail));
+
     if (!profile || profile.status === "desativado") {
       return null;
     }
@@ -229,7 +235,7 @@ export function AuthProvider({
   }, []);
 
   const buildSupabaseSessionWithRetry = useCallback(
-    async (panelEmail: string) => {
+    async (payload: { userId?: string; email: string }) => {
       const attempts = [0, 250, 700];
 
       for (const waitMs of attempts) {
@@ -237,7 +243,7 @@ export function AuthProvider({
           await delay(waitMs);
         }
 
-        const nextSession = await buildSupabaseSession(panelEmail);
+        const nextSession = await buildSupabaseSession(payload);
         if (nextSession) {
           return nextSession;
         }
@@ -316,10 +322,14 @@ export function AuthProvider({
       }
 
       try {
+        await ensureSupabaseCurrentProfile();
         await claimSupabaseWorkspaceInvites();
       } catch {}
 
-      const nextSession = await buildSupabaseSessionWithRetry(userEmail);
+      const nextSession = await buildSupabaseSessionWithRetry({
+        userId: data.session?.user.id,
+        email: userEmail,
+      });
       setSession(nextSession);
       void loadProfileForSession(nextSession);
     });
@@ -346,10 +356,14 @@ export function AuthProvider({
 
       void (async () => {
         try {
+          await ensureSupabaseCurrentProfile();
           await claimSupabaseWorkspaceInvites();
         } catch {}
 
-        const nextSession = await buildSupabaseSessionWithRetry(userEmail);
+        const nextSession = await buildSupabaseSessionWithRetry({
+          userId: nextSessionData?.user.id,
+          email: userEmail,
+        });
         setSession(nextSession);
         void loadProfileForSession(nextSession);
       })();
@@ -477,7 +491,10 @@ export function AuthProvider({
               };
             }
 
-            const nextSession = await buildSupabaseSessionWithRetry(normalizedEmail);
+            const nextSession = await buildSupabaseSessionWithRetry({
+              userId: authUser.id,
+              email: normalizedEmail,
+            });
             if (!nextSession) {
               return {
                 ok: false,
@@ -557,10 +574,14 @@ export function AuthProvider({
           }
 
           try {
+            await ensureSupabaseCurrentProfile();
             await claimSupabaseWorkspaceInvites();
           } catch {}
 
-          const nextSession = await buildSupabaseSessionWithRetry(normalizedEmail);
+          const nextSession = await buildSupabaseSessionWithRetry({
+            userId: authUser.id,
+            email: normalizedEmail,
+          });
 
           if (!nextSession) {
             await supabase.auth.signOut();
@@ -693,14 +714,33 @@ export function AuthProvider({
             return { ok: false, error: error.message };
           }
 
-          if (data.user) {
+          let authUser = data.user;
+          let authSession = data.session;
+
+          if (!authSession && authUser) {
+            const signInResult = await supabase.auth.signInWithPassword({
+              email: normalizedEmail,
+              password,
+            });
+
+            if (!signInResult.error) {
+              authUser = signInResult.data.user;
+              authSession = signInResult.data.session;
+            }
+          }
+
+          if (authUser) {
             try {
+              await ensureSupabaseCurrentProfile();
               await claimSupabaseWorkspaceInvites();
             } catch {}
           }
 
-          const nextSession = data.user
-            ? await buildSupabaseSessionWithRetry(normalizedEmail)
+          const nextSession = authUser
+            ? await buildSupabaseSessionWithRetry({
+                userId: authUser.id,
+                email: normalizedEmail,
+              })
             : null;
 
           if (nextSession) {
@@ -722,7 +762,7 @@ export function AuthProvider({
                 ? `${window.location.origin}${defaultHomePath(nextSession.panel)}`
                 : defaultHomePath(nextSession.panel);
 
-            const accessToken = data.session?.access_token;
+            const accessToken = authSession?.access_token;
             if (accessToken) {
               void triggerWelcomeEmail({
                 accessToken,

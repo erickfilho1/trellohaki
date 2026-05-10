@@ -225,6 +225,18 @@ export async function claimSupabaseWorkspaceInvites() {
   return typeof data === "number" ? data : 0;
 }
 
+export async function ensureSupabaseCurrentProfile() {
+  const client = requireClient(getClient());
+
+  const { data, error } = await client.rpc("ensure_current_profile");
+
+  if (error) {
+    throw error;
+  }
+
+  return data ?? null;
+}
+
 export function panelFromProfile(profile: SupabaseProfile): WorkspacePanel {
   if (profile.kind === "admin") {
     return "admin";

@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useFlowBoardStore } from "@/components/providers/flowboard-provider";
 import { ADMIN_EMAIL, ADMIN_PASSWORD } from "@/lib/auth/demo-credentials";
+import { prepareSupabaseWorkspaceInvite } from "@/lib/supabase/access";
 import { syncSupabaseBoardRecordContent } from "@/lib/supabase/board-content";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
@@ -376,6 +377,14 @@ export function AdminPage() {
     try {
       const supabaseToken = await ensureSupabaseAdminSession();
 
+      if (hasSupabaseEnv()) {
+        await prepareSupabaseWorkspaceInvite({
+          board: invitePreview.board,
+          email: invitePreview.email,
+          kind: inviteForm.kind,
+        });
+      }
+
       upsertAdminUser({
         id: userId,
         name: nextName,
@@ -383,7 +392,10 @@ export function AdminPage() {
         kind: inviteForm.kind,
         status: "pendente",
         company: invitePreview.board.name,
-        title: inviteForm.kind === "cliente" ? "Cliente convidado para registro" : "Colaborador convidado para registro",
+        title:
+          inviteForm.kind === "cliente"
+            ? "Cliente convidado para registro"
+            : "Colaborador convidado para registro",
       });
 
       grantWorkspaceAccess({
