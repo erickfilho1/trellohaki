@@ -276,16 +276,16 @@
   }
 
   html[data-haki-theme="light"] [data-account-avatar="true"] {
-    background: #171717 !important;
-    color: #ffffff !important;
+    background: #f2eee6 !important;
+    color: #111111 !important;
     border-color: rgba(17, 17, 17, 0.08) !important;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.06),
-      0 12px 28px -22px rgba(0, 0, 0, 0.42) !important;
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      0 12px 28px -22px rgba(0, 0, 0, 0.18) !important;
   }
 
   html[data-haki-theme="light"] [data-account-avatar="true"] * {
-    color: #ffffff !important;
+    color: #111111 !important;
   }
 
   html[data-haki-theme="light"] [data-testid="sidebar-account-popover"] [class*="text-[#8"],
