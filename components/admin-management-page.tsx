@@ -56,6 +56,36 @@ function isPlaceholderWorkspaceUser(email: string) {
   return normalizeIdentityKey(email).endsWith("@clientboard.local");
 }
 
+function getBoardPeopleCount(
+  boardId: string,
+  workspaceAccess: WorkspaceAccess[],
+  adminUsers: Array<{
+    id: string;
+    email: string;
+    kind: string;
+  }>,
+) {
+  const deduped = new Set<string>();
+
+  workspaceAccess
+    .filter((access) => access.boardId === boardId)
+    .forEach((access) => {
+      const user = adminUsers.find((item) => item.id === access.userId);
+      if (!user) {
+        return;
+      }
+
+      const isCurrentAdmin = normalizeIdentityKey(user.email) === "erickfilho281@gmail.com";
+      if (!isCurrentAdmin && (user.kind === "admin" || isPlaceholderWorkspaceUser(user.email))) {
+        return;
+      }
+
+      deduped.add(normalizeIdentityKey(user.email || user.id));
+    });
+
+  return deduped.size;
+}
+
 function StatRow({
   label,
   value,
@@ -289,7 +319,7 @@ export function AdminManagementPage() {
                         </div>
                         <div className="mt-4 flex items-center justify-between">
                           <Badge className="rounded-full border-0 bg-white/6 px-2.5 py-1 text-[11px] text-[#e3ebff]">
-                            {board.members.length} pessoas
+                            {getBoardPeopleCount(board.id, workspaceAccess, adminUsers)} pessoas
                           </Badge>
                           <span className="text-xs text-[#8190ab]">{formatDate(board.updatedAt)}</span>
                         </div>
