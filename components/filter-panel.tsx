@@ -30,12 +30,12 @@ function ToggleRow({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-[1rem] border border-transparent px-2 py-2 transition-colors hover:bg-white/4">
+    <label className="flex cursor-pointer items-center gap-3 rounded-[1rem] border border-white/0 px-3 py-2.5 transition-colors hover:border-white/6 hover:bg-white/[0.035]">
       <input
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
-        className="size-5 rounded border-white/20 bg-transparent accent-[#7ea5ff]"
+        className="size-5 rounded border-white/20 bg-transparent accent-[#dc3933]"
       />
       {icon ? <span className="text-[#9da8c0]">{icon}</span> : null}
       <span className="text-[1rem] text-[#d8deec]">{label}</span>
@@ -63,22 +63,22 @@ function SelectorSection({
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="flex h-12 w-full items-center justify-between rounded-[1rem] border border-white/10 bg-white/3 px-4 text-left text-[#d8deec] transition-colors hover:bg-white/6"
+        className="flex h-12 w-full items-center justify-between rounded-[1rem] border border-white/10 bg-[#111111] px-4 text-left text-[#d8deec] transition-colors hover:border-white/14 hover:bg-white/[0.045]"
       >
         <span>{selectedIds.length > 0 ? `${selectedIds.length} selecionado(s)` : placeholder}</span>
         <CaretDown size={16} className={cn("transition-transform", open ? "rotate-180" : "")} />
       </button>
 
       {open ? (
-        <div className="space-y-2 rounded-[1rem] border border-white/8 bg-[#23262d] p-3">
+        <div className="space-y-2 rounded-[1rem] border border-white/8 bg-[#0f0f10] p-3">
           <p className="text-xs tracking-[0.18em] text-[#7f8bad] uppercase">{title}</p>
           {options.map((option) => (
-            <label key={option.id} className="flex cursor-pointer items-center gap-3 rounded-[0.95rem] px-2 py-2 hover:bg-white/4">
+            <label key={option.id} className="flex cursor-pointer items-center gap-3 rounded-[0.95rem] px-2.5 py-2.5 hover:bg-white/[0.04]">
               <input
                 type="checkbox"
                 checked={selectedIds.includes(option.id)}
                 onChange={() => onToggle(option.id)}
-                className="size-5 rounded border-white/20 bg-transparent accent-[#7ea5ff]"
+                className="size-5 rounded border-white/20 bg-transparent accent-[#dc3933]"
               />
               <div className="min-w-0 flex-1">{option.label}</div>
             </label>
@@ -187,10 +187,10 @@ export function FilterPanel({
     >
       <aside
         ref={panelRef}
-        className="pointer-events-auto flex max-h-[var(--floating-panel-max-height)] w-[min(420px,calc(100vw-1rem))] flex-col overflow-hidden rounded-[1.55rem] border border-white/10 bg-[#2a2c31] shadow-[0_34px_90px_-34px_rgba(0,0,0,0.95)]"
+        className="pointer-events-auto flex max-h-[var(--floating-panel-max-height)] w-[min(420px,calc(100vw-1rem))] flex-col overflow-hidden rounded-[1.55rem] border border-white/10 bg-[linear-gradient(180deg,#111111_0%,#090909_100%)] shadow-[0_34px_90px_-34px_rgba(0,0,0,0.98)]"
       >
         <div className="flex h-full min-h-0 flex-col overflow-hidden">
-          <div className="flex items-start justify-between border-b border-white/8 px-5 py-4">
+          <div className="flex items-start justify-between border-b border-white/8 bg-white/[0.015] px-5 py-4">
             <div>
               <h2 className="text-[1.4rem] font-medium tracking-[-0.04em] text-white">Filtro</h2>
               <p className="mt-1 text-sm text-[#8590a8]">
@@ -202,7 +202,7 @@ export function FilterPanel({
             <button
               type="button"
               onClick={onClose}
-              className="flex size-10 items-center justify-center rounded-[0.95rem] text-[#d2dbef] transition-colors hover:bg-white/6"
+              className="flex size-10 items-center justify-center rounded-[0.95rem] border border-white/0 text-[#d2dbef] transition-colors hover:border-white/8 hover:bg-white/[0.05]"
             >
               <X size={18} />
             </button>
@@ -215,7 +215,7 @@ export function FilterPanel({
                 value={filters.keyword}
                 onChange={(event) => onUpdateFilters({ keyword: event.target.value })}
                 placeholder="Insira uma palavra-chave..."
-                className="h-12 rounded-[1rem] border-[#7fa4ff] bg-[#1e2128] text-white placeholder:text-[#79849c]"
+                className="h-12 rounded-[1rem] border-white/12 bg-[#0d0d0d] text-white placeholder:text-[#79849c] focus-visible:border-[#dc3933]/50 focus-visible:ring-[#dc3933]/10"
               />
               <p className="text-sm leading-6 text-[#98a3bb]">
                 Pesquise cartoes, membros, etiquetas e muito mais.
@@ -322,7 +322,7 @@ export function FilterPanel({
                             : [...filters.labelIds, label.id],
                         })
                       }
-                      className="size-5 rounded border-white/20 bg-transparent accent-[#7ea5ff]"
+                      className="size-5 rounded border-white/20 bg-transparent accent-[#dc3933]"
                     />
                     <div className="flex-1">
                       <LabelBadge label={label} />
@@ -371,11 +371,11 @@ export function FilterPanel({
             </section>
           </div>
 
-          <div className="border-t border-white/8 px-5 py-4">
+          <div className="border-t border-white/8 bg-white/[0.015] px-5 py-4">
             <Button
               onClick={onClearFilters}
               variant="outline"
-              className="h-11 w-full rounded-[1rem] border-white/10 bg-white/4 text-white hover:bg-white/8"
+              className="h-11 w-full rounded-[1rem] border-white/10 bg-[#131313] text-white hover:border-white/14 hover:bg-white/[0.06]"
             >
               <CheckCircle size={16} />
               Limpar filtros
