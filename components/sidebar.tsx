@@ -161,7 +161,14 @@ export function Sidebar({
                     type="button"
                     aria-label={adminOpen ? "Recolher submenu admin" : "Expandir submenu admin"}
                     onClick={() => setAdminOpen((current) => !current)}
-                    className="flex size-10 shrink-0 items-center justify-center rounded-[0.95rem] border border-white/8 bg-white/4 text-[#b8c4d9] transition-colors hover:bg-white/8 hover:text-white"
+                    className={cn(
+                      "flex size-10 shrink-0 items-center justify-center rounded-[0.95rem] border transition-colors",
+                      theme === "light"
+                        ? adminOpen || pathname.startsWith("/admin")
+                          ? "border-[#dc3933]/22 bg-[#dc3933]/10 text-[#dc3933]"
+                          : "border-black/8 bg-transparent text-[#171717] hover:border-[#dc3933]/22 hover:bg-[#dc3933]/10 hover:text-[#dc3933]"
+                        : "border-white/8 bg-white/4 text-[#b8c4d9] hover:bg-white/8 hover:text-white",
+                    )}
                   >
                     {adminOpen ? <CaretDown size={16} /> : <CaretRight size={16} />}
                   </button>
