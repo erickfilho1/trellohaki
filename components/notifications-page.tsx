@@ -74,9 +74,15 @@ export function NotificationsPage() {
 
   return (
     <ClientLayout projectName={projectName}>
-      <main className="flowboard-scrollbar min-h-0 flex-1 overflow-y-auto bg-[#0b0b0b] text-white">
+      <main
+        data-light-main="true"
+        className="flowboard-scrollbar min-h-0 flex-1 overflow-y-auto bg-[#0b0b0b] text-white"
+      >
         <div className="mx-auto flex w-full max-w-[1540px] flex-col gap-8 px-5 py-8 sm:px-7 lg:px-9">
-          <header className="rounded-[1.9rem] border border-white/8 bg-[linear-gradient(180deg,#111111_0%,#0d0d0d_100%)] px-6 py-6 shadow-[0_28px_90px_-58px_rgba(0,0,0,0.96)]">
+          <header
+            data-light-surface="true"
+            className="rounded-[1.9rem] border border-white/8 bg-[linear-gradient(180deg,#111111_0%,#0d0d0d_100%)] px-6 py-6 shadow-[0_28px_90px_-58px_rgba(0,0,0,0.96)]"
+          >
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold tracking-[0.24em] text-[#8f98ab] uppercase">
@@ -105,7 +111,10 @@ export function NotificationsPage() {
             </div>
           </header>
 
-          <section className="rounded-[1.8rem] border border-white/8 bg-[#101010] p-4 shadow-[0_28px_90px_-58px_rgba(0,0,0,0.96)] sm:p-5">
+          <section
+            data-light-surface="true"
+            className="rounded-[1.8rem] border border-white/8 bg-[#101010] p-4 shadow-[0_28px_90px_-58px_rgba(0,0,0,0.96)] sm:p-5"
+          >
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex flex-wrap items-center gap-2">
                 {[
@@ -143,7 +152,10 @@ export function NotificationsPage() {
             <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
               <div className="space-y-3">
                 {filteredNotifications.length === 0 ? (
-                  <div className="grid min-h-[24rem] place-items-center rounded-[1.45rem] border border-dashed border-white/10 bg-[#0d0d0d] p-8 text-center">
+                  <div
+                    data-light-subtle="true"
+                    className="grid min-h-[24rem] place-items-center rounded-[1.45rem] border border-dashed border-white/10 bg-[#0d0d0d] p-8 text-center"
+                  >
                     <div>
                       <span className="mx-auto grid size-16 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-[#8f98ab]">
                         <Bell size={28} />
@@ -196,24 +208,36 @@ export function NotificationsPage() {
                 )}
               </div>
 
-              <aside className="rounded-[1.45rem] border border-white/8 bg-[#0d0d0d] p-5">
+              <aside
+                data-light-subtle="true"
+                className="rounded-[1.45rem] border border-white/8 bg-[#0d0d0d] p-5"
+              >
                 <p className="text-[11px] font-semibold tracking-[0.24em] text-[#8f98ab] uppercase">
                   Leitura rapida
                 </p>
                 <div className="mt-4 space-y-3">
-                  <div className="rounded-[1rem] border border-white/8 bg-white/[0.03] px-4 py-3">
+                  <div
+                    data-light-subtle="true"
+                    className="rounded-[1rem] border border-white/8 bg-white/[0.03] px-4 py-3"
+                  >
                     <p className="text-sm text-[#96a0b4]">Nao lidas</p>
                     <p className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">
                       {unreadIds.length}
                     </p>
                   </div>
-                  <div className="rounded-[1rem] border border-white/8 bg-white/[0.03] px-4 py-3">
+                  <div
+                    data-light-subtle="true"
+                    className="rounded-[1rem] border border-white/8 bg-white/[0.03] px-4 py-3"
+                  >
                     <p className="text-sm text-[#96a0b4]">Alertas totais</p>
                     <p className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">
                       {viewerNotifications.length}
                     </p>
                   </div>
-                  <div className="rounded-[1rem] border border-white/8 bg-white/[0.03] px-4 py-3">
+                  <div
+                    data-light-subtle="true"
+                    className="rounded-[1rem] border border-white/8 bg-white/[0.03] px-4 py-3"
+                  >
                     <p className="text-sm text-[#96a0b4]">Quadros ativos</p>
                     <p className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">
                       {new Set(viewerNotifications.map((notification) => notification.boardId)).size}
@@ -221,7 +245,10 @@ export function NotificationsPage() {
                   </div>
                 </div>
 
-                <div className="mt-5 rounded-[1.1rem] border border-dashed border-white/10 bg-white/[0.02] p-4 text-sm leading-7 text-[#8f98ab]">
+                <div
+                  data-light-subtle="true"
+                  className="mt-5 rounded-[1.1rem] border border-dashed border-white/10 bg-white/[0.02] p-4 text-sm leading-7 text-[#8f98ab]"
+                >
                   Use <span className="font-medium text-white">@nome</span> nos comentarios dos cards para avisar a pessoa certa, ou marque a pessoa no card para puxar esse alerta para a central.
                 </div>
               </aside>

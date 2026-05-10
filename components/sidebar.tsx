@@ -362,6 +362,7 @@ function SidebarAccountMenu({
           )}
         >
           <span
+            data-account-avatar="true"
             className={cn(
               "flex shrink-0 items-center justify-center rounded-full bg-[#181818] text-xs font-semibold text-white transition-transform duration-200 group-hover:scale-[1.04]",
               collapsed
@@ -427,7 +428,10 @@ function SidebarAccountMenu({
         >
           <div className="border-b border-white/8 px-4 py-4">
             <div className="flex items-center gap-3">
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#181818] text-sm font-semibold text-white ring-1 ring-white/10">
+              <span
+                data-account-avatar="true"
+                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#181818] text-sm font-semibold text-white ring-1 ring-white/10"
+              >
                 {userInitials(user.name)}
               </span>
               <div className="min-w-0 flex-1">

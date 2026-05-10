@@ -104,6 +104,7 @@ export function List({ boardId, list }: { boardId: string; list: ListRecord }) {
       )}
     >
       <header
+        data-list-colored={list.color ? "true" : undefined}
         className={cn(
           "relative z-[1] shrink-0 px-1 pb-3",
           list.color ? cn(colorClasses.header, "mb-1.5") : "mb-1",
@@ -112,6 +113,7 @@ export function List({ boardId, list }: { boardId: string; list: ListRecord }) {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <Input
+              data-list-title-input="true"
               value={editingTitle}
               onChange={(event) => setEditingTitle(event.target.value)}
               onBlur={persistTitle}
@@ -125,7 +127,10 @@ export function List({ boardId, list }: { boardId: string; list: ListRecord }) {
                 list.color ? colorClasses.text : "",
               )}
             />
-            <p className={cn("mt-0.5 text-[11px] text-[#8f97ab]", list.color ? "text-white/78" : "")}>
+            <p
+              data-list-card-count="true"
+              className={cn("mt-0.5 text-[11px] text-[#8f97ab]", list.color ? "text-white/78" : "")}
+            >
               {list.cards.length} cards
             </p>
           </div>

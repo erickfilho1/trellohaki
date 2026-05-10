@@ -109,8 +109,14 @@ export function SettingsPage() {
 
   return (
     <ClientLayout projectName={currentBoard?.name ?? "Painel Haki"}>
-      <main className="flowboard-scrollbar min-h-0 flex-1 overflow-y-auto bg-[#0b0b0b] text-white">
-        <header className="sticky top-0 z-20 border-b border-white/8 bg-[#0b0b0b]/92 px-5 py-4 backdrop-blur-xl sm:px-8">
+      <main
+        data-light-main="true"
+        className="flowboard-scrollbar min-h-0 flex-1 overflow-y-auto bg-[#0b0b0b] text-white"
+      >
+        <header
+          data-light-header="true"
+          className="sticky top-0 z-20 border-b border-white/8 bg-[#0b0b0b]/92 px-5 py-4 backdrop-blur-xl sm:px-8"
+        >
           <div className="mx-auto flex w-full max-w-[1500px] items-center justify-between gap-4">
             <div className="w-12" />
             <h1 className="text-sm font-semibold tracking-[-0.02em] text-[#f4f4f5]">Configurações</h1>
@@ -125,7 +131,10 @@ export function SettingsPage() {
         </header>
 
         <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-8 px-5 py-8 sm:px-8">
-          <section className="overflow-hidden rounded-[1.35rem] border border-white/12 bg-[#101010] shadow-[0_30px_90px_-62px_rgba(0,0,0,0.9)]">
+          <section
+            data-light-surface="true"
+            className="overflow-hidden rounded-[1.35rem] border border-white/12 bg-[#101010] shadow-[0_30px_90px_-62px_rgba(0,0,0,0.9)]"
+          >
             <div className="grid items-center gap-8 px-7 py-8 md:grid-cols-[minmax(0,1fr)_auto] md:px-8">
               <div className="max-w-2xl">
                 <h2 className="text-[1.45rem] font-semibold tracking-[-0.04em] text-white">Avatar</h2>
@@ -165,7 +174,10 @@ export function SettingsPage() {
             </div>
           </section>
 
-          <section className="overflow-hidden rounded-[1.35rem] border border-white/12 bg-[#101010] shadow-[0_30px_90px_-62px_rgba(0,0,0,0.9)]">
+          <section
+            data-light-surface="true"
+            className="overflow-hidden rounded-[1.35rem] border border-white/12 bg-[#101010] shadow-[0_30px_90px_-62px_rgba(0,0,0,0.9)]"
+          >
             <div className="px-7 py-8 md:px-8">
               <h2 className="text-[1.45rem] font-semibold tracking-[-0.04em] text-white">Nome de exibição</h2>
               <p className="mt-5 max-w-[68ch] text-[0.98rem] leading-7 text-[#d6d6d6]">
@@ -207,7 +219,10 @@ export function SettingsPage() {
             </div>
           </section>
 
-          <section className="overflow-hidden rounded-[1.35rem] border border-white/12 bg-[#101010] shadow-[0_30px_90px_-62px_rgba(0,0,0,0.9)]">
+          <section
+            data-light-surface="true"
+            className="overflow-hidden rounded-[1.35rem] border border-white/12 bg-[#101010] shadow-[0_30px_90px_-62px_rgba(0,0,0,0.9)]"
+          >
             <div className="grid gap-6 px-7 py-8 md:grid-cols-[minmax(0,1fr)_auto] md:px-8">
               <div>
                 <h2 className="text-[1.45rem] font-semibold tracking-[-0.04em] text-white">Acesso</h2>
@@ -215,11 +230,17 @@ export function SettingsPage() {
                   Seu email fica vinculado ao painel correto. As permissões mudam conforme o perfil liberado no admin.
                 </p>
                 <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-[1rem] border border-white/10 bg-[#0b0b0b] p-4">
+                  <div
+                    data-light-subtle="true"
+                    className="rounded-[1rem] border border-white/10 bg-[#0b0b0b] p-4"
+                  >
                     <p className="text-xs uppercase tracking-[0.18em] text-[#8e8e93]">Email</p>
                     <p className="mt-2 truncate text-sm font-medium text-white">{user.email || "sem email ativo"}</p>
                   </div>
-                  <div className="rounded-[1rem] border border-white/10 bg-[#0b0b0b] p-4">
+                  <div
+                    data-light-subtle="true"
+                    className="rounded-[1rem] border border-white/10 bg-[#0b0b0b] p-4"
+                  >
                     <p className="text-xs uppercase tracking-[0.18em] text-[#8e8e93]">Perfil</p>
                     <p className="mt-2 flex items-center gap-2 text-sm font-medium text-white">
                       <ShieldCheck size={16} className="text-[#dc3933]" />
@@ -228,7 +249,10 @@ export function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 max-w-[680px] rounded-[1rem] border border-white/10 bg-[#0b0b0b] p-4 sm:p-5">
+                <div
+                  data-light-subtle="true"
+                  className="mt-6 max-w-[680px] rounded-[1rem] border border-white/10 bg-[#0b0b0b] p-4 sm:p-5"
+                >
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-[#f4f4f5]" htmlFor="new-password">

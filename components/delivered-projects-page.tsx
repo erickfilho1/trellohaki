@@ -215,7 +215,10 @@ export function DeliveredProjectsPage() {
 
       <div className="flowboard-scrollbar min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5 lg:px-6">
         <div className="mx-auto flex w-full max-w-[1720px] flex-col gap-5 pb-12">
-          <section className="rounded-[1.6rem] border border-white/8 bg-[linear-gradient(180deg,#151515,#101010)] p-5 shadow-[0_28px_80px_-48px_rgba(0,0,0,0.9)]">
+          <section
+            data-light-surface="true"
+            className="rounded-[1.6rem] border border-white/8 bg-[linear-gradient(180deg,#151515,#101010)] p-5 shadow-[0_28px_80px_-48px_rgba(0,0,0,0.9)]"
+          >
             <div className="mb-4 flex items-center justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7f8bad]">
@@ -376,7 +379,10 @@ export function DeliveredProjectsPage() {
                 </div>
               </div>
 
-              <div className="rounded-[1.2rem] border border-white/8 bg-white/[0.03] p-4">
+                <div
+                  data-light-subtle="true"
+                  className="rounded-[1.2rem] border border-white/8 bg-white/[0.03] p-4"
+                >
                 <p className="text-sm text-[#d3dcef]">Criar pasta</p>
                 <div className="mt-3 flex gap-2">
                   <Input
@@ -396,7 +402,10 @@ export function DeliveredProjectsPage() {
             </div>
           </section>
 
-          <section className="rounded-[1.6rem] border border-white/8 bg-[linear-gradient(180deg,#151515,#101010)] p-5 shadow-[0_28px_80px_-48px_rgba(0,0,0,0.9)]">
+          <section
+            data-light-surface="true"
+            className="rounded-[1.6rem] border border-white/8 bg-[linear-gradient(180deg,#151515,#101010)] p-5 shadow-[0_28px_80px_-48px_rgba(0,0,0,0.9)]"
+          >
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7f8bad]">
@@ -413,7 +422,10 @@ export function DeliveredProjectsPage() {
             </div>
 
             {folderCards.length === 0 ? (
-              <div className="rounded-[1.2rem] border border-dashed border-white/10 bg-white/[0.025] px-5 py-10 text-sm leading-7 text-[#92a0b9]">
+              <div
+                data-light-subtle="true"
+                className="rounded-[1.2rem] border border-dashed border-white/10 bg-white/[0.025] px-5 py-10 text-sm leading-7 text-[#92a0b9]"
+              >
                 Assim que uma demanda vinculada a esta pasta cair na ultima lista do quadro, ela aparece aqui automaticamente.
               </div>
             ) : (

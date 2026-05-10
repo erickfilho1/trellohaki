@@ -275,9 +275,82 @@
     color: #111111 !important;
   }
 
+  html[data-haki-theme="light"] [data-account-avatar="true"] {
+    background: #171717 !important;
+    color: #ffffff !important;
+    border-color: rgba(17, 17, 17, 0.08) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 12px 28px -22px rgba(0, 0, 0, 0.42) !important;
+  }
+
+  html[data-haki-theme="light"] [data-account-avatar="true"] * {
+    color: #ffffff !important;
+  }
+
   html[data-haki-theme="light"] [data-testid="sidebar-account-popover"] [class*="text-[#8"],
   html[data-haki-theme="light"] [data-testid="sidebar-account-popover"] [class*="text-[#9"] {
     color: #616b7c !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-main="true"] {
+    background: transparent !important;
+    color: #151515 !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-header="true"] {
+    border-color: rgba(17, 17, 17, 0.1) !important;
+    background: rgba(248, 247, 244, 0.92) !important;
+    color: #151515 !important;
+    box-shadow: 0 16px 50px -44px rgba(0, 0, 0, 0.3);
+  }
+
+  html[data-haki-theme="light"] [data-light-header="true"] .text-white {
+    color: #151515 !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-header="true"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-light-header="true"] [class*="text-[#9"],
+  html[data-haki-theme="light"] [data-light-header="true"] [class*="text-[#a"] {
+    color: #5f6878 !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-surface="true"] {
+    border-color: rgba(17, 17, 17, 0.1) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #f3f2ef 100%) !important;
+    color: #151515 !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      0 24px 70px -46px rgba(0, 0, 0, 0.28) !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-surface="true"] .text-white {
+    color: #151515 !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-surface="true"] [class*="text-[#7"],
+  html[data-haki-theme="light"] [data-light-surface="true"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-light-surface="true"] [class*="text-[#9"],
+  html[data-haki-theme="light"] [data-light-surface="true"] [class*="text-[#a"] {
+    color: #5f6878 !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-subtle="true"] {
+    border-color: rgba(17, 17, 17, 0.08) !important;
+    background: rgba(17, 17, 17, 0.045) !important;
+    color: #151515 !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55) !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-subtle="true"] .text-white {
+    color: #151515 !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-subtle="true"] [class*="text-[#7"],
+  html[data-haki-theme="light"] [data-light-subtle="true"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-light-subtle="true"] [class*="text-[#9"],
+  html[data-haki-theme="light"] [data-light-subtle="true"] [class*="text-[#a"] {
+    color: #5f6878 !important;
   }
 
   html[data-haki-theme="light"] .glass-panel:not([data-board-shell="true"]) {
@@ -310,6 +383,21 @@
     color: #8f9ab0 !important;
   }
 
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-list-title-input="true"] {
+    border-color: transparent !important;
+    background: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-list-card-count="true"] {
+    color: #adb6c8 !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-list-colored="true"] [data-list-card-count="true"] {
+    color: rgba(255, 255, 255, 0.84) !important;
+  }
+
   html[data-haki-theme="light"] [data-light-panel="true"] > div:first-child .text-white,
   html[data-haki-theme="light"] [data-light-panel="true"] > div:first-child h2 {
     color: #151515 !important;
@@ -318,6 +406,14 @@
   html[data-haki-theme="light"] [data-light-panel="true"] > div:first-child [class*="text-[#8"],
   html[data-haki-theme="light"] [data-light-panel="true"] > div:first-child [class*="text-[#9"] {
     color: #5d6674 !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-panel="true"] [class*="text-[#7"],
+  html[data-haki-theme="light"] [data-light-panel="true"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-light-panel="true"] [class*="text-[#9"],
+  html[data-haki-theme="light"] [data-light-panel="true"] [class*="text-[#a"],
+  html[data-haki-theme="light"] [data-light-panel="true"] [class*="text-[#c"] {
+    color: #5f6878 !important;
   }
 
   html[data-haki-theme="light"] [data-workspace-card="true"] {
