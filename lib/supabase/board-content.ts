@@ -2,6 +2,7 @@
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
+import { initialsFromName } from "@/lib/flowboard-helpers";
 import type { BoardRecord } from "@/lib/flowboard-types";
 import { upsertSupabaseWorkspaceFromBoardEntity } from "@/lib/supabase/workspaces";
 import {
@@ -144,6 +145,29 @@ type SupabaseCardLabelRow = {
   label_id: string;
 };
 
+type SupabaseWorkspaceAccessRelationRow = {
+  id: string;
+  profile_id: string;
+  board_role: "Membro" | "Observador" | "Administrador";
+  panel: "admin" | "cliente" | "colaborador";
+  created_at: string;
+  updated_at: string;
+  workspaces: { local_id: string | null } | Array<{ local_id: string | null }> | null;
+};
+
+type SupabaseVisibleProfileRow = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  kind: "admin" | "cliente" | "colaborador";
+  status: "ativo" | "pendente" | "desativado";
+  company: string | null;
+  title: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 function getClient() {
   if (!hasSupabaseEnv()) {
     return null;
@@ -195,6 +219,10 @@ function firstRelation<T>(relation: T | T[] | null) {
   }
 
   return relation;
+}
+
+function normalizeEmail(value: string) {
+  return value.trim().toLowerCase();
 }
 
 function makeDatesPayload(card: Card) {
@@ -991,6 +1019,33 @@ export async function fetchSupabaseBoardSnapshot(baseSnapshot: BoardStoreSnapsho
   const remoteComments = (commentsResult.data ?? []) as unknown as SupabaseCommentRow[];
   const remoteAttachments = (attachmentsResult.data ?? []) as unknown as SupabaseAttachmentRow[];
   const remoteCardLabels = (cardLabelsResult.data ?? []) as unknown as SupabaseCardLabelRow[];
+  const { data: workspaceAccessData, error: workspaceAccessError } = await client
+    .from("workspace_access")
+    .select("id, profile_id, board_role, panel, created_at, updated_at, workspaces!inner(local_id)")
+    .in("workspace_id", workspaceIds);
+
+  if (workspaceAccessError) {
+    throw workspaceAccessError;
+  }
+
+  const visibleWorkspaceAccess =
+    (workspaceAccessData ?? []) as unknown as SupabaseWorkspaceAccessRelationRow[];
+  const visibleProfileIds = Array.from(
+    new Set(visibleWorkspaceAccess.map((access) => access.profile_id).filter(Boolean)),
+  );
+  const { data: visibleProfilesData, error: visibleProfilesError } =
+    visibleProfileIds.length > 0
+      ? await client
+          .from("profiles")
+          .select("id, email, full_name, avatar_url, kind, status, company, title, created_at, updated_at")
+          .in("id", visibleProfileIds)
+      : { data: [], error: null };
+
+  if (visibleProfilesError) {
+    throw visibleProfilesError;
+  }
+
+  const visibleProfiles = (visibleProfilesData ?? []) as SupabaseVisibleProfileRow[];
 
   const workspaceLocalIdByRemoteId = new Map(
     workspaces.map((workspace) => [workspace.id, workspace.local_id ?? workspace.id]),
@@ -1048,9 +1103,84 @@ export async function fetchSupabaseBoardSnapshot(baseSnapshot: BoardStoreSnapsho
     adminActivity: { ...baseSnapshot.adminActivity },
   };
 
+  const visibleProfileById = new Map(visibleProfiles.map((profile) => [profile.id, profile]));
+  const localAdminIdByEmail = new Map(
+    Object.values(baseSnapshot.adminUsers).map((user) => [normalizeEmail(user.email), user.id]),
+  );
+
+  visibleProfiles.forEach((profile) => {
+    const normalizedEmail = normalizeEmail(profile.email);
+    const localUserId = localAdminIdByEmail.get(normalizedEmail);
+    const shouldReplaceLocalPlaceholder =
+      Boolean(localUserId) &&
+      localUserId !== profile.id &&
+      normalizedEmail !== "erickfilho281@gmail.com" &&
+      profile.kind !== "admin";
+
+    if (shouldReplaceLocalPlaceholder && localUserId) {
+      delete next.adminUsers[localUserId];
+    }
+
+    next.adminUsers[profile.id] = {
+      id: profile.id,
+      name: profile.full_name?.trim() || profile.email.split("@")[0] || "Painel Haki",
+      email: normalizedEmail,
+      avatarUrl: profile.avatar_url ?? undefined,
+      kind: profile.kind,
+      status: profile.status,
+      company: profile.company ?? undefined,
+      title: profile.title ?? undefined,
+      createdAt: profile.created_at,
+      updatedAt: profile.updated_at,
+    };
+  });
+
+  visibleWorkspaceAccess.forEach((access) => {
+    const workspace = firstRelation(access.workspaces);
+    const boardId = workspace?.local_id;
+    const profile = visibleProfileById.get(access.profile_id);
+
+    if (!boardId) {
+      return;
+    }
+
+    if (profile) {
+      const localUserId = localAdminIdByEmail.get(normalizeEmail(profile.email));
+      const shouldReplaceLocalPlaceholder =
+        Boolean(localUserId) &&
+        localUserId !== profile.id &&
+        normalizeEmail(profile.email) !== "erickfilho281@gmail.com" &&
+        profile.kind !== "admin";
+
+      if (shouldReplaceLocalPlaceholder && localUserId) {
+        Object.keys(next.workspaceAccess).forEach((accessId) => {
+          const localAccess = next.workspaceAccess[accessId];
+          if (localAccess?.userId === localUserId && localAccess.boardId === boardId) {
+            delete next.workspaceAccess[accessId];
+          }
+        });
+      }
+    }
+
+    next.workspaceAccess[access.id] = {
+      id: access.id,
+      userId: access.profile_id,
+      boardId,
+      boardRole: access.board_role,
+      panel: access.panel,
+      createdAt: access.created_at,
+      updatedAt: access.updated_at,
+    };
+  });
+
   workspaces.forEach((workspace) => {
     const boardId = workspace.local_id ?? workspace.id;
     const currentBoard = baseSnapshot.boards[boardId];
+    const boardAccess = Object.values(next.workspaceAccess).filter((access) => access.boardId === boardId);
+    const boardMemberIds =
+      boardAccess.length > 0
+        ? boardAccess.map((access) => `member-${access.userId}`)
+        : (currentBoard?.members ?? Object.keys(next.members).slice(0, 2));
     next.boards[boardId] = {
       id: boardId,
       title: workspace.title,
@@ -1058,7 +1188,7 @@ export async function fetchSupabaseBoardSnapshot(baseSnapshot: BoardStoreSnapsho
       description: workspace.description ?? "",
       accent: workspace.accent ?? undefined,
       shareLink: workspace.share_link ?? "",
-      members: currentBoard?.members ?? Object.keys(next.members).slice(0, 2),
+      members: boardMemberIds,
       joinRequestIds: currentBoard?.joinRequestIds ?? [],
       templates: currentBoard?.templates ?? [],
       deliveredFolders: remoteFolders
@@ -1078,6 +1208,31 @@ export async function fetchSupabaseBoardSnapshot(baseSnapshot: BoardStoreSnapsho
       ...DEFAULT_FILTERS,
       ...(baseSnapshot.filters[boardId] ?? {}),
     };
+  });
+
+  visibleWorkspaceAccess.forEach((access) => {
+    const workspace = firstRelation(access.workspaces);
+    const boardId = workspace?.local_id;
+    const profile = visibleProfileById.get(access.profile_id);
+    if (!boardId || !profile) {
+      return;
+    }
+
+    const memberId = `member-${profile.id}`;
+    next.members[memberId] = {
+      id: memberId,
+      name: profile.full_name?.trim() || profile.email.split("@")[0] || "Painel Haki",
+      email: normalizeEmail(profile.email),
+      avatarUrl: profile.avatar_url ?? undefined,
+      role: access.board_role,
+      handle: `@${normalizeEmail(profile.email).split("@")[0].replace(/[^a-z0-9._-]/gi, "")}`,
+      initials: initialsFromName(profile.full_name?.trim() || profile.email.split("@")[0] || "PH"),
+    };
+
+    const board = next.boards[boardId];
+    if (board && !board.members.includes(memberId)) {
+      board.members = [...board.members, memberId];
+    }
   });
 
   remoteFolders.forEach((folder) => {

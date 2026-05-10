@@ -526,6 +526,20 @@ export function AuthProvider({
           setSession(nextSession);
           void loadProfileForSession(nextSession);
 
+          upsertAdminUser({
+            id: nextSession.userId,
+            name:
+              invitedUser?.name ||
+              authUser.user_metadata?.name ||
+              normalizedEmail.split("@")[0] ||
+              "Painel Haki",
+            email: normalizedEmail,
+            kind: nextSession.panel === "colaborador" ? "colaborador" : "cliente",
+            status: "ativo",
+            company: invitedUser?.company,
+            title: invitedUser?.title,
+          });
+
           if (data.session?.access_token && nextSession.panel !== "admin") {
             const currentProfile = await fetchSupabaseProfileByEmail(normalizedEmail);
             const boardName = currentProfile?.company || invitedUser?.company || "Painel Haki";
@@ -632,23 +646,19 @@ export function AuthProvider({
             return { ok: false, error: error.message };
           }
 
-          const localUserId =
-            invitedUser?.id ??
-            `admin-invite-${normalizedEmail.split("@")[0].replace(/[^a-z0-9._-]/gi, "-")}`;
-
-          upsertAdminUser({
-            id: localUserId,
-            name: trimmedName,
-            email: normalizedEmail,
-            kind: accessKind,
-            status: "ativo",
-            company: invitedUser?.company ?? remoteInvite?.workspaceTitle,
-            title: invitedUser?.title,
-          });
-
           const nextSession = data.user ? await buildSupabaseSession(normalizedEmail) : null;
 
           if (nextSession) {
+            upsertAdminUser({
+              id: nextSession.userId,
+              name: trimmedName,
+              email: normalizedEmail,
+              kind: accessKind,
+              status: "ativo",
+              company: invitedUser?.company ?? remoteInvite?.workspaceTitle,
+              title: invitedUser?.title,
+            });
+
             setSession(nextSession);
             void loadProfileForSession(nextSession);
 
