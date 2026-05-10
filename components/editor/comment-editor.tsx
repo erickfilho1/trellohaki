@@ -67,6 +67,7 @@ export function CommentEditor({
   const [mentionQuery, setMentionQuery] = useState("");
   const [mentionRange, setMentionRange] = useState<{ from: number; to: number } | null>(null);
   const [activeMentionIndex, setActiveMentionIndex] = useState(0);
+  const [mentionCoords, setMentionCoords] = useState({ top: 120, left: 18 });
 
   const uniqueMentionableMembers = useMemo(() => {
     const seen = new Set<string>();
@@ -98,6 +99,22 @@ export function CommentEditor({
 
     return searchable.includes(query);
   });
+
+  function updateMentionPosition(instance: Editor, from: number) {
+    if (!wrapperRef.current) {
+      return;
+    }
+
+    const coords = instance.view.coordsAtPos(from);
+    const wrapperRect = wrapperRef.current.getBoundingClientRect();
+    const wrapperWidth = wrapperRef.current.clientWidth;
+    const popupWidth = Math.min(256, Math.max(180, wrapperWidth - 24));
+
+    setMentionCoords({
+      top: coords.bottom - wrapperRect.top + 10,
+      left: Math.max(12, Math.min(coords.left - wrapperRect.left - 8, wrapperWidth - popupWidth - 12)),
+    });
+  }
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -143,6 +160,7 @@ export function CommentEditor({
       setMentionQuery(mentionMatch.query);
       setMentionRange(mentionMatch.range);
       setActiveMentionIndex(0);
+      updateMentionPosition(instance, mentionMatch.range.from);
     },
     onSelectionUpdate: ({ editor: instance }) => {
       const mentionMatch = getMentionMatch(instance);
@@ -156,6 +174,7 @@ export function CommentEditor({
       setMentionOpen(true);
       setMentionQuery(mentionMatch.query);
       setMentionRange(mentionMatch.range);
+      updateMentionPosition(instance, mentionMatch.range.from);
     },
   });
 
@@ -338,7 +357,13 @@ export function CommentEditor({
         <EditorContent editor={editorInstance} />
 
         {mentionOpen && filteredMembers.length > 0 ? (
-          <div className="absolute left-3 top-[calc(100%+0.45rem)] z-40 w-[min(16rem,calc(100%-1.5rem))] overflow-hidden rounded-[0.9rem] border border-white/10 bg-[#2a2d34] shadow-[0_24px_60px_-30px_rgba(0,0,0,0.92)]">
+          <div
+            className="absolute z-40 w-[min(16rem,calc(100%-1.5rem))] overflow-hidden rounded-[0.9rem] border border-white/10 bg-[#2a2d34] shadow-[0_24px_60px_-30px_rgba(0,0,0,0.92)]"
+            style={{
+              top: mentionCoords.top,
+              left: mentionCoords.left,
+            }}
+          >
             <div className="max-h-48 overflow-y-auto py-1">
               {filteredMembers.map((member, index) => (
                 <button
