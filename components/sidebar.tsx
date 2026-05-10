@@ -302,6 +302,7 @@ function SidebarAccountMenu({
   const rootRef = useRef<HTMLDivElement | null>(null);
   const notificationButtonRef = useRef<HTMLButtonElement | null>(null);
   const unreadCount = notifications.filter((notification) => !notification.read).length;
+  const isLightTheme = theme === "light";
 
   useEffect(() => {
     if (!open && !notificationsOpen) {
@@ -422,11 +423,14 @@ function SidebarAccountMenu({
         <div
           data-testid="sidebar-account-popover"
           className={cn(
-            "absolute bottom-[calc(100%+0.75rem)] z-[90] w-[284px] overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#090d14]/98 shadow-[0_28px_90px_-34px_rgba(0,0,0,0.98)] backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-150",
+            "absolute bottom-[calc(100%+0.75rem)] z-[90] w-[284px] overflow-hidden rounded-[1.35rem] border backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-150",
+            isLightTheme
+              ? "border-black/10 bg-[linear-gradient(180deg,rgba(255,255,252,0.98)_0%,rgba(244,242,238,0.98)_100%)] text-[#171717] shadow-[0_28px_90px_-34px_rgba(0,0,0,0.22)]"
+              : "border-white/10 bg-[#090d14]/98 text-white shadow-[0_28px_90px_-34px_rgba(0,0,0,0.98)]",
             collapsed ? "left-0" : "left-0",
           )}
         >
-          <div className="border-b border-white/8 px-4 py-4">
+          <div className={cn("px-4 py-4", isLightTheme ? "border-b border-black/8" : "border-b border-white/8")}>
             <div className="flex items-center gap-3">
               <span
                 data-account-avatar="true"
@@ -435,14 +439,19 @@ function SidebarAccountMenu({
                 {userInitials(user.name)}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[15px] font-semibold tracking-[-0.02em] text-white">{user.name}</p>
-                <p className="mt-0.5 truncate text-xs text-[#8f8f95]">{user.email}</p>
+                <p className={cn("truncate text-[15px] font-semibold tracking-[-0.02em]", isLightTheme ? "text-[#171717]" : "text-white")}>{user.name}</p>
+                <p className={cn("mt-0.5 truncate text-xs", isLightTheme ? "text-[#5f6878]" : "text-[#8f8f95]")}>{user.email}</p>
               </div>
               <button
                 type="button"
                 onClick={onSettings}
                 aria-label="Abrir configurações"
-                className="grid size-9 shrink-0 place-items-center rounded-full border border-white/8 bg-white/[0.035] text-[#b2b2b8] transition hover:border-white/16 hover:bg-white/[0.08] hover:text-white"
+                className={cn(
+                  "grid size-9 shrink-0 place-items-center rounded-full border transition",
+                  isLightTheme
+                    ? "border-black/8 bg-black/[0.04] text-[#6a7383] hover:border-black/12 hover:bg-black/[0.07] hover:text-[#171717]"
+                    : "border-white/8 bg-white/[0.035] text-[#b2b2b8] hover:border-white/16 hover:bg-white/[0.08] hover:text-white",
+                )}
               >
                 <GearSix size={17} />
               </button>
@@ -451,10 +460,20 @@ function SidebarAccountMenu({
 
           <div className="space-y-1 p-2">
             <div
-              className="flex h-14 w-full items-center justify-between rounded-[1rem] border border-white/10 px-3 text-sm text-[#f0f0f2] transition-colors hover:bg-white/6"
+              className={cn(
+                "flex h-14 w-full items-center justify-between rounded-[1rem] border px-3 text-sm transition-colors",
+                isLightTheme
+                  ? "border-black/8 bg-black/[0.03] text-[#171717] hover:bg-black/[0.05]"
+                  : "border-white/10 text-[#f0f0f2] hover:bg-white/6",
+              )}
             >
               <span>Tema</span>
-              <span className="flex items-center gap-1 rounded-full border border-white/8 bg-white/5 p-1 text-[#9f9fa6]">
+              <span
+                className={cn(
+                  "flex items-center gap-1 rounded-full border p-1",
+                  isLightTheme ? "border-black/8 bg-black/[0.045] text-[#6f7787]" : "border-white/8 bg-white/5 text-[#9f9fa6]",
+                )}
+              >
                 <span
                   role="button"
                   tabIndex={0}
@@ -474,8 +493,12 @@ function SidebarAccountMenu({
                   className={cn(
                     "flex size-8 items-center justify-center rounded-full transition-all duration-200",
                     theme === "light"
-                      ? "bg-[#f7f7f7] text-[#111] shadow-[0_8px_20px_-12px_rgba(255,255,255,0.7)]"
-                      : "text-[#a8a8ae] hover:bg-white/6 hover:text-white",
+                      ? isLightTheme
+                        ? "bg-white text-[#111] shadow-[0_10px_18px_-12px_rgba(0,0,0,0.18)]"
+                        : "bg-[#f7f7f7] text-[#111] shadow-[0_8px_20px_-12px_rgba(255,255,255,0.7)]"
+                      : isLightTheme
+                        ? "text-[#6f7787] hover:bg-black/5 hover:text-[#171717]"
+                        : "text-[#a8a8ae] hover:bg-white/6 hover:text-white",
                   )}
                 >
                   <Sun size={14} />
@@ -500,7 +523,9 @@ function SidebarAccountMenu({
                     "flex size-8 items-center justify-center rounded-full transition-all duration-200",
                     theme === "dark"
                       ? "bg-[#2b1814] text-[#ff6b57] shadow-[0_10px_22px_-14px_rgba(220,57,51,0.5)]"
-                      : "text-[#6f6f76] hover:bg-black/5 hover:text-[#111]",
+                      : isLightTheme
+                        ? "text-[#6f7787] hover:bg-black/5 hover:text-[#171717]"
+                        : "text-[#6f6f76] hover:bg-black/5 hover:text-[#111]",
                   )}
                 >
                   <Moon size={14} />
@@ -511,19 +536,25 @@ function SidebarAccountMenu({
             <button
               type="button"
               onClick={onBoard}
-              className="flex h-12 w-full items-center justify-between rounded-[0.95rem] px-3 text-sm text-[#f0f0f2] transition-colors hover:bg-white/6 active:scale-[0.99]"
+              className={cn(
+                "flex h-12 w-full items-center justify-between rounded-[0.95rem] px-3 text-sm transition-colors active:scale-[0.99]",
+                isLightTheme ? "text-[#171717] hover:bg-black/[0.05]" : "text-[#f0f0f2] hover:bg-white/6",
+              )}
             >
               <span>Quadro</span>
-              <Kanban size={17} className="text-[#ababaf]" />
+              <Kanban size={17} className={cn(isLightTheme ? "text-[#6b7383]" : "text-[#ababaf]")} />
             </button>
 
             <button
               type="button"
               onClick={onLogout}
-              className="flex h-12 w-full items-center justify-between rounded-[0.95rem] px-3 text-sm text-[#f0f0f2] transition-colors hover:bg-white/6 active:scale-[0.99]"
+              className={cn(
+                "flex h-12 w-full items-center justify-between rounded-[0.95rem] px-3 text-sm transition-colors active:scale-[0.99]",
+                isLightTheme ? "text-[#171717] hover:bg-black/[0.05]" : "text-[#f0f0f2] hover:bg-white/6",
+              )}
             >
               <span>Logout</span>
-              <SignOut size={17} className="text-[#ababaf]" />
+              <SignOut size={17} className={cn(isLightTheme ? "text-[#6b7383]" : "text-[#ababaf]")} />
             </button>
           </div>
         </div>
