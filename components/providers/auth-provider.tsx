@@ -11,6 +11,7 @@ import {
 } from "react";
 import { useFlowBoardStore } from "@/components/providers/flowboard-provider";
 import {
+  claimSupabaseWorkspaceInvites,
   fetchSupabaseProfileById,
   fetchSupabaseProfileByEmail,
   getRegistrationInvite,
@@ -152,6 +153,12 @@ function defaultHomePath(panel: AuthUser["panel"]) {
   return panel === "admin" ? "/admin" : "/";
 }
 
+function delay(ms: number) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
 async function triggerWelcomeEmail(payload: {
   accessToken: string;
   email: string;
@@ -221,6 +228,26 @@ export function AuthProvider({
     };
   }, []);
 
+  const buildSupabaseSessionWithRetry = useCallback(
+    async (panelEmail: string) => {
+      const attempts = [0, 250, 700];
+
+      for (const waitMs of attempts) {
+        if (waitMs > 0) {
+          await delay(waitMs);
+        }
+
+        const nextSession = await buildSupabaseSession(panelEmail);
+        if (nextSession) {
+          return nextSession;
+        }
+      }
+
+      return null;
+    },
+    [buildSupabaseSession],
+  );
+
   const loadProfileForSession = useCallback(
     async (candidate: StoredAuthSession | null) => {
       if (!candidate || !supabaseEnabled) {
@@ -288,7 +315,11 @@ export function AuthProvider({
         return;
       }
 
-      const nextSession = await buildSupabaseSession(userEmail);
+      try {
+        await claimSupabaseWorkspaceInvites();
+      } catch {}
+
+      const nextSession = await buildSupabaseSessionWithRetry(userEmail);
       setSession(nextSession);
       void loadProfileForSession(nextSession);
     });
@@ -313,17 +344,29 @@ export function AuthProvider({
         return;
       }
 
-      void buildSupabaseSession(userEmail).then((nextSession) => {
+      void (async () => {
+        try {
+          await claimSupabaseWorkspaceInvites();
+        } catch {}
+
+        const nextSession = await buildSupabaseSessionWithRetry(userEmail);
         setSession(nextSession);
         void loadProfileForSession(nextSession);
-      });
+      })();
     });
 
     return () => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [adminUsers, buildSupabaseSession, loadProfileForSession, session, shouldKeepLocalSession, supabaseEnabled]);
+  }, [
+    adminUsers,
+    buildSupabaseSessionWithRetry,
+    loadProfileForSession,
+    session,
+    shouldKeepLocalSession,
+    supabaseEnabled,
+  ]);
 
   useEffect(() => {
     void loadProfileForSession(session);
@@ -434,7 +477,7 @@ export function AuthProvider({
               };
             }
 
-            const nextSession = await buildSupabaseSession(normalizedEmail);
+            const nextSession = await buildSupabaseSessionWithRetry(normalizedEmail);
             if (!nextSession) {
               return {
                 ok: false,
@@ -513,7 +556,11 @@ export function AuthProvider({
             return { ok: false, error: authError?.message ?? "Nao foi possivel entrar agora." };
           }
 
-          const nextSession = await buildSupabaseSession(normalizedEmail);
+          try {
+            await claimSupabaseWorkspaceInvites();
+          } catch {}
+
+          const nextSession = await buildSupabaseSessionWithRetry(normalizedEmail);
 
           if (!nextSession) {
             await supabase.auth.signOut();
@@ -646,7 +693,15 @@ export function AuthProvider({
             return { ok: false, error: error.message };
           }
 
-          const nextSession = data.user ? await buildSupabaseSession(normalizedEmail) : null;
+          if (data.user) {
+            try {
+              await claimSupabaseWorkspaceInvites();
+            } catch {}
+          }
+
+          const nextSession = data.user
+            ? await buildSupabaseSessionWithRetry(normalizedEmail)
+            : null;
 
           if (nextSession) {
             upsertAdminUser({
@@ -788,7 +843,19 @@ export function AuthProvider({
         logoutRequestedRef.current = false;
       },
     }),
-    [accounts, adminUsers, authenticated, buildSupabaseSession, homePath, hydrated, loadProfileForSession, resolvedUser, session, supabaseEnabled, upsertAdminUser],
+    [
+      accounts,
+      adminUsers,
+      authenticated,
+      buildSupabaseSessionWithRetry,
+      homePath,
+      hydrated,
+      loadProfileForSession,
+      resolvedUser,
+      session,
+      supabaseEnabled,
+      upsertAdminUser,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
