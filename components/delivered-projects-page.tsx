@@ -242,6 +242,7 @@ export function DeliveredProjectsPage() {
                     return (
                       <div
                         key={folder.id}
+                        data-light-keep-dark={active ? "true" : undefined}
                         className={cn(
                           "relative min-w-[15rem] rounded-[1.2rem] border px-4 py-4 text-left transition-all duration-200",
                           active
@@ -260,9 +261,9 @@ export function DeliveredProjectsPage() {
                                 className="size-3 rounded-full"
                                 style={{ backgroundColor: getLabelPreviewColor(folder.color) }}
                               />
-                              <span className="rounded-full border border-white/8 bg-white/[0.04] px-2.5 py-1 text-[11px] text-[#a3b0c8]">
-                                {folderCount} projetos
-                              </span>
+                                <span className="rounded-full border border-white/8 bg-white/[0.04] px-2.5 py-1 text-[11px] text-[#a3b0c8]">
+                                  {folderCount} projetos
+                                </span>
                             </div>
                             <p className="mt-4 truncate text-[1rem] font-medium text-white">{folder.name}</p>
                           </button>
@@ -292,6 +293,7 @@ export function DeliveredProjectsPage() {
                         >
                           <div
                             ref={folderMenuPanelRef}
+                            data-light-keep-dark="true"
                             className="w-[290px] overflow-hidden rounded-[1.2rem] border border-white/10 bg-[#151515] p-1.5 shadow-[0_32px_90px_-36px_rgba(0,0,0,0.98)]"
                           >
                             {isEditing ? (
@@ -383,7 +385,7 @@ export function DeliveredProjectsPage() {
                   data-light-subtle="true"
                   className="rounded-[1.2rem] border border-white/8 bg-white/[0.03] p-4"
                 >
-                <p className="text-sm text-[#d3dcef]">Criar pasta</p>
+                <p className="text-sm font-medium text-[#4f5868]">Criar pasta</p>
                 <div className="mt-3 flex gap-2">
                   <Input
                     value={newFolderName}
@@ -392,6 +394,7 @@ export function DeliveredProjectsPage() {
                     className="h-11 rounded-[1rem] border-white/10 bg-white/4 text-white"
                   />
                   <Button
+                    data-light-keep-dark="true"
                     onClick={handleCreateFolder}
                     className="h-11 rounded-[1rem] border border-white/10 bg-[#dc3933] px-4 text-white hover:bg-[#ef5148]"
                   >
@@ -433,6 +436,7 @@ export function DeliveredProjectsPage() {
                 {folderCards.map((card) => (
                   <article
                     key={card.id}
+                    data-light-keep-dark="true"
                     className="rounded-[1.35rem] border border-white/8 bg-[#111111] p-5"
                   >
                     <div className="flex items-center justify-between gap-3">

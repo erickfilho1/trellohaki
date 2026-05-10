@@ -353,6 +353,26 @@
     color: #5f6878 !important;
   }
 
+  html[data-haki-theme="light"] [data-light-keep-dark="true"] {
+    color: #f6f7fb !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-keep-dark="true"] .text-white,
+  html[data-haki-theme="light"] [data-light-keep-dark="true"] [class*="text-[#d"],
+  html[data-haki-theme="light"] [data-light-keep-dark="true"] [class*="text-[#e"],
+  html[data-haki-theme="light"] [data-light-keep-dark="true"] [class*="text-[#f"] {
+    color: #f6f7fb !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-keep-dark="true"] [class*="text-[#7"],
+  html[data-haki-theme="light"] [data-light-keep-dark="true"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-light-keep-dark="true"] [class*="text-[#9"],
+  html[data-haki-theme="light"] [data-light-keep-dark="true"] [class*="text-[#a"],
+  html[data-haki-theme="light"] [data-light-keep-dark="true"] [class*="text-[#b"],
+  html[data-haki-theme="light"] [data-light-keep-dark="true"] [class*="text-[#c"] {
+    color: #aeb8ca !important;
+  }
+
   html[data-haki-theme="light"] .glass-panel:not([data-board-shell="true"]) {
     border-color: rgba(12, 12, 12, 0.1) !important;
     background: linear-gradient(180deg, #ffffff 0%, #f3f3f1 100%) !important;
