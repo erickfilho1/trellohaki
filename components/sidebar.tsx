@@ -347,7 +347,9 @@ function SidebarAccountMenu({
           "flex items-center text-left text-[#d6ddef]",
           collapsed
             ? "justify-center"
-            : "w-full gap-2 rounded-[1.15rem] border border-white/8 bg-white/[0.035] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]",
+            : isLightTheme
+              ? "w-full gap-2 rounded-[1.15rem] border border-black/8 bg-black/[0.035] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]"
+              : "w-full gap-2 rounded-[1.15rem] border border-white/8 bg-white/[0.035] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]",
         )}
       >
         <button
@@ -375,7 +377,7 @@ function SidebarAccountMenu({
           </span>
           {!collapsed ? (
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-medium text-white">{user.name}</span>
+              <span className={cn("block truncate text-sm font-medium", isLightTheme ? "text-[#171717]" : "text-white")}>{user.name}</span>
             </span>
           ) : null}
         </button>
@@ -387,7 +389,12 @@ function SidebarAccountMenu({
               type="button"
               aria-label="Abrir notificacoes"
               onClick={() => onNotificationsOpenChange(!notificationsOpen)}
-            className="relative flex size-8 items-center justify-center rounded-full border border-white/8 bg-white/4 text-[#b8b8bd] transition-colors hover:border-white/14 hover:bg-white/8 hover:text-white"
+            className={cn(
+              "relative flex size-8 items-center justify-center rounded-full border transition-colors",
+              isLightTheme
+                ? "border-black/8 bg-transparent text-[#171717] hover:border-[#dc3933]/24 hover:bg-[#dc3933]/10 hover:text-[#dc3933]"
+                : "border-white/8 bg-white/4 text-[#b8b8bd] hover:border-white/14 hover:bg-white/8 hover:text-white",
+            )}
             >
               <Bell size={15} />
               {unreadCount > 0 ? (
@@ -401,7 +408,12 @@ function SidebarAccountMenu({
               type="button"
               aria-label="Abrir menu da conta"
               onClick={() => onOpenChange(!open)}
-              className="flex size-8 items-center justify-center rounded-full border border-white/8 bg-white/4 text-[#b8b8bd] transition-colors hover:border-white/14 hover:bg-white/8 hover:text-white"
+              className={cn(
+                "flex size-8 items-center justify-center rounded-full border transition-colors",
+                isLightTheme
+                  ? "border-black/8 bg-transparent text-[#171717] hover:border-[#dc3933]/24 hover:bg-[#dc3933]/10 hover:text-[#dc3933]"
+                  : "border-white/8 bg-white/4 text-[#b8b8bd] hover:border-white/14 hover:bg-white/8 hover:text-white",
+              )}
             >
               <GearSix size={15} />
             </button>
