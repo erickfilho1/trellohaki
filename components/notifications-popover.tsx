@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cleanProfileName } from "@/lib/account-settings";
 import { relativeTimestamp } from "@/lib/flowboard-helpers";
+import { getNotificationActionLabel } from "@/lib/notifications";
 import type { NotificationRecord } from "@/lib/flowboard-types";
 import { cn } from "@/lib/utils";
 
@@ -86,10 +87,10 @@ export function NotificationsPopover({
                 Central de alertas
               </p>
               <h3 className="mt-1 text-[1.05rem] font-semibold tracking-[-0.03em] text-white">
-                Notificações do quadro
+                Notificacoes do quadro
               </h3>
               <p className="mt-1 text-sm leading-6 text-[#8f98ab]">
-                Menções, alterações e movimentações que merecem sua atenção.
+                Mencoes, marcacoes em cards e movimentacoes que merecem sua atencao.
               </p>
             </div>
 
@@ -110,7 +111,7 @@ export function NotificationsPopover({
             {[
               ["unread", "Nao lidas"],
               ["all", "Tudo"],
-              ["mentions", "Menções"],
+              ["mentions", "Mencoes"],
             ].map(([value, label]) => (
               <button
                 key={value}
@@ -133,7 +134,7 @@ export function NotificationsPopover({
             <Input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Buscar por card, pessoa ou conteúdo..."
+              placeholder="Buscar por card, pessoa ou conteudo..."
               className="h-11 rounded-[1rem] border-white/10 bg-[#141414] pl-10 text-white placeholder:text-[#737b8e] focus-visible:border-[#dc3933]/45 focus-visible:ring-[#dc3933]/10"
             />
           </div>
@@ -147,7 +148,7 @@ export function NotificationsPopover({
               </span>
               <p className="mt-4 text-base font-medium text-white">Tudo em ordem por aqui</p>
               <p className="mt-2 max-w-[26ch] text-sm leading-6 text-[#8f98ab]">
-                Quando alguém mencionar você ou movimentar algo importante, o alerta aparece aqui.
+                Quando alguem marcar voce ou mencionar algo importante, o alerta aparece aqui.
               </p>
             </div>
           ) : (
@@ -182,7 +183,8 @@ export function NotificationsPopover({
                       ) : null}
                     </span>
                     <span className="mt-1 block text-sm leading-6 text-[#d2d8e8]">
-                      mencionou você em <span className="font-medium text-white">{notification.cardTitle}</span>
+                      {getNotificationActionLabel(notification)}{" "}
+                      <span className="font-medium text-white">{notification.cardTitle}</span>
                     </span>
                     <span className="mt-2 line-clamp-2 block text-sm leading-6 text-[#8f98ab]">
                       {notification.excerpt}

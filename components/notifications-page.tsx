@@ -1,15 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Bell, BellSimpleRinging, ChatCircleDots, CheckCircle, MagnifyingGlass } from "@phosphor-icons/react";
+import { Bell, BellSimpleRinging, CheckCircle, MagnifyingGlass } from "@phosphor-icons/react";
 import { ClientLayout } from "@/components/client-layout";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useFlowBoardStore } from "@/components/providers/flowboard-provider";
 import { cleanProfileName } from "@/lib/account-settings";
-import { filterNotificationsForViewer } from "@/lib/notifications";
 import { relativeTimestamp } from "@/lib/flowboard-helpers";
+import { filterNotificationsForViewer, getNotificationActionLabel } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
 type NotificationFilter = "all" | "unread" | "mentions";
@@ -20,6 +20,7 @@ export function NotificationsPage() {
     useFlowBoardStore();
   const [filter, setFilter] = useState<NotificationFilter>("unread");
   const [query, setQuery] = useState("");
+
   const projectName = useMemo(() => {
     if (user.panel === "admin") {
       return boards[0]?.name ?? "Painel Haki";
@@ -82,10 +83,10 @@ export function NotificationsPage() {
                   Central pessoal
                 </p>
                 <h1 className="mt-2 text-[2rem] font-semibold tracking-[-0.05em] text-white">
-                  Notificações
+                  Notificacoes
                 </h1>
                 <p className="mt-3 max-w-[70ch] text-sm leading-7 text-[#96a0b4]">
-                  Acompanhe menções, pedidos de alteração e toques importantes sem perder o ritmo do quadro.
+                  Acompanhe mencoes, marcacoes em cards e toques importantes sem perder o ritmo do quadro.
                 </p>
               </div>
 
@@ -110,7 +111,7 @@ export function NotificationsPage() {
                 {[
                   ["unread", "Nao lidas"],
                   ["all", "Tudo"],
-                  ["mentions", "Menções"],
+                  ["mentions", "Mencoes"],
                 ].map(([value, label]) => (
                   <button
                     key={value}
@@ -133,7 +134,7 @@ export function NotificationsPage() {
                 <Input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Buscar por card, pessoa ou conteúdo..."
+                  placeholder="Buscar por card, pessoa ou conteudo..."
                   className="h-11 rounded-[1rem] border-white/10 bg-[#141414] pl-10 text-white placeholder:text-[#737b8e] focus-visible:border-[#dc3933]/45 focus-visible:ring-[#dc3933]/10"
                 />
               </div>
@@ -149,7 +150,7 @@ export function NotificationsPage() {
                       </span>
                       <p className="mt-5 text-lg font-medium text-white">Nenhum alerta no momento</p>
                       <p className="mt-2 max-w-[28ch] text-sm leading-7 text-[#8f98ab]">
-                        Assim que alguém mencionar você em um mini card, a conversa aparece aqui.
+                        Assim que alguem marcar voce ou usar uma mencao, a conversa aparece aqui.
                       </p>
                     </div>
                   </div>
@@ -180,7 +181,8 @@ export function NotificationsPage() {
                           ) : null}
                         </span>
                         <span className="mt-1 block text-sm leading-6 text-[#d2d8e8]">
-                          mencionou você em <span className="font-medium text-white">{notification.cardTitle}</span>
+                          {getNotificationActionLabel(notification)}{" "}
+                          <span className="font-medium text-white">{notification.cardTitle}</span>
                         </span>
                         <span className="mt-2 block text-sm leading-6 text-[#8f98ab]">{notification.excerpt}</span>
                         <span className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[#7f889c]">
@@ -196,17 +198,17 @@ export function NotificationsPage() {
 
               <aside className="rounded-[1.45rem] border border-white/8 bg-[#0d0d0d] p-5">
                 <p className="text-[11px] font-semibold tracking-[0.24em] text-[#8f98ab] uppercase">
-                  Leitura rápida
+                  Leitura rapida
                 </p>
                 <div className="mt-4 space-y-3">
                   <div className="rounded-[1rem] border border-white/8 bg-white/[0.03] px-4 py-3">
-                    <p className="text-sm text-[#96a0b4]">Não lidas</p>
+                    <p className="text-sm text-[#96a0b4]">Nao lidas</p>
                     <p className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">
                       {unreadIds.length}
                     </p>
                   </div>
                   <div className="rounded-[1rem] border border-white/8 bg-white/[0.03] px-4 py-3">
-                    <p className="text-sm text-[#96a0b4]">Menções totais</p>
+                    <p className="text-sm text-[#96a0b4]">Alertas totais</p>
                     <p className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">
                       {viewerNotifications.length}
                     </p>
@@ -220,7 +222,7 @@ export function NotificationsPage() {
                 </div>
 
                 <div className="mt-5 rounded-[1.1rem] border border-dashed border-white/10 bg-white/[0.02] p-4 text-sm leading-7 text-[#8f98ab]">
-                  Use <span className="font-medium text-white">@nome</span> nos comentários dos mini cards para avisar a pessoa certa e puxar a conversa para esta central.
+                  Use <span className="font-medium text-white">@nome</span> nos comentarios dos cards para avisar a pessoa certa, ou marque a pessoa no card para puxar esse alerta para a central.
                 </div>
               </aside>
             </div>

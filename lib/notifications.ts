@@ -1,6 +1,7 @@
 import { cleanProfileName } from "@/lib/account-settings";
 import { stripHtml } from "@/lib/flowboard-helpers";
 import type {
+  ActivityRecord,
   BoardRecord,
   CardRecord,
   CommentRecord,
@@ -88,6 +89,34 @@ function truncateExcerpt(content: string) {
   return `${plainText.slice(0, 129).trimEnd()}...`;
 }
 
+function findLatestAssignmentActivity(card: CardRecord, member: MemberRecord) {
+  const normalizedMemberName = normalizeText(cleanProfileName(member.name));
+
+  return card.activity.reduce<ActivityRecord | null>((latest, activity) => {
+    const normalizedActivityText = normalizeText(activity.text);
+    const assignedMember =
+      normalizedActivityText.includes("adicionou") &&
+      normalizedActivityText.includes("ao card") &&
+      normalizedActivityText.includes(normalizedMemberName);
+
+    if (!assignedMember) {
+      return latest;
+    }
+
+    if (!latest) {
+      return activity;
+    }
+
+    return new Date(activity.createdAt).getTime() > new Date(latest.createdAt).getTime()
+      ? activity
+      : latest;
+  }, null);
+}
+
+function buildAssignmentExcerpt(cardTitle: string) {
+  return `Voce foi marcado para acompanhar o card ${cardTitle}.`;
+}
+
 export function memberMatchesViewer(member: MemberRecord, viewer: { name: string; email: string }) {
   const normalizedViewerName = normalizeText(cleanProfileName(viewer.name));
   const normalizedMemberName = normalizeText(cleanProfileName(member.name));
@@ -112,6 +141,34 @@ export function buildNotificationsFromBoards(
   boards.forEach((board) => {
     board.lists.forEach((list) => {
       list.cards.forEach((card) => {
+        card.members.forEach((recipient) => {
+          const assignmentActivity = findLatestAssignmentActivity(card, recipient);
+          const notificationId = assignmentActivity
+            ? `comment:${assignmentActivity.id}:${recipient.id}`
+            : `comment:${card.id}:${recipient.id}`;
+
+          notifications.push({
+            id: notificationId,
+            kind: "comment",
+            boardId: board.id,
+            boardName: board.name,
+            cardId: card.id,
+            cardTitle: card.title,
+            actor:
+              board.members.find((member) => member.id !== recipient.id && member.role === "Administrador") ??
+              board.members.find((member) => member.id !== recipient.id) ??
+              recipient,
+            recipient,
+            excerpt: buildAssignmentExcerpt(card.title),
+            createdAt:
+              assignmentActivity?.createdAt ??
+              card.activity[card.activity.length - 1]?.createdAt ??
+              card.comments[card.comments.length - 1]?.createdAt ??
+              board.updatedAt,
+            read: readSet.has(notificationId),
+          });
+        });
+
         card.comments.forEach((comment) => {
           const mentionedMembers = extractMentionedMembers(comment.text, board.members, comment.author.id);
 
@@ -146,6 +203,14 @@ export function filterNotificationsForViewer(
   viewer: { name: string; email: string },
 ) {
   return notifications.filter((notification) => memberMatchesViewer(notification.recipient, viewer));
+}
+
+export function getNotificationActionLabel(notification: NotificationRecord) {
+  if (notification.kind === "mention") {
+    return "mencionou voce em";
+  }
+
+  return "marcou voce em";
 }
 
 export function insertMentionValue(currentHtml: string, member: MemberRecord) {
