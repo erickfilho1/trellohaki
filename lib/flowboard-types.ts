@@ -297,6 +297,7 @@ export type FlowBoardContextValue = {
   deleteDeliveredFolder: (boardId: string, folderId: string) => void;
   markNotificationRead: (notificationId: string) => void;
   markNotificationsRead: (notificationIds: string[]) => void;
+  clearNotifications: (notificationIds: string[]) => void;
   getBoardStats: (boardId: string) => {
     totalCards: number;
     filteredCards: number;

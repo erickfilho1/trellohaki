@@ -67,6 +67,7 @@ import type {
 
 const STORAGE_KEY = "flowboard-local-state";
 const NOTIFICATION_READS_KEY = "flowboard-notification-reads";
+const NOTIFICATION_HIDDEN_KEY = "flowboard-notification-hidden";
 
 const FlowBoardContext = createContext<FlowBoardContextValue | null>(null);
 
@@ -95,6 +96,23 @@ function getInitialNotificationReads() {
   }
 }
 
+function getInitialHiddenNotifications() {
+  if (typeof window === "undefined") {
+    return [] as string[];
+  }
+
+  const raw = window.localStorage.getItem(NOTIFICATION_HIDDEN_KEY);
+  if (!raw) {
+    return [] as string[];
+  }
+
+  try {
+    return JSON.parse(raw) as string[];
+  } catch {
+    return [];
+  }
+}
+
 function newestBoardId(snapshot: BoardStoreSnapshot) {
   return Object.values(snapshot.boards).sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]
     ?.id;
@@ -107,6 +125,7 @@ export function FlowBoardProvider({
 }>) {
   const [snapshot, setSnapshot] = useState<BoardStoreSnapshot>(getInitialSnapshot);
   const [notificationReadIds, setNotificationReadIds] = useState<string[]>(getInitialNotificationReads);
+  const [hiddenNotificationIds, setHiddenNotificationIds] = useState<string[]>(getInitialHiddenNotifications);
   const [hydrated, setHydrated] = useState(false);
   const [workspaceSyncTick, setWorkspaceSyncTick] = useState(0);
   const [boardContentSyncTick, setBoardContentSyncTick] = useState(0);
@@ -137,6 +156,17 @@ export function FlowBoardProvider({
       JSON.stringify(Array.from(new Set(notificationReadIds))),
     );
   }, [notificationReadIds]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(
+      NOTIFICATION_HIDDEN_KEY,
+      JSON.stringify(Array.from(new Set(hiddenNotificationIds))),
+    );
+  }, [hiddenNotificationIds]);
 
   const hydrateFromSupabase = useCallback(async () => {
     try {
@@ -257,8 +287,11 @@ export function FlowBoardProvider({
   const workspaceAccess = useMemo(() => selectWorkspaceAccess(snapshot), [snapshot]);
   const adminActivity = useMemo(() => selectAdminActivity(snapshot), [snapshot]);
   const notifications = useMemo(
-    () => buildNotificationsFromBoards(boards, notificationReadIds),
-    [boards, notificationReadIds],
+    () =>
+      buildNotificationsFromBoards(boards, notificationReadIds).filter(
+        (notification) => !hiddenNotificationIds.includes(notification.id),
+      ),
+    [boards, hiddenNotificationIds, notificationReadIds],
   );
 
   const addBoard = useCallback((payload: { name: string; description: string; accent: string }) => {
@@ -468,6 +501,18 @@ export function FlowBoardProvider({
     });
   }, []);
 
+  const clearNotifications = useCallback((notificationIds: string[]) => {
+    if (notificationIds.length === 0) {
+      return;
+    }
+
+    setHiddenNotificationIds((current) => {
+      const next = new Set(current);
+      notificationIds.forEach((notificationId) => next.add(notificationId));
+      return Array.from(next);
+    });
+  }, []);
+
   const getBoardStats = useCallback(
     (boardId: string) => ({
       ...selectBoardStats(snapshot, boardId),
@@ -513,6 +558,7 @@ export function FlowBoardProvider({
       deleteDeliveredFolder,
       markNotificationRead,
       markNotificationsRead,
+      clearNotifications,
       getBoardStats,
     }),
     [
@@ -525,6 +571,7 @@ export function FlowBoardProvider({
       boards,
       clearFilters,
       createWorkspace,
+      clearNotifications,
       duplicateWorkspace,
       deleteAdminUser,
       deleteWorkspace,

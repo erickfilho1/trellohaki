@@ -1,7 +1,7 @@
 "use client";
 
 import type { RefObject } from "react";
-import { Bell, ChatCircleDots, Check, Circle, MagnifyingGlass } from "@phosphor-icons/react";
+import { Bell, ChatCircleDots, Check, Circle, MagnifyingGlass, Trash } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FloatingPanel } from "@/components/floating-panel";
@@ -22,6 +22,7 @@ export function NotificationsPopover({
   onClose,
   onMarkRead,
   onMarkAllRead,
+  onClearAll,
 }: {
   anchorRef: RefObject<HTMLElement | null>;
   open: boolean;
@@ -29,6 +30,7 @@ export function NotificationsPopover({
   onClose: () => void;
   onMarkRead: (notificationId: string) => void;
   onMarkAllRead: (notificationIds: string[]) => void;
+  onClearAll: (notificationIds: string[]) => void;
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<NotificationTab>("unread");
@@ -94,17 +96,31 @@ export function NotificationsPopover({
               </p>
             </div>
 
-            {unreadIds.length > 0 ? (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onMarkAllRead(unreadIds)}
-                className="h-8 rounded-full border-white/10 bg-white/[0.03] px-3 text-[11px] text-white hover:bg-white/[0.08]"
-              >
-                <Check size={14} />
-                Ler
-              </Button>
-            ) : null}
+            <div className="flex items-center gap-1.5">
+              {notifications.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => onClearAll(notifications.map((notification) => notification.id))}
+                  className="inline-flex size-8 items-center justify-center rounded-full border border-white/8 bg-white/[0.03] text-[#8f98ab] transition hover:border-white/12 hover:bg-white/[0.08] hover:text-white"
+                  aria-label="Limpar notificacoes"
+                  title="Limpar notificacoes"
+                >
+                  <Trash size={13} />
+                </button>
+              ) : null}
+
+              {unreadIds.length > 0 ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onMarkAllRead(unreadIds)}
+                  className="h-8 rounded-full border-white/10 bg-white/[0.03] px-3 text-[11px] text-white hover:bg-white/[0.08]"
+                >
+                  <Check size={14} />
+                  Ler
+                </Button>
+              ) : null}
+            </div>
           </div>
 
           <div className="mt-3 flex items-center gap-1.5">

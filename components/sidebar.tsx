@@ -65,7 +65,7 @@ export function Sidebar({
   const pathname = usePathname();
   const router = useRouter();
   const { logout, user } = useAuth();
-  const { notifications, markNotificationRead, markNotificationsRead } = useFlowBoardStore();
+  const { notifications, markNotificationRead, markNotificationsRead, clearNotifications } = useFlowBoardStore();
   const [adminOpen, setAdminOpen] = useState(pathname.startsWith("/admin"));
   const [accountOpen, setAccountOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -232,6 +232,7 @@ export function Sidebar({
           onNotificationsOpenChange={setNotificationsOpen}
           onMarkNotificationRead={markNotificationRead}
           onMarkNotificationsRead={markNotificationsRead}
+          onClearNotifications={clearNotifications}
           onSettings={() => {
             setAccountOpen(false);
             router.push("/configuracoes");
@@ -275,6 +276,7 @@ function SidebarAccountMenu({
   onNotificationsOpenChange,
   onMarkNotificationRead,
   onMarkNotificationsRead,
+  onClearNotifications,
   onSettings,
   onBoard,
   onLogout,
@@ -290,6 +292,7 @@ function SidebarAccountMenu({
   onNotificationsOpenChange: (open: boolean) => void;
   onMarkNotificationRead: (notificationId: string) => void;
   onMarkNotificationsRead: (notificationIds: string[]) => void;
+  onClearNotifications: (notificationIds: string[]) => void;
   onSettings: () => void;
   onBoard: () => void;
   onLogout: () => void;
@@ -314,7 +317,12 @@ function SidebarAccountMenu({
 
     function handlePointerDown(event: MouseEvent) {
       const target = event.target as Node;
+      const elementTarget = event.target instanceof HTMLElement ? event.target : null;
       if (rootRef.current?.contains(target)) {
+        return;
+      }
+
+      if (elementTarget?.closest("[data-notifications-popover='true']")) {
         return;
       }
 
@@ -406,6 +414,7 @@ function SidebarAccountMenu({
         onClose={() => onNotificationsOpenChange(false)}
         onMarkRead={onMarkNotificationRead}
         onMarkAllRead={onMarkNotificationsRead}
+        onClearAll={onClearNotifications}
       />
 
       {open ? (
