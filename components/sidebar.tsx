@@ -73,8 +73,8 @@ export function Sidebar({
   const canUseAdminArea = hasPermission(user.panel, "manage-admin-area");
   const showAdminChildren = !collapsed && (adminOpen || pathname.startsWith("/admin"));
   const userNotifications = useMemo(
-    () => filterNotificationsForViewer(notifications, { name: user.name, email: user.email }),
-    [notifications, user.email, user.name],
+    () => filterNotificationsForViewer(notifications, { id: user.id, name: user.name, email: user.email }),
+    [notifications, user.email, user.id, user.name],
   );
 
   useEffect(() => {

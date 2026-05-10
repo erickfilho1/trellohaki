@@ -36,8 +36,8 @@ export function NotificationsPage() {
   }, [boards, user.id, user.panel, workspaceAccess]);
 
   const viewerNotifications = useMemo(
-    () => filterNotificationsForViewer(notifications, { name: user.name, email: user.email }),
-    [notifications, user.email, user.name],
+    () => filterNotificationsForViewer(notifications, { id: user.id, name: user.name, email: user.email }),
+    [notifications, user.email, user.id, user.name],
   );
 
   const filteredNotifications = useMemo(() => {

@@ -117,17 +117,22 @@ function buildAssignmentExcerpt(cardTitle: string) {
   return `Voce foi marcado para acompanhar o card ${cardTitle}.`;
 }
 
-export function memberMatchesViewer(member: MemberRecord, viewer: { name: string; email: string }) {
-  const normalizedViewerName = normalizeText(cleanProfileName(viewer.name));
+export function memberMatchesViewer(member: MemberRecord, viewer: { id?: string; name: string; email: string }) {
+  const normalizedViewerId = viewer.id?.trim();
   const normalizedMemberName = normalizeText(cleanProfileName(member.name));
   const emailPrefix = normalizeText(viewer.email.split("@")[0] ?? "");
   const normalizedHandle = normalizeHandle(member.handle);
+  const normalizedViewerEmail = normalizeText(viewer.email);
+
+  if (normalizedViewerId && (member.id === viewer.id || member.id === `member-${normalizedViewerId}`)) {
+    return true;
+  }
 
   return (
-    (member.id === "member-erick" && normalizeText(viewer.email) === "erickfilho281@gmail.com") ||
-    normalizedMemberName === normalizedViewerName ||
+    (member.id === "member-erick" && normalizedViewerEmail === "erickfilho281@gmail.com") ||
     normalizedHandle === emailPrefix ||
-    normalizedHandle === normalizeText(viewer.email)
+    normalizedHandle === normalizedViewerEmail ||
+    normalizedMemberName === normalizeText(viewer.email.split("@")[0] ?? "")
   );
 }
 
@@ -200,7 +205,7 @@ export function buildNotificationsFromBoards(
 
 export function filterNotificationsForViewer(
   notifications: NotificationRecord[],
-  viewer: { name: string; email: string },
+  viewer: { id?: string; name: string; email: string },
 ) {
   return notifications.filter((notification) => memberMatchesViewer(notification.recipient, viewer));
 }
