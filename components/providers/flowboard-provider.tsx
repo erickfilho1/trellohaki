@@ -162,7 +162,7 @@ export function FlowBoardProvider({
     const {
       data: { subscription },
     } = client.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+      if (event === "SIGNED_IN") {
         void hydrateFromSupabase();
       }
 
@@ -200,6 +200,10 @@ export function FlowBoardProvider({
   }, []);
 
   useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+
     const syncIds = Array.from(pendingWorkspaceSyncIds.current);
     const deleteIds = Array.from(pendingWorkspaceDeleteIds.current);
 
@@ -226,9 +230,13 @@ export function FlowBoardProvider({
         console.warn("Nao foi possivel remover o workspace no Supabase.", error);
       });
     });
-  }, [snapshot, workspaceSyncTick]);
+  }, [hydrated, snapshot, workspaceSyncTick]);
 
   useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+
     const boardIds = Array.from(pendingBoardContentSyncIds.current);
     if (boardIds.length === 0) {
       return;
@@ -241,7 +249,7 @@ export function FlowBoardProvider({
         console.warn("Nao foi possivel sincronizar listas/cards/pastas no Supabase.", error);
       });
     });
-  }, [boardContentSyncTick, snapshot]);
+  }, [boardContentSyncTick, hydrated, snapshot]);
 
   const boards = useMemo(() => selectBoardViews(snapshot), [snapshot]);
   const filters = useMemo(() => snapshot.filters, [snapshot]);
