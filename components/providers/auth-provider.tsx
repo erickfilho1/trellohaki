@@ -75,6 +75,7 @@ type AuthContextValue = {
     boardId?: string | null;
   }) => Promise<AuthResult>;
   saveProfile: (payload: { name: string; avatarUrl: string }) => Promise<AuthResult>;
+  changePassword: (payload: { password: string; confirmPassword: string }) => Promise<AuthResult>;
   logout: () => Promise<void>;
 };
 
@@ -868,6 +869,64 @@ export function AuthProvider({
           return {
             ok: false,
             error: error instanceof Error ? error.message : "Nao foi possivel salvar o perfil.",
+          };
+        }
+      },
+      changePassword: async ({ password, confirmPassword }) => {
+        if (!session) {
+          return { ok: false, error: "Nenhum usuario autenticado para alterar a senha." };
+        }
+
+        const nextPassword = password.trim();
+        const nextConfirmation = confirmPassword.trim();
+
+        if (!nextPassword || !nextConfirmation) {
+          return { ok: false, error: "Preencha a nova senha e a confirmacao." };
+        }
+
+        if (nextPassword.length < 6) {
+          return { ok: false, error: "A nova senha precisa ter pelo menos 6 caracteres." };
+        }
+
+        if (nextPassword !== nextConfirmation) {
+          return { ok: false, error: "A confirmacao da senha nao confere." };
+        }
+
+        if (!supabaseEnabled) {
+          const existingAccount = accounts.find((item) => normalizeEmail(item.email) === session.email);
+          if (!existingAccount) {
+            return { ok: false, error: "Nao foi possivel alterar a senha neste ambiente." };
+          }
+
+          setAccounts((current) =>
+            current.map((account) =>
+              normalizeEmail(account.email) === session.email
+                ? { ...account, password: nextPassword }
+                : account,
+            ),
+          );
+          return { ok: true };
+        }
+
+        try {
+          const supabase = getSupabaseBrowserClient();
+          if (!supabase) {
+            return { ok: false, error: "Nao foi possivel conectar ao Supabase agora." };
+          }
+
+          const { error } = await supabase.auth.updateUser({ password: nextPassword });
+          if (error) {
+            return {
+              ok: false,
+              error: error.message || "Nao foi possivel atualizar a senha.",
+            };
+          }
+
+          return { ok: true };
+        } catch (error) {
+          return {
+            ok: false,
+            error: error instanceof Error ? error.message : "Nao foi possivel atualizar a senha.",
           };
         }
       },

@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 export function SettingsPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const { logout, saveProfile, user } = useAuth();
+  const { changePassword, logout, saveProfile, user } = useAuth();
   const { boards, workspaceAccess } = useFlowBoardData();
   const currentBoard = useMemo(() => {
     if (user.panel === "admin") {
@@ -34,6 +34,11 @@ export function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordSaved, setPasswordSaved] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
 
   useEffect(() => {
     const stored = readStoredAccountSettings(user.email);
@@ -78,6 +83,28 @@ export function SettingsPage() {
       setAvatarDataUrl(typeof reader.result === "string" ? reader.result : "");
     };
     reader.readAsDataURL(file);
+  }
+
+  async function savePassword() {
+    setPasswordSaving(true);
+    setPasswordError("");
+
+    const result = await changePassword({
+      password: newPassword,
+      confirmPassword,
+    });
+
+    setPasswordSaving(false);
+
+    if (!result.ok) {
+      setPasswordError(result.error || "Nao foi possivel atualizar sua senha agora.");
+      return;
+    }
+
+    setPasswordSaved(true);
+    setNewPassword("");
+    setConfirmPassword("");
+    window.setTimeout(() => setPasswordSaved(false), 1800);
   }
 
   return (
@@ -198,6 +225,62 @@ export function SettingsPage() {
                       <ShieldCheck size={16} className="text-[#dc3933]" />
                       {user.panel}
                     </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 max-w-[680px] rounded-[1rem] border border-white/10 bg-[#0b0b0b] p-4 sm:p-5">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-[#f4f4f5]" htmlFor="new-password">
+                        Nova senha
+                      </label>
+                      <Input
+                        id="new-password"
+                        type="password"
+                        value={newPassword}
+                        onChange={(event) => setNewPassword(event.target.value)}
+                        className="h-12 rounded-[0.85rem] border-white/14 bg-[#090909] px-4 text-white placeholder:text-[#666] focus-visible:border-[#dc3933]/70 focus-visible:ring-[#dc3933]/15"
+                        placeholder="Digite a nova senha"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-[#f4f4f5]" htmlFor="confirm-password">
+                        Confirmar senha
+                      </label>
+                      <Input
+                        id="confirm-password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(event) => setConfirmPassword(event.target.value)}
+                        className="h-12 rounded-[0.85rem] border-white/14 bg-[#090909] px-4 text-white placeholder:text-[#666] focus-visible:border-[#dc3933]/70 focus-visible:ring-[#dc3933]/15"
+                        placeholder="Repita a nova senha"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-1">
+                      <p className="text-sm text-[#a1a1aa]">
+                        A nova senha e a confirmacao precisam bater para salvar no Supabase.
+                      </p>
+                      {passwordError ? <p className="text-sm text-[#ff8f86]">{passwordError}</p> : null}
+                      {passwordSaved ? <p className="text-sm text-[#86e2ae]">Senha atualizada com sucesso.</p> : null}
+                    </div>
+
+                    <Button
+                      onClick={savePassword}
+                      disabled={passwordSaving}
+                      className={cn(
+                        "h-10 rounded-[0.85rem] px-5 text-sm font-semibold transition",
+                        passwordSaved
+                          ? "bg-[#1f7a4a] text-white hover:bg-[#238a55]"
+                          : "bg-[#f4f4f5] text-[#111] hover:bg-white",
+                      )}
+                    >
+                      {passwordSaved ? <CheckCircle size={16} weight="fill" /> : null}
+                      {passwordSaved ? "Senha salva" : passwordSaving ? "Salvando..." : "Alterar senha"}
+                    </Button>
                   </div>
                 </div>
               </div>
