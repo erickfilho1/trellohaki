@@ -306,6 +306,12 @@
     color: #151515 !important;
   }
 
+  html[data-haki-theme="light"] [data-light-header="true"] h1,
+  html[data-haki-theme="light"] [data-light-header="true"] h2,
+  html[data-haki-theme="light"] [data-light-header="true"] [class*="text-[#f"] {
+    color: #151515 !important;
+  }
+
   html[data-haki-theme="light"] [data-light-header="true"] [class*="text-[#8"],
   html[data-haki-theme="light"] [data-light-header="true"] [class*="text-[#9"],
   html[data-haki-theme="light"] [data-light-header="true"] [class*="text-[#a"] {
