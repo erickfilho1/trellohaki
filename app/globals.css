@@ -455,17 +455,60 @@
 
   html[data-haki-theme="light"] [data-workspace-card="true"] {
     border-color: rgba(17, 17, 17, 0.08) !important;
-    background: linear-gradient(180deg, #151515 0%, #101010 100%) !important;
-    color: #f6f7fb !important;
+    background: linear-gradient(180deg, #fffdfa 0%, #f2efe9 100%) !important;
+    color: #171717 !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      0 20px 48px -36px rgba(0, 0, 0, 0.22) !important;
   }
 
   html[data-haki-theme="light"] [data-workspace-card="true"] .text-white {
-    color: #f6f7fb !important;
+    color: #171717 !important;
   }
 
   html[data-haki-theme="light"] [data-workspace-card="true"] [class*="text-[#7"],
   html[data-haki-theme="light"] [data-workspace-card="true"] [class*="text-[#8"] {
-    color: #a2adc2 !important;
+    color: #5f6878 !important;
+  }
+
+  html[data-haki-theme="light"] [data-workspace-card="true"] .bg-white\/6,
+  html[data-haki-theme="light"] [data-workspace-card="true"] .bg-white\/4 {
+    background-color: rgba(17, 17, 17, 0.045) !important;
+  }
+
+  html[data-haki-theme="light"] [data-workspace-card="true"] .border-white\/8 {
+    border-color: rgba(17, 17, 17, 0.08) !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-panel="true"] .bg-\[\#111\],
+  html[data-haki-theme="light"] [data-light-panel="true"] .bg-\[\#111111\],
+  html[data-haki-theme="light"] [data-light-panel="true"] .bg-\[\#151515\] {
+    background: rgba(17, 17, 17, 0.045) !important;
+    color: #171717 !important;
+    border-color: rgba(17, 17, 17, 0.08) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55) !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-panel="true"] .bg-\[\#211211\],
+  html[data-haki-theme="light"] [data-light-panel="true"] .bg-\[\#1f2840\] {
+    background: rgba(220, 57, 51, 0.11) !important;
+    color: #7c251f !important;
+    border-color: rgba(220, 57, 51, 0.22) !important;
+    box-shadow: none !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-panel="true"] .bg-\[\#211211\] *,
+  html[data-haki-theme="light"] [data-light-panel="true"] .bg-\[\#1f2840\] * {
+    color: inherit !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-panel="true"] .bg-white\/3,
+  html[data-haki-theme="light"] [data-light-panel="true"] .bg-white\/4 {
+    background-color: rgba(17, 17, 17, 0.04) !important;
+  }
+
+  html[data-haki-theme="light"] [data-light-panel="true"] .hover\:text-white:hover {
+    color: #171717 !important;
   }
 
   html[data-haki-theme="light"] [data-testid="client-sidebar"] .bg-white\/4,
