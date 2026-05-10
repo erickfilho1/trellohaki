@@ -290,6 +290,62 @@
     color: #616b7c !important;
   }
 
+  html[data-haki-theme="light"] [data-notifications-popover="true"] {
+    border-color: rgba(17, 17, 17, 0.1) !important;
+    background: linear-gradient(180deg, rgba(255, 255, 252, 0.985) 0%, rgba(244, 242, 238, 0.985) 100%) !important;
+    color: #171717 !important;
+    box-shadow: 0 28px 70px -40px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  html[data-haki-theme="light"] [data-notifications-popover="true"] .text-white {
+    color: #171717 !important;
+  }
+
+  html[data-haki-theme="light"] [data-notifications-popover="true"] [class*="text-[#7"],
+  html[data-haki-theme="light"] [data-notifications-popover="true"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-notifications-popover="true"] [class*="text-[#9"],
+  html[data-haki-theme="light"] [data-notifications-popover="true"] [class*="text-[#a"] {
+    color: #5f6878 !important;
+  }
+
+  html[data-haki-theme="light"] [data-notifications-popover="true"] .border-white\/8,
+  html[data-haki-theme="light"] [data-notifications-popover="true"] .border-white\/10,
+  html[data-haki-theme="light"] [data-notifications-popover="true"] .border-white\/14 {
+    border-color: rgba(17, 17, 17, 0.08) !important;
+  }
+
+  html[data-haki-theme="light"] [data-notifications-popover="true"] .bg-\[\#141414\],
+  html[data-haki-theme="light"] [data-notifications-popover="true"] .bg-\[\#171717\] {
+    background: rgba(17, 17, 17, 0.045) !important;
+    color: #171717 !important;
+  }
+
+  html[data-haki-theme="light"] [data-notifications-popover="true"] .bg-white\/\[0\.02\],
+  html[data-haki-theme="light"] [data-notifications-popover="true"] .bg-white\/\[0\.03\],
+  html[data-haki-theme="light"] [data-notifications-popover="true"] .bg-white\/\[0\.04\],
+  html[data-haki-theme="light"] [data-notifications-popover="true"] .bg-white\/\[0\.08\] {
+    background-color: rgba(17, 17, 17, 0.04) !important;
+  }
+
+  html[data-haki-theme="light"] [data-notifications-popover="true"] .bg-\[\#dc3933\]\/\[0\.08\],
+  html[data-haki-theme="light"] [data-notifications-popover="true"] .bg-\[\#dc3933\]\/\[0\.12\] {
+    background: rgba(220, 57, 51, 0.085) !important;
+  }
+
+  html[data-haki-theme="light"] [data-notifications-popover="true"] .border-\[\#dc3933\]\/22 {
+    border-color: rgba(220, 57, 51, 0.18) !important;
+  }
+
+  html[data-haki-theme="light"] [data-notifications-popover="true"] input {
+    border-color: rgba(17, 17, 17, 0.12) !important;
+    background: rgba(255, 255, 255, 0.82) !important;
+    color: #171717 !important;
+  }
+
+  html[data-haki-theme="light"] [data-notifications-popover="true"] input::placeholder {
+    color: #6d7686 !important;
+  }
+
   html[data-haki-theme="light"] [data-light-main="true"] {
     background: transparent !important;
     color: #151515 !important;
