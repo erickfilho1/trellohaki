@@ -242,7 +242,8 @@ export function DeliveredProjectsPage() {
                     return (
                       <div
                         key={folder.id}
-                        data-light-keep-dark={active ? "true" : undefined}
+                        data-delivered-folder-card="true"
+                        data-active={active ? "true" : "false"}
                         className={cn(
                           "relative min-w-[15rem] rounded-[1.2rem] border px-4 py-4 text-left transition-all duration-200",
                           active
