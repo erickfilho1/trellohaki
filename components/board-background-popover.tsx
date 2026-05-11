@@ -28,7 +28,10 @@ export function BoardBackgroundPopover({
   onClose: () => void;
 }) {
   return (
-    <div className="flex max-h-[min(34rem,var(--floating-panel-max-height))] w-[min(22rem,var(--floating-panel-max-width))] flex-col overflow-hidden rounded-[1.2rem] border border-white/10 bg-[#2a2c31] shadow-[0_28px_90px_-34px_rgba(0,0,0,0.98)]">
+    <div
+      data-board-background-panel="true"
+      className="flex max-h-[min(34rem,var(--floating-panel-max-height))] w-[min(22rem,var(--floating-panel-max-width))] flex-col overflow-hidden rounded-[1.2rem] border border-white/10 bg-[#2a2c31] shadow-[0_28px_90px_-34px_rgba(0,0,0,0.98)]"
+    >
       <div className="sticky top-0 z-[2] flex items-center justify-center border-b border-white/8 bg-[#2a2c31]/96 px-4 py-3.5 backdrop-blur-xl">
         <h3 className="text-[1rem] font-medium tracking-[-0.03em] text-white">Plano de fundo do quadro</h3>
         <button

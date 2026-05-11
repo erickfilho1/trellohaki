@@ -187,6 +187,7 @@ export function FilterPanel({
     >
       <aside
         ref={panelRef}
+        data-filter-popover="true"
         className="pointer-events-auto flex max-h-[var(--floating-panel-max-height)] w-[min(420px,calc(100vw-1rem))] flex-col overflow-hidden rounded-[1.55rem] border border-white/10 bg-[linear-gradient(180deg,#111111_0%,#090909_100%)] shadow-[0_34px_90px_-34px_rgba(0,0,0,0.98)]"
       >
         <div className="flex h-full min-h-0 flex-col overflow-hidden">

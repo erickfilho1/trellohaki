@@ -87,6 +87,7 @@ function PermissionSelect({
       >
         <div
           ref={panelRef}
+          data-share-role-popover="true"
           className="rounded-[1rem] border border-white/10 bg-[#23262f] p-2 shadow-[0_28px_80px_-30px_rgba(0,0,0,0.94)]"
           style={{ width: panelWidth }}
         >

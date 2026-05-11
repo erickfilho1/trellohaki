@@ -346,6 +346,198 @@
     color: #6d7686 !important;
   }
 
+  html[data-haki-theme="light"] [data-filter-popover="true"],
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"],
+  html[data-haki-theme="light"] [data-list-actions-popover="true"],
+  html[data-haki-theme="light"] [data-member-profile-popover="true"],
+  html[data-haki-theme="light"] [data-board-background-panel="true"],
+  html[data-haki-theme="light"] [data-share-role-popover="true"],
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] {
+    border-color: rgba(17, 17, 17, 0.1) !important;
+    background: linear-gradient(180deg, rgba(255, 255, 253, 0.985) 0%, rgba(243, 241, 236, 0.985) 100%) !important;
+    color: #171717 !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.92),
+      0 28px 70px -42px rgba(0, 0, 0, 0.22) !important;
+  }
+
+  html[data-haki-theme="light"] [data-filter-popover="true"] .text-white,
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .text-white,
+  html[data-haki-theme="light"] [data-list-actions-popover="true"] .text-white,
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] .text-white,
+  html[data-haki-theme="light"] [data-board-background-panel="true"] .text-white,
+  html[data-haki-theme="light"] [data-share-role-popover="true"] .text-white,
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] .text-white {
+    color: #171717 !important;
+  }
+
+  html[data-haki-theme="light"] [data-filter-popover="true"] [class*="text-[#7"],
+  html[data-haki-theme="light"] [data-filter-popover="true"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-filter-popover="true"] [class*="text-[#9"],
+  html[data-haki-theme="light"] [data-filter-popover="true"] [class*="text-[#a"],
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] [class*="text-[#7"],
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] [class*="text-[#9"],
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] [class*="text-[#a"],
+  html[data-haki-theme="light"] [data-list-actions-popover="true"] [class*="text-[#7"],
+  html[data-haki-theme="light"] [data-list-actions-popover="true"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-list-actions-popover="true"] [class*="text-[#9"],
+  html[data-haki-theme="light"] [data-list-actions-popover="true"] [class*="text-[#a"],
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] [class*="text-[#7"],
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] [class*="text-[#9"],
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] [class*="text-[#a"],
+  html[data-haki-theme="light"] [data-board-background-panel="true"] [class*="text-[#7"],
+  html[data-haki-theme="light"] [data-board-background-panel="true"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-board-background-panel="true"] [class*="text-[#9"],
+  html[data-haki-theme="light"] [data-board-background-panel="true"] [class*="text-[#a"],
+  html[data-haki-theme="light"] [data-share-role-popover="true"] [class*="text-[#7"],
+  html[data-haki-theme="light"] [data-share-role-popover="true"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-share-role-popover="true"] [class*="text-[#9"],
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] [class*="text-[#7"],
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] [class*="text-[#9"],
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] [class*="text-[#a"] {
+    color: #5f6878 !important;
+  }
+
+  html[data-haki-theme="light"] [data-filter-popover="true"] .border-white\/8,
+  html[data-haki-theme="light"] [data-filter-popover="true"] .border-white\/10,
+  html[data-haki-theme="light"] [data-filter-popover="true"] .border-white\/12,
+  html[data-haki-theme="light"] [data-filter-popover="true"] .border-white\/14,
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .border-white\/8,
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .border-white\/9,
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .border-white\/10,
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .border-white\/12,
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .border-white\/16,
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .border-dashed,
+  html[data-haki-theme="light"] [data-list-actions-popover="true"] .border-white\/8,
+  html[data-haki-theme="light"] [data-list-actions-popover="true"] .border-white\/10,
+  html[data-haki-theme="light"] [data-list-actions-popover="true"] .border-white\/16,
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] .border-white\/8,
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] .border-white\/10,
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] .border-white\/18,
+  html[data-haki-theme="light"] [data-board-background-panel="true"] .border-white\/8,
+  html[data-haki-theme="light"] [data-board-background-panel="true"] .border-white\/10,
+  html[data-haki-theme="light"] [data-board-background-panel="true"] .border-white\/24,
+  html[data-haki-theme="light"] [data-share-role-popover="true"] .border-white\/10,
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] .border-white\/8,
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] .border-white\/10,
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] .border-white\/65 {
+    border-color: rgba(17, 17, 17, 0.08) !important;
+  }
+
+  html[data-haki-theme="light"] [data-filter-popover="true"] .bg-\[\#111111\],
+  html[data-haki-theme="light"] [data-filter-popover="true"] .bg-\[\#0d0d0d\],
+  html[data-haki-theme="light"] [data-filter-popover="true"] .bg-\[\#0f0f10\],
+  html[data-haki-theme="light"] [data-filter-popover="true"] .bg-\[\#131313\],
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .bg-\[\#111111\],
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .bg-\[\#1a1a1a\],
+  html[data-haki-theme="light"] [data-list-actions-popover="true"] .bg-\[\#20242d\],
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] .bg-\[\#0d0f14\],
+  html[data-haki-theme="light"] [data-board-background-panel="true"] .bg-\[\#1f232b\],
+  html[data-haki-theme="light"] [data-board-background-panel="true"] .bg-\[\#2a2d34\],
+  html[data-haki-theme="light"] [data-share-role-popover="true"] .bg-\[\#23262f\],
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] .bg-\[\#171b22\] {
+    background: rgba(17, 17, 17, 0.045) !important;
+    color: #171717 !important;
+  }
+
+  html[data-haki-theme="light"] [data-filter-popover="true"] .bg-white\/\[0\.015\],
+  html[data-haki-theme="light"] [data-filter-popover="true"] .bg-white\/\[0\.035\],
+  html[data-haki-theme="light"] [data-filter-popover="true"] .bg-white\/\[0\.045\],
+  html[data-haki-theme="light"] [data-filter-popover="true"] .bg-white\/\[0\.05\],
+  html[data-haki-theme="light"] [data-filter-popover="true"] .bg-white\/\[0\.06\],
+  html[data-haki-theme="light"] [data-filter-popover="true"] .bg-white\/\[0\.08\],
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .bg-white\/\[0\.02\],
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .bg-white\/\[0\.03\],
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .bg-white\/\[0\.035\],
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .bg-white\/\[0\.04\],
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .bg-white\/\[0\.07\],
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .bg-white\/4,
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .bg-white\/7,
+  html[data-haki-theme="light"] [data-list-actions-popover="true"] .bg-white\/4,
+  html[data-haki-theme="light"] [data-list-actions-popover="true"] .bg-white\/6,
+  html[data-haki-theme="light"] [data-list-actions-popover="true"] .bg-white\/7,
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] .bg-white\/\[0\.02\],
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] .bg-white\/\[0\.03\],
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] .bg-white\/\[0\.05\],
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] .bg-white\/\[0\.06\],
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] .bg-white\/\[0\.08\],
+  html[data-haki-theme="light"] [data-board-background-panel="true"] .bg-white\/\[0\.03\],
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] .bg-white\/6 {
+    background-color: rgba(17, 17, 17, 0.045) !important;
+  }
+
+  html[data-haki-theme="light"] [data-filter-popover="true"] input,
+  html[data-haki-theme="light"] [data-filter-popover="true"] textarea,
+  html[data-haki-theme="light"] [data-filter-popover="true"] select,
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] input,
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] textarea,
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] select,
+  html[data-haki-theme="light"] [data-share-role-popover="true"] input,
+  html[data-haki-theme="light"] [data-share-role-popover="true"] textarea,
+  html[data-haki-theme="light"] [data-share-role-popover="true"] select {
+    border-color: rgba(17, 17, 17, 0.12) !important;
+    background: rgba(255, 255, 255, 0.82) !important;
+    color: #171717 !important;
+  }
+
+  html[data-haki-theme="light"] [data-filter-popover="true"] input::placeholder,
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] input::placeholder,
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] textarea::placeholder,
+  html[data-haki-theme="light"] [data-share-role-popover="true"] input::placeholder {
+    color: #6d7686 !important;
+  }
+
+  html[data-haki-theme="light"] [data-filter-popover="true"] .bg-\[\#dc3933\]\/14,
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .bg-\[\#dc3933\]\/14,
+  html[data-haki-theme="light"] [data-share-role-popover="true"] .bg-\[\#6c9dff\]\/18 {
+    background: rgba(220, 57, 51, 0.1) !important;
+    color: #7c251f !important;
+  }
+
+  html[data-haki-theme="light"] [data-filter-popover="true"] .border-\[\#dc3933\]\/42,
+  html[data-haki-theme="light"] [data-add-demand-popover-panel="true"] .border-\[\#dc3933\]\/42,
+  html[data-haki-theme="light"] [data-share-role-popover="true"] .ring-\[\#8eb2ff\]\/18 {
+    border-color: rgba(220, 57, 51, 0.22) !important;
+  }
+
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] > div:first-child {
+    border-color: rgba(17, 17, 17, 0.08) !important;
+    background: linear-gradient(180deg, rgba(255, 246, 245, 1) 0%, rgba(248, 237, 234, 1) 100%) !important;
+  }
+
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] .bg-\[\#131313\],
+  html[data-haki-theme="light"] [data-member-profile-popover="true"] .bg-\[radial-gradient\(circle_at_32\%_20\%\,\#2f2f32\,\#17181c_48\%\,\#0d0d0f\)\] {
+    background: #f2eee6 !important;
+    color: #171717 !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-background-panel="true"] .bg-\[\#2a2c31\]\/96 {
+    background: rgba(248, 247, 244, 0.94) !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-background-panel="true"] .bg-black\/25 {
+    background: rgba(17, 17, 17, 0.12) !important;
+  }
+
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] .border-b,
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] .border-t {
+    border-color: rgba(17, 17, 17, 0.08) !important;
+  }
+
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] .bg-\[linear-gradient\(135deg\,\#191919\,\#2a1513\)\] {
+    background: linear-gradient(180deg, rgba(255, 246, 245, 1) 0%, rgba(248, 237, 234, 1) 100%) !important;
+  }
+
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] .bg-\[\#182131\],
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] .bg-\[\#11b6d6\],
+  html[data-haki-theme="light"] [data-testid="user-menu-popover"] .bg-\[\#84aef3\] {
+    background: #f2eee6 !important;
+    color: #171717 !important;
+  }
+
   html[data-haki-theme="light"] [data-light-main="true"] {
     background: transparent !important;
     color: #151515 !important;

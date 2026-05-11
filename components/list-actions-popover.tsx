@@ -26,7 +26,10 @@ export function ListActionsPopover({
   onArchive: () => void;
 }) {
   return (
-    <div className="flowboard-scrollbar max-h-[min(78vh,720px)] w-[400px] overflow-y-auto rounded-[1.6rem] border border-white/10 bg-[#2a2c31] p-4 shadow-[0_24px_60px_-26px_rgba(0,0,0,0.95)]">
+    <div
+      data-list-actions-popover="true"
+      className="flowboard-scrollbar max-h-[min(78vh,720px)] w-[400px] overflow-y-auto rounded-[1.6rem] border border-white/10 bg-[#2a2c31] p-4 shadow-[0_24px_60px_-26px_rgba(0,0,0,0.95)]"
+    >
       <div className="flex items-center justify-between">
         <div className="w-8" />
         <h3 className="text-lg font-medium text-white">Acoes da Lista</h3>
