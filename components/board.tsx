@@ -112,11 +112,12 @@ export function Board({
   return (
     <div
       data-board-shell="true"
-      className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-[linear-gradient(180deg,rgba(20,20,20,0.96),rgba(11,11,11,0.98))]"
+      className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-[#11131a]"
     >
-      <div className={`absolute inset-0 bg-gradient-to-br ${board.accent} opacity-55`} />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,15,25,0.42),rgba(11,15,25,0.84))]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_24rem)]" />
+      <div className={`absolute inset-0 bg-gradient-to-br ${board.accent} opacity-[0.86]`} />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,12,20,0.12),rgba(10,12,20,0.34))]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_24rem)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.04),transparent_28rem)]" />
 
       <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden">
         <div className="flex flex-wrap items-center gap-2 border-b border-white/7 px-4 py-2 text-[12px] text-[#d7ddef] sm:px-5">
