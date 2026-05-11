@@ -237,21 +237,21 @@
 
   [data-sidebar-toggle="true"] {
     opacity: 0;
-    transform: translateX(0.65rem) translateY(-50%) scale(0.92);
+    transform: translateX(0.2rem) translateY(-50%) scale(0.92);
     pointer-events: none;
   }
 
   [data-sidebar-toggle="true"][data-visible="true"],
   [data-sidebar-toggle="true"][data-focused="true"] {
     opacity: 1;
-    transform: translateX(0.5rem) translateY(-50%) scale(1);
+    transform: translateX(0) translateY(-50%) scale(1);
     pointer-events: auto;
   }
 
   @media (hover: none), (pointer: coarse) {
     [data-sidebar-toggle="true"] {
       opacity: 1;
-      transform: translateX(0.5rem) translateY(-50%) scale(1);
+      transform: translateX(0) translateY(-50%) scale(1);
       pointer-events: auto;
     }
   }

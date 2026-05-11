@@ -88,8 +88,6 @@ export function Sidebar({
     <aside
       data-testid="client-sidebar"
       data-sidebar-hovered={toggleVisible ? "true" : "false"}
-      onMouseEnter={() => setToggleVisible(true)}
-      onMouseLeave={() => setToggleVisible(false)}
       onFocusCapture={() => setToggleVisible(true)}
       onBlurCapture={(event) => {
         const nextTarget = event.relatedTarget as Node | null;
@@ -102,6 +100,13 @@ export function Sidebar({
         collapsed ? "w-16" : "w-60",
       )}
     >
+      <div
+        data-sidebar-toggle-zone="true"
+        className="absolute right-[-12px] top-0 z-[19] h-full w-8"
+        onMouseEnter={() => setToggleVisible(true)}
+        onMouseLeave={() => setToggleVisible(false)}
+      />
+
       <SidebarToggleButton
         collapsed={collapsed}
         onToggle={onToggle}
@@ -109,6 +114,7 @@ export function Sidebar({
         revealed={toggleVisible}
         focused={toggleFocused}
         onFocusChange={setToggleFocused}
+        onHoverChange={setToggleVisible}
       />
 
       <div
