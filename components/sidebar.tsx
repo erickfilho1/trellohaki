@@ -53,6 +53,30 @@ function applyTheme(theme: HakiTheme) {
   document.documentElement.style.colorScheme = theme === "light" ? "light" : "dark";
 }
 
+function currentSidebarContext(pathname: string, projectName: string) {
+  if (pathname === "/configuracoes") {
+    return "Configuracoes";
+  }
+
+  if (pathname === "/notificacoes") {
+    return "Notificacoes";
+  }
+
+  if (pathname === "/projetos-entregues") {
+    return "Projetos entregues";
+  }
+
+  if (pathname === "/admin/gerenciamento") {
+    return "Gerenciamento";
+  }
+
+  if (pathname === "/admin") {
+    return "Area admin";
+  }
+
+  return projectName;
+}
+
 export function Sidebar({
   collapsed,
   onToggle,
@@ -74,6 +98,7 @@ export function Sidebar({
   const [toggleFocused, setToggleFocused] = useState(false);
   const canUseAdminArea = hasPermission(user.panel, "manage-admin-area");
   const showAdminChildren = !collapsed && (adminOpen || pathname.startsWith("/admin"));
+  const sidebarContext = useMemo(() => currentSidebarContext(pathname, projectName), [pathname, projectName]);
   const userNotifications = useMemo(
     () => filterNotificationsForViewer(notifications, { id: user.id, name: user.name, email: user.email }),
     [notifications, user.email, user.id, user.name],
@@ -138,7 +163,7 @@ export function Sidebar({
             <p className="truncate text-[15px] font-semibold tracking-[-0.03em] text-white">
               Painel Haki
             </p>
-            <p className="truncate text-xs text-[#8e97ac]">{projectName}</p>
+            <p className="truncate text-xs text-[#8e97ac]">{sidebarContext}</p>
           </div>
         ) : null}
       </div>
