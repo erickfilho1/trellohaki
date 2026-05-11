@@ -536,8 +536,8 @@ export function AdminPage() {
                   className={cn(
                     "h-10 rounded-[0.85rem] px-4 text-sm transition-all",
                     creationMode === "blank"
-                      ? "bg-[#1f2840] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
-                      : "text-[#94a0b7] hover:text-white",
+                      ? "bg-[#dc3933] text-white shadow-[0_16px_36px_-26px_rgba(220,57,51,0.82),inset_0_1px_0_rgba(255,255,255,0.08)]"
+                      : "text-[#94a0b7] hover:bg-[#dc3933]/10 hover:text-white",
                   )}
                 >
                   Criar do zero
@@ -548,8 +548,8 @@ export function AdminPage() {
                   className={cn(
                     "h-10 rounded-[0.85rem] px-4 text-sm transition-all",
                     creationMode === "template"
-                      ? "bg-[#1f2840] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
-                      : "text-[#94a0b7] hover:text-white",
+                      ? "bg-[#dc3933] text-white shadow-[0_16px_36px_-26px_rgba(220,57,51,0.82),inset_0_1px_0_rgba(255,255,255,0.08)]"
+                      : "text-[#94a0b7] hover:bg-[#dc3933]/10 hover:text-white",
                   )}
                 >
                   Usar template
