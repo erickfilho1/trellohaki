@@ -50,6 +50,7 @@ import {
   syncSupabaseBoardContent,
 } from "@/lib/supabase/board-content";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { revokeSupabaseWorkspaceAccess } from "@/lib/supabase/access";
 import {
   deleteSupabaseWorkspaceByLocalId,
   upsertSupabaseWorkspaceFromBoardEntity,
@@ -469,7 +470,16 @@ export function FlowBoardProvider({
     [],
   );
 
-  const revokeWorkspaceAccess = useCallback((accessId: string) => {
+  const revokeWorkspaceAccess = useCallback(async (accessId: string) => {
+    const access = snapshotRef.current.workspaceAccess[accessId];
+    if (!access) {
+      return;
+    }
+
+    if (getSupabaseBrowserClient()) {
+      await revokeSupabaseWorkspaceAccess(accessId);
+    }
+
     setSnapshot((current) => revokeWorkspaceAccessInSnapshot(current, accessId));
   }, []);
 

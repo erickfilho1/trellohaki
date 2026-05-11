@@ -225,6 +225,16 @@ export async function claimSupabaseWorkspaceInvites() {
   return typeof data === "number" ? data : 0;
 }
 
+export async function revokeSupabaseWorkspaceAccess(accessId: string) {
+  const client = requireClient(getClient());
+
+  const { error } = await client.from("workspace_access").delete().eq("id", accessId);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function ensureSupabaseCurrentProfile() {
   const client = requireClient(getClient());
 

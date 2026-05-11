@@ -292,7 +292,7 @@ export type FlowBoardContextValue = {
     boardRole: BoardRole;
     panel?: WorkspacePanel;
   }) => void;
-  revokeWorkspaceAccess: (accessId: string) => void;
+  revokeWorkspaceAccess: (accessId: string) => Promise<void>;
   renameDeliveredFolder: (boardId: string, folderId: string, name: string) => void;
   deleteDeliveredFolder: (boardId: string, folderId: string) => void;
   markNotificationRead: (notificationId: string) => void;

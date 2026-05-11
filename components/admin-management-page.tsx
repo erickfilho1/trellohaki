@@ -156,6 +156,8 @@ export function AdminManagementPage() {
   } = useFlowBoardStore();
 
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(boards[0]?.id ?? null);
+  const [removingAccessId, setRemovingAccessId] = useState<string | null>(null);
+  const [accessStatus, setAccessStatus] = useState<{ type: "error"; message: string } | null>(null);
 
   const selectedBoard = useMemo(
     () => boards.find((board) => board.id === selectedBoardId) ?? boards[0] ?? null,
@@ -272,6 +274,22 @@ export function AdminManagementPage() {
     }
 
     deleteWorkspace(selectedBoard.id);
+  };
+
+  const handleRevokeAccess = async (accessId: string) => {
+    setRemovingAccessId(accessId);
+    setAccessStatus(null);
+
+    try {
+      await revokeWorkspaceAccess(accessId);
+    } catch (error) {
+      setAccessStatus({
+        type: "error",
+        message: error instanceof Error ? error.message : "Não foi possível remover esse acesso agora.",
+      });
+    } finally {
+      setRemovingAccessId(null);
+    }
   };
 
   return (
@@ -515,6 +533,11 @@ export function AdminManagementPage() {
                   title="Pessoas vinculadas ao quadro"
                   copy="Remova acessos sem sair do painel e veja rapidamente quem responde por esse workspace."
                 >
+                  {accessStatus ? (
+                    <div className="mb-3 rounded-[1rem] border border-[#6c3340] bg-[#2b161d] px-4 py-3 text-sm leading-6 text-[#ffd4da]">
+                      {accessStatus.message}
+                    </div>
+                  ) : null}
                   {selectedBoardUsers.length ? (
                     <div className="space-y-3">
                       {selectedBoardUsers.map(({ access, user }) => (
@@ -559,11 +582,14 @@ export function AdminManagementPage() {
                             {user.kind !== "admin" ? (
                               <Button
                                 variant="outline"
-                                onClick={() => revokeWorkspaceAccess(access.id)}
+                                disabled={removingAccessId === access.id}
+                                onClick={() => {
+                                  void handleRevokeAccess(access.id);
+                                }}
                                 className="h-10 rounded-[0.95rem] border border-white/10 bg-white/[0.02] px-3 text-white hover:bg-white/[0.07]"
                               >
                                 <UserMinus size={15} />
-                                Tirar do quadro
+                                {removingAccessId === access.id ? "Removendo..." : "Tirar do quadro"}
                               </Button>
                             ) : null}
                           </div>

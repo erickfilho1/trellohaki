@@ -1103,6 +1103,17 @@ export async function fetchSupabaseBoardSnapshot(baseSnapshot: BoardStoreSnapsho
     adminActivity: { ...baseSnapshot.adminActivity },
   };
 
+  const managedBoardIds = new Set(
+    workspaces.map((workspace) => workspace.local_id ?? workspace.id).filter(Boolean),
+  );
+
+  Object.keys(next.workspaceAccess).forEach((accessId) => {
+    const localAccess = next.workspaceAccess[accessId];
+    if (localAccess && managedBoardIds.has(localAccess.boardId)) {
+      delete next.workspaceAccess[accessId];
+    }
+  });
+
   const visibleProfileById = new Map(visibleProfiles.map((profile) => [profile.id, profile]));
   const localAdminIdByEmail = new Map(
     Object.values(baseSnapshot.adminUsers).map((user) => [normalizeEmail(user.email), user.id]),
