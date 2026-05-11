@@ -70,6 +70,8 @@ export function Sidebar({
   const [accountOpen, setAccountOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [theme, setTheme] = useState<HakiTheme>(readStoredTheme);
+  const [toggleVisible, setToggleVisible] = useState(false);
+  const [toggleFocused, setToggleFocused] = useState(false);
   const canUseAdminArea = hasPermission(user.panel, "manage-admin-area");
   const showAdminChildren = !collapsed && (adminOpen || pathname.startsWith("/admin"));
   const userNotifications = useMemo(
@@ -85,12 +87,29 @@ export function Sidebar({
   return (
     <aside
       data-testid="client-sidebar"
+      data-sidebar-hovered={toggleVisible ? "true" : "false"}
+      onMouseEnter={() => setToggleVisible(true)}
+      onMouseLeave={() => setToggleVisible(false)}
+      onFocusCapture={() => setToggleVisible(true)}
+      onBlurCapture={(event) => {
+        const nextTarget = event.relatedTarget as Node | null;
+        if (!event.currentTarget.contains(nextTarget)) {
+          setToggleVisible(false);
+        }
+      }}
       className={cn(
         "relative flex h-full min-h-0 flex-col border-r border-white/8 bg-[linear-gradient(180deg,#0d0d0d_0%,#080808_100%)] px-3 py-4 transition-[width] duration-300",
         collapsed ? "w-16" : "w-60",
       )}
     >
-      <SidebarToggleButton collapsed={collapsed} onToggle={onToggle} />
+      <SidebarToggleButton
+        collapsed={collapsed}
+        onToggle={onToggle}
+        theme={theme}
+        revealed={toggleVisible}
+        focused={toggleFocused}
+        onFocusChange={setToggleFocused}
+      />
 
       <div
         className={cn(
