@@ -143,8 +143,9 @@ export function Sidebar({
       />
 
       <div
+        data-sidebar-brand="true"
         className={cn(
-          "flex items-center rounded-[1.25rem] border border-white/8 bg-white/4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-all duration-300",
+          "flex min-w-0 items-center rounded-[1.25rem] border border-white/8 bg-white/4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-all duration-300",
           collapsed ? "justify-center border-transparent bg-transparent px-0 py-2 shadow-none" : "gap-3 px-3 py-3",
         )}
       >
@@ -159,7 +160,7 @@ export function Sidebar({
           <Lightning size={18} weight="fill" />
         </div>
         {!collapsed ? (
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="truncate text-[15px] font-semibold tracking-[-0.03em] text-white">
               Painel Haki
             </p>
@@ -168,14 +169,14 @@ export function Sidebar({
         ) : null}
       </div>
 
-      <nav className="mt-6 flex flex-col gap-1.5">
+      <nav className="mt-6 flex min-w-0 flex-col gap-1.5">
         {canUseAdminArea ? (
           <div className="space-y-1.5">
             <div
               data-admin-group="true"
               data-active={pathname.startsWith("/admin") ? "true" : undefined}
               className={cn(
-                "rounded-[1rem] border transition-all duration-300",
+                "min-w-0 overflow-hidden rounded-[1rem] border transition-all duration-300",
                 collapsed
                   ? "border-white/0 bg-transparent"
                   : pathname.startsWith("/admin")
@@ -185,7 +186,7 @@ export function Sidebar({
             >
               <div
                 className={cn(
-                  "flex items-center",
+                  "min-w-0 flex w-full items-center",
                   collapsed ? "justify-center px-0 py-1.5" : "gap-2 px-2 py-1.5",
                 )}
               >
@@ -226,21 +227,21 @@ export function Sidebar({
               </div>
 
               {showAdminChildren ? (
-                <div className="px-2 pb-2">
+                <div data-admin-children="true" className="min-w-0 overflow-hidden px-2 pb-2">
                   <Link
                     href="/admin/gerenciamento"
                     data-testid="sidebar-link-gerenciamento"
                     data-sidebar-item="true"
                     data-active={pathname === "/admin/gerenciamento" ? "true" : undefined}
                     className={cn(
-                      "ml-3 flex items-center gap-3 rounded-[0.95rem] border px-3 py-2.5 text-[13px] transition-all duration-300",
+                      "flex w-full min-w-0 items-center gap-3 rounded-[0.95rem] border px-3 py-2.5 text-[13px] transition-all duration-300",
                       pathname === "/admin/gerenciamento"
                         ? "border-white/14 bg-[#181818] text-white"
                         : "border-white/0 text-[#9ea6bb] hover:border-white/6 hover:bg-white/4 hover:text-white",
                     )}
                   >
                     <FadersHorizontal size={17} />
-                    <span className="truncate">Gerenciamento</span>
+                    <span className="min-w-0 flex-1 truncate">Gerenciamento</span>
                     <BadgeDot />
                   </Link>
                 </div>
