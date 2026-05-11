@@ -313,8 +313,10 @@ export function SettingsPage() {
                 data-light-outline-action="true"
                 variant="outline"
                 onClick={() => {
-                  logout();
-                  router.replace("/login");
+                  void (async () => {
+                    await logout();
+                    router.replace("/login");
+                  })();
                 }}
                 className="h-11 self-start rounded-[0.95rem] border-white/12 bg-white/[0.035] px-5 text-white hover:border-[#dc3933]/40 hover:bg-[#dc3933]/12"
               >

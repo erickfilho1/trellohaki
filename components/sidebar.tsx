@@ -274,9 +274,11 @@ export function Sidebar({
             router.push("/");
           }}
           onLogout={() => {
-            setAccountOpen(false);
-            logout();
-            router.replace("/login");
+            void (async () => {
+              setAccountOpen(false);
+              await logout();
+              router.replace("/login");
+            })();
           }}
           theme={theme}
           onThemeChange={setTheme}
