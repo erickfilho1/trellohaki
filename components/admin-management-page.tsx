@@ -114,8 +114,9 @@ function SectionShell({
 }) {
   return (
     <section
+      data-light-panel="true"
       className={cn(
-        "rounded-[1.8rem] border border-white/8 bg-[linear-gradient(180deg,#151515_0%,#101010_100%)] p-5 shadow-[0_28px_80px_-46px_rgba(0,0,0,0.95)] sm:p-6",
+        "glass-panel rounded-[1.8rem] border border-white/8 bg-[linear-gradient(180deg,#151515_0%,#101010_100%)] p-5 shadow-[0_28px_80px_-46px_rgba(0,0,0,0.95)] sm:p-6",
         className,
       )}
     >
@@ -281,7 +282,11 @@ export function AdminManagementPage() {
         compact
       />
 
-      <main className="flowboard-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-20 sm:px-6 lg:px-8">
+      <main
+        data-light-main="true"
+        data-admin-management="true"
+        className="flowboard-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-20 sm:px-6 lg:px-8"
+      >
         <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-5">
           <SectionShell
             title="Quadros em gerenciamento"
