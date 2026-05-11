@@ -725,25 +725,25 @@
   }
 
   html[data-haki-theme="light"] [data-board-shell="true"] .glass-panel {
-    border-color: rgba(255, 255, 255, 0.09) !important;
-    background: rgba(16, 16, 18, 0.9) !important;
-    color: #f6f7fb !important;
+    border-color: rgba(17, 17, 17, 0.08) !important;
+    background: linear-gradient(180deg, rgba(255, 255, 253, 0.98) 0%, rgba(243, 241, 236, 0.98) 100%) !important;
+    color: #171717 !important;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.05),
-      0 18px 50px -34px rgba(0, 0, 0, 0.68) !important;
+      inset 0 1px 0 rgba(255, 255, 255, 0.92),
+      0 18px 42px -34px rgba(0, 0, 0, 0.18) !important;
   }
 
   html[data-haki-theme="light"] [data-board-shell="true"] input,
   html[data-haki-theme="light"] [data-board-shell="true"] textarea,
   html[data-haki-theme="light"] [data-board-shell="true"] select {
-    border-color: rgba(255, 255, 255, 0.12) !important;
-    background-color: rgba(255, 255, 255, 0.055) !important;
-    color: #f6f7fb !important;
+    border-color: rgba(17, 17, 17, 0.12) !important;
+    background-color: rgba(255, 255, 255, 0.82) !important;
+    color: #171717 !important;
   }
 
   html[data-haki-theme="light"] [data-board-shell="true"] input::placeholder,
   html[data-haki-theme="light"] [data-board-shell="true"] textarea::placeholder {
-    color: #8f9ab0 !important;
+    color: #6d7686 !important;
   }
 
   html[data-haki-theme="light"] [data-board-shell="true"] [data-list-title-input="true"] {
@@ -754,11 +754,142 @@
   }
 
   html[data-haki-theme="light"] [data-board-shell="true"] [data-list-card-count="true"] {
-    color: #adb6c8 !important;
+    color: #5f6878 !important;
   }
 
   html[data-haki-theme="light"] [data-board-shell="true"] [data-list-colored="true"] [data-list-card-count="true"] {
-    color: rgba(255, 255, 255, 0.84) !important;
+    color: #4d5563 !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] {
+    border-color: rgba(17, 17, 17, 0.08) !important;
+    background: linear-gradient(180deg, rgba(255, 255, 252, 0.98) 0%, rgba(241, 239, 233, 0.98) 100%) !important;
+    color: #171717 !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.92),
+      0 16px 34px -30px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] .text-white {
+    color: #171717 !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [class*="text-[#9"],
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [class*="text-[#a"] {
+    color: #5f6878 !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-list-colored="true"] {
+    background: rgba(17, 17, 17, 0.05) !important;
+    border-color: rgba(17, 17, 17, 0.08) !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] {
+    border-color: rgba(17, 17, 17, 0.1) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #f8f6f1 100%) !important;
+    color: #171717 !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.96),
+      0 12px 24px -22px rgba(0, 0, 0, 0.11) !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"]:hover {
+    border-color: rgba(17, 17, 17, 0.14) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #f3f0e9 100%) !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] [class*="text-[#e"],
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] .text-white {
+    color: #171717 !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] [class*="text-[#8"],
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] [class*="text-[#9"],
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] [class*="text-[#a"],
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] [class*="text-[#b"],
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] .text-white\/72 {
+    color: #5f6878 !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] .bg-white\/5 {
+    background-color: rgba(17, 17, 17, 0.05) !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] .border-white\/8,
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] .border-white\/14 {
+    border-color: rgba(17, 17, 17, 0.08) !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] button[class*="bg-black/28"] {
+    border-color: rgba(17, 17, 17, 0.08) !important;
+    background: rgba(17, 17, 17, 0.045) !important;
+    color: #5f6878 !important;
+    box-shadow: 0 8px 18px -16px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] button[class*="bg-black/28"]:hover {
+    border-color: rgba(220, 57, 51, 0.2) !important;
+    background: rgba(220, 57, 51, 0.08) !important;
+    color: #dc3933 !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] .border-white\/28 {
+    border-color: rgba(17, 17, 17, 0.18) !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] .hover\:border-\[\#8fdda8\]:hover {
+    border-color: rgba(34, 122, 80, 0.3) !important;
+    background: rgba(34, 122, 80, 0.08) !important;
+    color: #227a50 !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] .bg-\[\#75d08e\]\/12 {
+    background: rgba(34, 122, 80, 0.1) !important;
+    color: #227a50 !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-board-list="true"] [data-task-card="true"] .bg-\[\#75d08e\] {
+    background: #79cb95 !important;
+    color: #14311d !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-list-add-card="true"],
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-list-composer="true"] {
+    border-color: rgba(17, 17, 17, 0.08) !important;
+    background: rgba(255, 255, 255, 0.78) !important;
+    color: #171717 !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-list-add-card="true"] .text-white,
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-list-composer="true"] .text-white {
+    color: #171717 !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-list-add-card="true"]:hover {
+    border-color: rgba(17, 17, 17, 0.12) !important;
+    background: rgba(255, 255, 255, 0.94) !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-list-composer="true"] input {
+    border-color: rgba(17, 17, 17, 0.1) !important;
+    background: rgba(255, 255, 255, 0.94) !important;
+    color: #171717 !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-list-composer="true"] input::placeholder {
+    color: #6d7686 !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-list-composer="true"] button[class*="bg-white"] {
+    border-color: rgba(17, 17, 17, 0.08) !important;
+    background: #ffffff !important;
+    color: #171717 !important;
+  }
+
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-list-composer="true"] button[class*="variant-ghost"],
+  html[data-haki-theme="light"] [data-board-shell="true"] [data-list-composer="true"] button[class*="bg-transparent"] {
+    color: #5f6878 !important;
   }
 
   html[data-haki-theme="light"] [data-light-panel="true"] > div:first-child .text-white,

@@ -172,6 +172,7 @@ export function TaskCard({
         }}
         data-testid={`card-${card.id}`}
         data-card-title={card.title}
+        data-task-card="true"
         {...attributes}
         {...listeners}
         className={cn(

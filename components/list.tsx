@@ -97,6 +97,7 @@ export function List({ boardId, list }: { boardId: string; list: ListRecord }) {
       ref={setNodeRef}
       data-testid={`list-${list.id}`}
       data-list-title={list.title}
+      data-board-list="true"
       className={cn(
         "glass-panel relative flex max-h-[calc(100dvh-13.5rem)] min-h-0 w-[300px] shrink-0 flex-col overflow-hidden rounded-[1.45rem] border p-2.5 transition-colors",
         colorClasses.card,
@@ -193,7 +194,7 @@ export function List({ boardId, list }: { boardId: string; list: ListRecord }) {
       </div>
 
       {showComposer ? (
-        <div className="mt-3 shrink-0 rounded-[1.05rem] border border-white/7 bg-white/3 p-2.5">
+        <div data-list-composer="true" className="mt-3 shrink-0 rounded-[1.05rem] border border-white/7 bg-white/3 p-2.5">
           <Input
             autoFocus
             value={cardTitle}
@@ -233,6 +234,7 @@ export function List({ boardId, list }: { boardId: string; list: ListRecord }) {
         <button
           type="button"
           onClick={() => setShowComposer(true)}
+          data-list-add-card="true"
           className="mt-3 shrink-0 flex h-10 items-center gap-2 rounded-[0.95rem] border border-white/8 bg-white/4 px-3 text-[13px] text-[#d6ddef] transition-colors hover:bg-white/8"
         >
           <Plus size={16} />
