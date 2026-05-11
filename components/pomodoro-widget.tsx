@@ -274,7 +274,7 @@ export function PomodoroWidget() {
             </button>
 
             <CircleIconButton
-              label="Configuracoes"
+              label="Configurações"
               onClick={() => setSettingsOpen((current) => !current)}
               icon={<Gear size={17} />}
               active={settingsOpen}

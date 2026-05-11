@@ -86,7 +86,7 @@ function getInviteFailureMessage(error: unknown) {
         : String(error ?? "");
 
   if (/Somente administradores/i.test(message)) {
-    return "Sua conta ainda nao esta com permissao de admin no Supabase. Entre novamente ou ajuste o perfil admin.";
+    return "Sua conta ainda não está com permissão de admin no Supabase. Entre novamente ou ajuste o perfil admin.";
   }
 
   if (/Email invalido/i.test(message)) {
@@ -98,14 +98,14 @@ function getInviteFailureMessage(error: unknown) {
   }
 
   if (/Supabase nao esta configurado/i.test(message)) {
-    return "Supabase nao esta configurado neste ambiente. O convite nao pode ser gravado no backend agora.";
+    return "Supabase não está configurado neste ambiente. O convite não pode ser gravado no backend agora.";
   }
 
   if (/duplicate key value violates unique constraint/i.test(message)) {
-    return "Ja existe um registro antigo para esse email no backend. O convite foi reaproveitado, mas vale revisar o usuario no Supabase se ele foi apagado manualmente.";
+    return "Já existe um registro antigo para esse email no backend. O convite foi reaproveitado, mas vale revisar o usuário no Supabase se ele foi apagado manualmente.";
   }
 
-  return message || "Nao foi possivel preparar o convite.";
+  return message || "Não foi possível preparar o convite.";
 }
 
 function SectionShell({
@@ -266,7 +266,7 @@ export function AdminPage() {
 
     if (signInResult.error || !signInResult.data.session?.access_token) {
       throw new Error(
-        "A sessao admin do Supabase expirou. Entre novamente com a conta admin para sincronizar convites e enviar emails.",
+        "A sessão admin do Supabase expirou. Entre novamente com a conta admin para sincronizar convites e enviar emails.",
       );
     }
 
@@ -300,7 +300,7 @@ export function AdminPage() {
       await syncSupabaseWorkspacesFromBoards(boardsForSync);
       await Promise.all(boardsForSync.map((board) => syncSupabaseBoardRecordContent(board)));
     })().catch((error) => {
-      console.warn("Nao foi possivel sincronizar os quadros com o Supabase.", error);
+      console.warn("Não foi possível sincronizar os quadros com o Supabase.", error);
     });
   }, [boardsForSync, hydrated]);
 
@@ -367,7 +367,7 @@ export function AdminPage() {
 
     createWorkspace({
       name: workspaceForm.name.trim(),
-      description: workspaceForm.description.trim() || "Novo workspace criado pela area administrativa.",
+      description: workspaceForm.description.trim() || "Novo workspace criado pela área administrativa.",
       accent: workspaceForm.accent,
     });
 
@@ -471,13 +471,13 @@ export function AdminPage() {
           const result = (await response.json()) as { id?: string | null; error?: string };
 
           if (!response.ok) {
-            emailMessage = `Convite preparado, mas o email real ainda nao saiu: ${result.error ?? "erro desconhecido"}`;
+            emailMessage = `Convite preparado, mas o email real ainda não saiu: ${result.error ?? "erro desconhecido"}`;
           } else {
             emailMessage = "Convite preparado, vinculado ao backend e enviado por email.";
           }
         } else {
           emailMessage =
-            "Convite preparado, mas nao encontrei a sessao Supabase para disparar o email real.";
+            "Convite preparado, mas não encontrei a sessão do Supabase para disparar o email real.";
         }
       }
 
@@ -498,7 +498,7 @@ export function AdminPage() {
   return (
     <ClientLayout projectName="Controle interno">
       <Topbar
-        title="Area admin"
+        title="Área admin"
         subtitle="Crie quadros, distribua convites e controle acessos em um fluxo mais limpo."
         compact
       />
@@ -507,7 +507,7 @@ export function AdminPage() {
         <div className="mx-auto flex min-h-full w-full max-w-[1700px] flex-col gap-5">
           <SectionShell
             title="Quadros"
-            description="Um mapa rapido dos workspaces para abrir, revisar e administrar sem ruído visual."
+            description="Um mapa rápido dos workspaces para abrir, revisar e administrar sem ruído visual."
           >
             <div className="flowboard-scrollbar -mx-1 overflow-x-auto overflow-y-visible px-1 py-2">
               <div className="flex gap-4">
@@ -525,7 +525,7 @@ export function AdminPage() {
           </SectionShell>
 
           <SectionShell
-            title="Criacao de quadro"
+            title="Criação de quadro"
             description="Crie um workspace do zero ou duplique o template do quadro atual sem perder o clima visual."
           >
             <div className="mb-5 flex">
@@ -574,7 +574,7 @@ export function AdminPage() {
                     </label>
 
                     <label className="block space-y-2">
-                      <span className="text-sm text-[#c6d0e2]">Resumo rapido</span>
+                      <span className="text-sm text-[#c6d0e2]">Resumo rápido</span>
                       <Input
                         value={workspaceForm.description}
                         onChange={(event) =>

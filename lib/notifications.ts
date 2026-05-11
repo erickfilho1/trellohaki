@@ -114,7 +114,7 @@ function findLatestAssignmentActivity(card: CardRecord, member: MemberRecord) {
 }
 
 function buildAssignmentExcerpt(cardTitle: string) {
-  return `Voce foi marcado para acompanhar o card ${cardTitle}.`;
+  return `Você foi marcado para acompanhar o card ${cardTitle}.`;
 }
 
 export function memberMatchesViewer(member: MemberRecord, viewer: { id?: string; name: string; email: string }) {
@@ -212,10 +212,10 @@ export function filterNotificationsForViewer(
 
 export function getNotificationActionLabel(notification: NotificationRecord) {
   if (notification.kind === "mention") {
-    return "mencionou voce em";
+    return "mencionou você em";
   }
 
-  return "marcou voce em";
+  return "marcou você em";
 }
 
 export function insertMentionValue(currentHtml: string, member: MemberRecord) {

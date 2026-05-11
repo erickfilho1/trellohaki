@@ -360,7 +360,7 @@ export function AdminManagementPage() {
                               {selectedBoard.name}
                             </h3>
                             <p className="mt-2 max-w-[58ch] text-sm leading-6 text-[#92a1ba]">
-                              {selectedBoard.description || "Esse quadro ainda nao recebeu um resumo administrativo."}
+                              {selectedBoard.description || "Esse quadro ainda não recebeu um resumo administrativo."}
                             </p>
                           </div>
 
@@ -604,7 +604,7 @@ export function AdminManagementPage() {
                   ) : (
                     <EmptyBlock
                       title="Sem eventos administrativos"
-                      copy="Conforme voce conceder acessos, remover pessoas ou alterar workspaces, os eventos aparecem aqui."
+                      copy="Conforme você conceder acessos, remover pessoas ou alterar workspaces, os eventos aparecem aqui."
                     />
                   )}
                 </SectionShell>
@@ -613,7 +613,7 @@ export function AdminManagementPage() {
           ) : (
             <SectionShell
               title="Gerenciamento vazio"
-              copy="Assim que houver um quadro, voce consegue selecionar um workspace e abrir a camada administrativa dele aqui."
+              copy="Assim que houver um quadro, você consegue selecionar um workspace e abrir a camada administrativa dele aqui."
             >
               <EmptyBlock
                 title="Sem quadro selecionado"

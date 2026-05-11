@@ -50,7 +50,7 @@ export function AddToCardPopover({
     <div className="flowboard-scrollbar max-h-[min(76vh,640px)] w-[380px] overflow-y-auto rounded-[1.6rem] border border-white/10 bg-[#2a2c31] shadow-[0_24px_60px_-26px_rgba(0,0,0,0.95)]">
       <div className="sticky top-0 z-[1] flex items-center justify-between border-b border-white/8 bg-[#2a2c31] px-4 py-4">
         <h3 className="pl-2 text-center text-lg font-medium tracking-[-0.03em] text-white">
-          Adicionar ao cartao
+          Adicionar ao cartão
         </h3>
         <button
           type="button"

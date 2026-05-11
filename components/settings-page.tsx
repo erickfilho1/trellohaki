@@ -97,7 +97,7 @@ export function SettingsPage() {
     setPasswordSaving(false);
 
     if (!result.ok) {
-      setPasswordError(result.error || "Nao foi possivel atualizar sua senha agora.");
+      setPasswordError(result.error || "Não foi possível atualizar sua senha agora.");
       return;
     }
 

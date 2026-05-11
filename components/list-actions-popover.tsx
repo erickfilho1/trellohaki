@@ -32,7 +32,7 @@ export function ListActionsPopover({
     >
       <div className="flex items-center justify-between">
         <div className="w-8" />
-        <h3 className="text-lg font-medium text-white">Acoes da Lista</h3>
+        <h3 className="text-lg font-medium text-white">Ações da lista</h3>
         <button
           type="button"
           onClick={onClose}
@@ -44,7 +44,7 @@ export function ListActionsPopover({
 
       <div className="mt-4 space-y-1 text-[1.05rem] text-white">
         <button data-testid="list-action-add-card" type="button" onClick={onAddCard} className="w-full rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-white/6">
-          Adicionar cartao
+          Adicionar cartão
         </button>
         <button data-testid="list-action-copy" type="button" onClick={onCopy} className="w-full rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-white/6">
           Copiar lista
@@ -68,7 +68,7 @@ export function ListActionsPopover({
                 Trazer para antes
               </span>
               <span className="mt-1 text-xs leading-5 text-[#8d99b0]">
-                Move esta lista uma posicao para a esquerda.
+                Move esta lista uma posição para a esquerda.
               </span>
             </button>
 
@@ -89,7 +89,7 @@ export function ListActionsPopover({
                 <CaretRight size={16} className="transition-transform group-hover:translate-x-0.5" />
               </span>
               <span className="mt-1 text-xs leading-5 text-[#8d99b0]">
-                Move esta lista uma posicao para a direita.
+                Move esta lista uma posição para a direita.
               </span>
             </button>
           </div>

@@ -219,7 +219,7 @@ export function FilterPanel({
                 className="h-12 rounded-[1rem] border-white/12 bg-[#0d0d0d] text-white placeholder:text-[#79849c] focus-visible:border-[#dc3933]/50 focus-visible:ring-[#dc3933]/10"
               />
               <p className="text-sm leading-6 text-[#98a3bb]">
-                Pesquise cartoes, membros, etiquetas e muito mais.
+                Pesquise cartões, membros, etiquetas e muito mais.
               </p>
             </section>
 
@@ -233,7 +233,7 @@ export function FilterPanel({
               />
               <ToggleRow
                 checked={filters.assignedToMe}
-                label="Cartoes atribuidos a mim"
+                label="Cartões atribuídos a mim"
                 icon={<UserCircle size={18} />}
                 onChange={(checked) => onUpdateFilters({ assignedToMe: checked })}
               />
@@ -256,12 +256,12 @@ export function FilterPanel({
               <h3 className="text-sm font-medium text-[#dce3f2]">Card status</h3>
               <ToggleRow
                 checked={filters.completed}
-                label="Marcado como concluido"
+                label="Marcado como concluído"
                 onChange={(checked) => onUpdateFilters({ completed: checked })}
               />
               <ToggleRow
                 checked={filters.notCompleted}
-                label="Nao marcado como concluido"
+                label="Não marcado como concluído"
                 onChange={(checked) => onUpdateFilters({ notCompleted: checked })}
               />
             </section>

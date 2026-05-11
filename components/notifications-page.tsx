@@ -89,10 +89,10 @@ export function NotificationsPage() {
                   Central pessoal
                 </p>
                 <h1 className="mt-2 text-[2rem] font-semibold tracking-[-0.05em] text-white">
-                  Notificacoes
+                  Notificações
                 </h1>
                 <p className="mt-3 max-w-[70ch] text-sm leading-7 text-[#96a0b4]">
-                  Acompanhe mencoes, marcacoes em cards e toques importantes sem perder o ritmo do quadro.
+                  Acompanhe menções, marcações em cards e alertas importantes sem perder o ritmo do quadro.
                 </p>
               </div>
 
@@ -118,9 +118,9 @@ export function NotificationsPage() {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex flex-wrap items-center gap-2">
                 {[
-                  ["unread", "Nao lidas"],
+                  ["unread", "Não lidas"],
                   ["all", "Tudo"],
-                  ["mentions", "Mencoes"],
+                  ["mentions", "Menções"],
                 ].map(([value, label]) => (
                   <button
                     key={value}
@@ -143,7 +143,7 @@ export function NotificationsPage() {
                 <Input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Buscar por card, pessoa ou conteudo..."
+                  placeholder="Buscar por card, pessoa ou conteúdo..."
                   className="h-11 rounded-[1rem] border-white/10 bg-[#141414] pl-10 text-white placeholder:text-[#737b8e] focus-visible:border-[#dc3933]/45 focus-visible:ring-[#dc3933]/10"
                 />
               </div>
@@ -162,7 +162,7 @@ export function NotificationsPage() {
                       </span>
                       <p className="mt-5 text-lg font-medium text-white">Nenhum alerta no momento</p>
                       <p className="mt-2 max-w-[28ch] text-sm leading-7 text-[#8f98ab]">
-                        Assim que alguem marcar voce ou usar uma mencao, a conversa aparece aqui.
+                        Assim que alguém marcar você ou usar uma menção, a conversa aparece aqui.
                       </p>
                     </div>
                   </div>
@@ -213,14 +213,14 @@ export function NotificationsPage() {
                 className="rounded-[1.45rem] border border-white/8 bg-[#0d0d0d] p-5"
               >
                 <p className="text-[11px] font-semibold tracking-[0.24em] text-[#8f98ab] uppercase">
-                  Leitura rapida
+                  Leitura rápida
                 </p>
                 <div className="mt-4 space-y-3">
                   <div
                     data-light-subtle="true"
                     className="rounded-[1rem] border border-white/8 bg-white/[0.03] px-4 py-3"
                   >
-                    <p className="text-sm text-[#96a0b4]">Nao lidas</p>
+                    <p className="text-sm text-[#96a0b4]">Não lidas</p>
                     <p className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">
                       {unreadIds.length}
                     </p>
@@ -249,7 +249,7 @@ export function NotificationsPage() {
                   data-light-subtle="true"
                   className="mt-5 rounded-[1.1rem] border border-dashed border-white/10 bg-white/[0.02] p-4 text-sm leading-7 text-[#8f98ab]"
                 >
-                  Use <span className="font-medium text-white">@nome</span> nos comentarios dos cards para avisar a pessoa certa, ou marque a pessoa no card para puxar esse alerta para a central.
+                  Use <span className="font-medium text-white">@nome</span> nos comentários dos cards para avisar a pessoa certa, ou marque a pessoa no card para puxar esse alerta para a central.
                 </div>
               </aside>
             </div>

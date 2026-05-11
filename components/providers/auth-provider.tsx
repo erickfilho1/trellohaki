@@ -488,7 +488,7 @@ export function AuthProvider({
             if (authError || !authUser) {
               return {
                 ok: false,
-                error: authError?.message ?? "Nao foi possivel autenticar o admin no Supabase.",
+                error: authError?.message ?? "Não foi possível autenticar o admin no Supabase.",
               };
             }
 
@@ -499,7 +499,7 @@ export function AuthProvider({
             if (!nextSession) {
               return {
                 ok: false,
-                error: "A conta admin autenticou, mas o perfil admin ainda nao ficou ativo no Supabase.",
+                error: "A conta admin autenticou, mas o perfil admin ainda não ficou ativo no Supabase.",
               };
             }
 
@@ -571,7 +571,7 @@ export function AuthProvider({
           }
 
           if (authError || !authUser) {
-            return { ok: false, error: authError?.message ?? "Nao foi possivel entrar agora." };
+            return { ok: false, error: authError?.message ?? "Não foi possível entrar agora." };
           }
 
           try {
@@ -588,7 +588,7 @@ export function AuthProvider({
             await supabase.auth.signOut();
             return {
               ok: false,
-              error: "Este email autenticou, mas ainda nao foi vinculado a um painel do workspace.",
+              error: "Este email autenticou, mas ainda não foi vinculado a um painel do workspace.",
             };
           }
 
@@ -638,7 +638,7 @@ export function AuthProvider({
         if (!invitedUser) {
           return {
             ok: false,
-            error: "Este email ainda nao foi liberado no painel admin.",
+            error: "Este email ainda não foi liberado no painel admin.",
           };
         }
 
@@ -646,7 +646,7 @@ export function AuthProvider({
         if (!account) {
           return {
             ok: false,
-            error: "Este email ja foi convidado, mas o cadastro ainda nao foi concluido.",
+            error: "Este email já foi convidado, mas o cadastro ainda não foi concluído.",
           };
         }
 
@@ -685,7 +685,7 @@ export function AuthProvider({
         if (!invitedUser && !remoteInvite) {
           return {
             ok: false,
-            error: "Este email nao foi autorizado pelo painel admin.",
+            error: "Este email não foi autorizado pelo painel admin.",
           };
         }
 
@@ -782,20 +782,20 @@ export function AuthProvider({
             ok: true,
             nextPath: "/login",
             error:
-              "Conta criada. Se o projeto exigir confirmacao de email, conclua a etapa e depois entre.",
+              "Conta criada. Se o projeto exigir confirmação de email, conclua a etapa e depois entre.",
           };
         }
 
         if (!invitedUser) {
           return {
             ok: false,
-            error: "Este email nao foi autorizado pelo painel admin.",
+            error: "Este email não foi autorizado pelo painel admin.",
           };
         }
 
         const existingAccount = accounts.find((item) => normalizeEmail(item.email) === normalizedEmail);
         if (existingAccount) {
-          return { ok: false, error: "Este email ja concluiu o registro. Use a area de login." };
+          return { ok: false, error: "Este email já concluiu o registro. Use a área de login." };
         }
 
         const nextAccount: StoredAuthAccount = {
@@ -828,7 +828,7 @@ export function AuthProvider({
       },
       saveProfile: async ({ name, avatarUrl }) => {
         if (!session) {
-          return { ok: false, error: "Nenhum usuario autenticado para atualizar o perfil." };
+          return { ok: false, error: "Nenhum usuário autenticado para atualizar o perfil." };
         }
 
         const nextName = name.trim();
@@ -868,20 +868,20 @@ export function AuthProvider({
         } catch (error) {
           return {
             ok: false,
-            error: error instanceof Error ? error.message : "Nao foi possivel salvar o perfil.",
+            error: error instanceof Error ? error.message : "Não foi possível salvar o perfil.",
           };
         }
       },
       changePassword: async ({ password, confirmPassword }) => {
         if (!session) {
-          return { ok: false, error: "Nenhum usuario autenticado para alterar a senha." };
+          return { ok: false, error: "Nenhum usuário autenticado para alterar a senha." };
         }
 
         const nextPassword = password.trim();
         const nextConfirmation = confirmPassword.trim();
 
         if (!nextPassword || !nextConfirmation) {
-          return { ok: false, error: "Preencha a nova senha e a confirmacao." };
+          return { ok: false, error: "Preencha a nova senha e a confirmação." };
         }
 
         if (nextPassword.length < 6) {
@@ -889,13 +889,13 @@ export function AuthProvider({
         }
 
         if (nextPassword !== nextConfirmation) {
-          return { ok: false, error: "A confirmacao da senha nao confere." };
+          return { ok: false, error: "A confirmação da senha não confere." };
         }
 
         if (!supabaseEnabled) {
           const existingAccount = accounts.find((item) => normalizeEmail(item.email) === session.email);
           if (!existingAccount) {
-            return { ok: false, error: "Nao foi possivel alterar a senha neste ambiente." };
+            return { ok: false, error: "Não foi possível alterar a senha neste ambiente." };
           }
 
           setAccounts((current) =>
@@ -911,14 +911,14 @@ export function AuthProvider({
         try {
           const supabase = getSupabaseBrowserClient();
           if (!supabase) {
-            return { ok: false, error: "Nao foi possivel conectar ao Supabase agora." };
+            return { ok: false, error: "Não foi possível conectar ao Supabase agora." };
           }
 
           const { error } = await supabase.auth.updateUser({ password: nextPassword });
           if (error) {
             return {
               ok: false,
-              error: error.message || "Nao foi possivel atualizar a senha.",
+              error: error.message || "Não foi possível atualizar a senha.",
             };
           }
 
@@ -926,7 +926,7 @@ export function AuthProvider({
         } catch (error) {
           return {
             ok: false,
-            error: error instanceof Error ? error.message : "Nao foi possivel atualizar a senha.",
+            error: error instanceof Error ? error.message : "Não foi possível atualizar a senha.",
           };
         }
       },

@@ -109,7 +109,7 @@ function AccountLinks({
         testId="user-menu-projects"
       />
       <CompactMenuItem
-        label="Configuracoes"
+        label="Configurações"
         icon={<FadersHorizontal size={18} />}
         onSelect={onSettings}
         testId="user-menu-settings"

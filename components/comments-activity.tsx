@@ -57,7 +57,7 @@ export function CommentsActivity({
         <div className="flex items-center gap-2">
           <ChatCircleText size={18} className="text-[#d8dff0]" />
           <h3 className="text-[1.15rem] font-medium tracking-[-0.03em] text-white">
-            Comentarios e atividade
+            Comentários e atividade
           </h3>
         </div>
         <Button
@@ -89,7 +89,7 @@ export function CommentsActivity({
                   onClick={handleSave}
                   className="h-10 rounded-[0.9rem] border border-white/10 bg-[#4f79ff] text-white hover:bg-[#6388ff]"
                 >
-                  Salvar comentario
+                  Salvar comentário
                 </Button>
                 <Button
                   variant="outline"
@@ -109,7 +109,7 @@ export function CommentsActivity({
               onClick={() => setExpanded(true)}
               className="flex h-12 w-full items-center rounded-[1rem] border border-white/10 bg-white/4 px-4 text-left text-[#8892a8]"
             >
-              Escrever um comentario...
+              Escrever um comentário...
             </button>
           )}
         </div>

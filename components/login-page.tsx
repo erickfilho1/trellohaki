@@ -68,7 +68,7 @@ export function LoginPage() {
     () =>
       mode === "login"
         ? "Use seu email liberado para continuar no painel certo."
-        : "O registro so e liberado para emails autorizados no painel admin.",
+        : "O registro só é liberado para emails autorizados no painel admin.",
     [mode],
   );
 
@@ -96,7 +96,7 @@ export function LoginPage() {
         });
 
         if (!result.ok) {
-          setError(result.error ?? "Nao foi possivel concluir o registro.");
+          setError(result.error ?? "Não foi possível concluir o registro.");
           return;
         }
 
@@ -110,7 +110,7 @@ export function LoginPage() {
       });
 
       if (!result.ok) {
-        setError(result.error ?? "Nao foi possivel entrar agora.");
+        setError(result.error ?? "Não foi possível entrar agora.");
         return;
       }
 
@@ -280,7 +280,7 @@ export function LoginPage() {
           <div className="mx-auto mt-4 max-w-[420px] text-sm text-[#8e9ab2]">
             {mode === "login" ? (
               <p>
-                Ainda nao concluiu o cadastro?{" "}
+                Ainda não concluiu o cadastro?{" "}
                 <button
                   type="button"
                   onClick={() => {
@@ -294,7 +294,7 @@ export function LoginPage() {
               </p>
             ) : (
               <p>
-                Ja finalizou o cadastro?{" "}
+                Já finalizou o cadastro?{" "}
                 <button
                   type="button"
                   onClick={() => {
@@ -303,7 +303,7 @@ export function LoginPage() {
                   }}
                   className="text-[#ffaaa4] underline-offset-4 hover:underline"
                 >
-                  Voltar para login
+                  Voltar para o login
                 </button>
               </p>
             )}

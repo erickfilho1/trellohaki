@@ -68,11 +68,11 @@ function getDueTooltipText(card: CardRecord) {
   }
 
   if (isOverdue(card.dates)) {
-    return "Este cartao esta atrasado.";
+    return "Este cartão está atrasado.";
   }
 
   if (isDueSoon(card.dates)) {
-    return `Este cartao vence em breve: ${formatDateTime(card.dates.dueDate)}.`;
+    return `Este cartão vence em breve: ${formatDateTime(card.dates.dueDate)}.`;
   }
 
   return `Data de entrega: ${formatDateTime(card.dates.dueDate)}.`;
@@ -158,7 +158,7 @@ export function TaskCard({
       {
         completed: !card.completed,
       },
-      !card.completed ? "Voce confirmou esta demanda como concluida" : "Voce reabriu esta demanda",
+      !card.completed ? "Você confirmou esta demanda como concluída" : "Você reabriu esta demanda",
     );
   }
 
@@ -189,7 +189,7 @@ export function TaskCard({
         ) : null}
 
         {!dragging && pomodoroActive ? (
-          <MiniCardTooltip content="Pomodoro ativo neste cartao">
+          <MiniCardTooltip content="Pomodoro ativo neste cartão">
             <span className="pointer-events-none absolute right-11 top-2 z-[2] inline-flex size-8 items-center justify-center rounded-[0.85rem] border border-[#ff655b]/28 bg-[#341613] text-[#ff655b] opacity-0 shadow-[0_10px_20px_-16px_rgba(255,101,91,0.72)] transition-opacity duration-180 group-hover:opacity-100">
               <ClockCountdown size={14} weight="fill" />
             </span>

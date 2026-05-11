@@ -25,7 +25,7 @@ function panelTone(accessKind: "cliente" | "colaborador") {
     ? {
         badge: "Painel colaborador",
         eyebrow: "Fluxo operacional liberado",
-        subtitle: "Seu acesso foi aprovado para acompanhar demandas, comentaros e entregas.",
+        subtitle: "Seu acesso foi aprovado para acompanhar demandas, comentários e entregas.",
       }
     : {
         badge: "Painel cliente",
@@ -98,7 +98,7 @@ function buildEmailShell({
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-radius:24px;border:1px solid rgba(255,255,255,0.08);background:linear-gradient(180deg,#111111 0%,#0b0b0b 100%);">
                   <tr>
                     <td style="padding:22px 22px 24px;">
-                      <div style="font-size:12px;line-height:1.4;letter-spacing:.16em;text-transform:uppercase;color:#8f857e;">Acesso rapido</div>
+                      <div style="font-size:12px;line-height:1.4;letter-spacing:.16em;text-transform:uppercase;color:#8f857e;">Acesso rápido</div>
                       <p style="margin:10px 0 0;font-size:15px;line-height:1.7;color:#d7d2cd;">Abra o painel pelo botao abaixo. Se preferir, o link completo tambem segue no fim deste email.</p>
                       <a href="${actionHref}" style="display:inline-block;margin-top:18px;border-radius:16px;background:linear-gradient(180deg,#ff624f 0%,#de3d2f 100%);padding:15px 22px;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;box-shadow:0 20px 40px -24px rgba(222,61,47,0.85);">${actionLabel}</a>
                     </td>
@@ -114,7 +114,7 @@ function buildEmailShell({
                   </tr>
                 </table>
 
-                <p style="margin:20px 0 0;font-size:12px;line-height:1.7;color:#857f79;">Se o botao nao abrir, copie e cole o link abaixo no navegador:</p>
+                <p style="margin:20px 0 0;font-size:12px;line-height:1.7;color:#857f79;">Se o botão não abrir, copie e cole o link abaixo no navegador:</p>
                 <p style="margin:8px 0 0;word-break:break-all;font-size:13px;line-height:1.7;color:#ffb2a8;">${actionHref}</p>
               </td>
             </tr>
@@ -127,7 +127,7 @@ function buildEmailShell({
 }
 
 export function buildInviteEmailSubject(boardName: string) {
-  return `Seu acesso ao painel ${boardName} esta pronto`;
+  return `Seu acesso ao painel ${boardName} está pronto`;
 }
 
 export function buildInviteEmailHtml({
@@ -145,12 +145,12 @@ export function buildInviteEmailHtml({
     title: buildInviteEmailSubject(safeBoardName),
     eyebrow: tone.eyebrow,
     badge: tone.badge,
-    intro: "Seu acesso ao Painel Haki esta pronto.",
+    intro: "Seu acesso ao Painel Haki está pronto.",
     body: `${safeName}, seu email foi liberado para entrar no quadro <strong style="color:#ffffff;">${safeBoardName}</strong>. ${tone.subtitle}`,
     actionLabel: "Criar acesso agora",
     actionHref: safeInviteLink,
     actionHint:
-      "Desejamos um fluxo leve, organizado e bons negocios por ai. Assim que voce entrar, o quadro ja abre com o workspace certo vinculado ao seu acesso.",
+      "Desejamos um fluxo leve, organizado e bons negócios por aí. Assim que você entrar, o quadro já abre com o workspace certo vinculado ao seu acesso.",
   });
 }
 
@@ -174,10 +174,10 @@ export function buildWelcomeEmailHtml({
     eyebrow: "Boas-vindas ao workspace",
     badge: tone.badge,
     intro: `Bem-vindo, ${safeName}.`,
-    body: `Seu acesso ao quadro <strong style="color:#ffffff;">${safeBoardName}</strong> esta ativo. Agora voce ja pode acompanhar demandas, conversas e entregas dentro do Painel Haki com um fluxo mais claro e profissional.`,
+    body: `Seu acesso ao quadro <strong style="color:#ffffff;">${safeBoardName}</strong> está ativo. Agora você já pode acompanhar demandas, conversas e entregas dentro do Painel Haki com um fluxo mais claro e profissional.`,
     actionLabel: "Entrar no painel",
     actionHref: safeAccessLink,
     actionHint:
-      "Que esse novo ciclo venha com clareza, velocidade e bons negocios. O painel foi desenhado para reduzir ruido e concentrar tudo o que importa no mesmo lugar.",
+      "Que esse novo ciclo venha com clareza, velocidade e bons negócios. O painel foi desenhado para reduzir ruído e concentrar tudo o que importa no mesmo lugar.",
   });
 }

@@ -27,9 +27,9 @@ import { cn } from "@/lib/utils";
 
 const menuItems = [
   { href: "/", label: "Quadro", icon: Kanban },
-  { href: "/notificacoes", label: "Notificacoes", icon: Bell },
+  { href: "/notificacoes", label: "Notificações", icon: Bell },
   { href: "/projetos-entregues", label: "Projetos entregues", icon: Package },
-  { href: "/configuracoes", label: "Configuracoes", icon: FadersHorizontal },
+  { href: "/configuracoes", label: "Configurações", icon: FadersHorizontal },
 ];
 
 const THEME_STORAGE_KEY = "painel-haki-theme";
@@ -55,11 +55,11 @@ function applyTheme(theme: HakiTheme) {
 
 function currentSidebarContext(pathname: string, projectName: string) {
   if (pathname === "/configuracoes") {
-    return "Configuracoes";
+    return "Configurações";
   }
 
   if (pathname === "/notificacoes") {
-    return "Notificacoes";
+    return "Notificações";
   }
 
   if (pathname === "/projetos-entregues") {
@@ -71,7 +71,7 @@ function currentSidebarContext(pathname: string, projectName: string) {
   }
 
   if (pathname === "/admin") {
-    return "Area admin";
+    return "Área admin";
   }
 
   return projectName;
@@ -193,7 +193,7 @@ export function Sidebar({
                   href="/admin"
                   data-sidebar-item="true"
                   data-active={pathname === "/admin" ? "true" : undefined}
-                  title={collapsed ? "Area admin" : undefined}
+                  title={collapsed ? "Área admin" : undefined}
                   className={cn(
                     "group flex min-w-0 flex-1 items-center rounded-[0.95rem] border text-sm transition-all duration-300",
                     collapsed ? "justify-center px-0 py-3" : "gap-3 px-3 py-3",
@@ -203,7 +203,7 @@ export function Sidebar({
                   )}
                 >
                   <ShieldCheck size={20} />
-                  {!collapsed ? <span className="truncate">Area admin</span> : null}
+                  {!collapsed ? <span className="truncate">Área admin</span> : null}
                 </Link>
 
                 {!collapsed ? (

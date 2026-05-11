@@ -11,7 +11,7 @@ import type { MemberRecord } from "@/lib/flowboard-types";
 import { cleanProfileName } from "@/lib/account-settings";
 import { cn } from "@/lib/utils";
 
-const placeholderText = "Escrever um comentario...";
+const placeholderText = "Escrever um comentário...";
 
 function normalizeHtml(html: string) {
   return html.replace(/\s+/g, " ").trim();

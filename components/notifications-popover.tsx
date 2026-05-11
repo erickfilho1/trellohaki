@@ -89,10 +89,10 @@ export function NotificationsPopover({
                 Alertas
               </p>
               <h3 className="mt-1 text-[0.98rem] font-semibold tracking-[-0.03em] text-white">
-                Sua caixa rapida
+                Sua caixa rápida
               </h3>
               <p className="mt-1 max-w-[28ch] text-[12px] leading-5 text-[#8f98ab]">
-                Mencoes e marcacoes recentes do seu quadro.
+                Menções e marcações recentes do seu quadro.
               </p>
             </div>
 
@@ -102,8 +102,8 @@ export function NotificationsPopover({
                   type="button"
                   onClick={() => onClearAll(notifications.map((notification) => notification.id))}
                   className="inline-flex size-8 items-center justify-center rounded-full border border-white/8 bg-white/[0.03] text-[#8f98ab] transition hover:border-white/12 hover:bg-white/[0.08] hover:text-white"
-                  aria-label="Limpar notificacoes"
-                  title="Limpar notificacoes"
+                  aria-label="Limpar notificações"
+                  title="Limpar notificações"
                 >
                   <Trash size={13} />
                 </button>
@@ -125,9 +125,9 @@ export function NotificationsPopover({
 
           <div className="mt-3 flex items-center gap-1.5">
             {[
-              ["unread", "Nao lidas"],
+              ["unread", "Não lidas"],
               ["all", "Tudo"],
-              ["mentions", "Mencoes"],
+              ["mentions", "Menções"],
             ].map(([value, label]) => (
               <button
                 key={value}
@@ -150,7 +150,7 @@ export function NotificationsPopover({
             <Input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Buscar por card, pessoa ou conteudo..."
+              placeholder="Buscar por card, pessoa ou conteúdo..."
               className="h-10 rounded-[0.95rem] border-white/10 bg-[#141414] pl-9 text-[13px] text-white placeholder:text-[#737b8e] focus-visible:border-[#dc3933]/45 focus-visible:ring-[#dc3933]/10"
             />
           </div>
@@ -164,7 +164,7 @@ export function NotificationsPopover({
               </span>
               <p className="mt-3 text-[15px] font-medium text-white">Nada por aqui</p>
               <p className="mt-1 max-w-[24ch] text-[12px] leading-5 text-[#8f98ab]">
-                Quando alguem marcar voce ou mencionar algo importante, o alerta aparece aqui.
+                Quando alguém marcar você ou mencionar algo importante, o alerta aparece aqui.
               </p>
             </div>
           ) : (

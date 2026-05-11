@@ -208,7 +208,7 @@ export function List({ boardId, list }: { boardId: string; list: ListRecord }) {
                 setCardTitle("");
               }
             }}
-            placeholder="Adicionar um cartao"
+            placeholder="Adicionar um cartão"
             className="h-10 rounded-[0.9rem] border-white/8 bg-black/10 text-white placeholder:text-[#667089]"
           />
           <div className="mt-2 flex gap-2">
@@ -238,7 +238,7 @@ export function List({ boardId, list }: { boardId: string; list: ListRecord }) {
           className="mt-3 shrink-0 flex h-10 items-center gap-2 rounded-[0.95rem] border border-white/8 bg-white/4 px-3 text-[13px] text-[#d6ddef] transition-colors hover:bg-white/8"
         >
           <Plus size={16} />
-          Adicionar um cartao
+          Adicionar um cartão
         </button>
       )}
     </section>
