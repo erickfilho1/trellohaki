@@ -133,7 +133,7 @@ export function CommentsActivity({
                 </div>
               </div>
               <div
-                className="flowboard-rich-copy mt-3 text-sm leading-6 text-[#d0d8ea]"
+                className="flowboard-rich-copy mt-3 min-w-0 text-sm leading-6 text-[#d0d8ea] [overflow-wrap:anywhere] [word-break:break-word]"
                 dangerouslySetInnerHTML={{ __html: item.data.text }}
               />
             </div>

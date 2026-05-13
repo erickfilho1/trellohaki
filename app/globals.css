@@ -1215,9 +1215,18 @@
 
   .flowboard-rich-editor a,
   .flowboard-rich-copy a {
+    overflow-wrap: anywhere;
+    word-break: break-word;
     color: #90b4ff;
     text-decoration: underline;
     text-underline-offset: 0.18em;
+  }
+
+  .flowboard-rich-copy,
+  .flowboard-rich-copy p,
+  .flowboard-rich-copy li {
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .flowboard-rich-editor .flowboard-mention-chip,
