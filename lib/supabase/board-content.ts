@@ -48,6 +48,7 @@ type AttachmentWithCardId = Attachment & {
 
 type SupabaseCommentRelationRow = {
   local_id: string | null;
+  author_id: string | null;
   content: string;
   created_at: string;
   cards: { local_id: string | null } | Array<{ local_id: string | null }> | null;
@@ -127,6 +128,7 @@ type SupabaseCommentRow = {
   local_id: string | null;
   workspace_id: string;
   card_id: string;
+  author_id: string | null;
   content: string;
   created_at: string;
 };
@@ -178,6 +180,56 @@ function getClient() {
 
 function byOrder<T extends { order: number }>(items: T[]) {
   return [...items].sort((a, b) => a.order - b.order);
+}
+
+function normalizeValue(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function cleanMemberName(name: string) {
+  return name.replace(/\s*\(voce\)\s*/i, "").trim();
+}
+
+function extractProfileIdFromMemberId(memberId: string) {
+  const normalized = memberId.replace(/^member-/, "").replace(/^admin-/, "");
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(normalized)
+    ? normalized
+    : null;
+}
+
+function resolveCommentAuthorProfileId(snapshot: BoardStoreSnapshot, comment: Comment) {
+  const directProfileId = extractProfileIdFromMemberId(comment.authorId);
+  if (directProfileId) {
+    return directProfileId;
+  }
+
+  const member = snapshot.members[comment.authorId];
+  if (!member) {
+    return null;
+  }
+
+  const normalizedHandle = normalizeValue(member.handle);
+  const normalizedName = normalizeValue(cleanMemberName(member.name));
+
+  const boardAccess = Object.values(snapshot.workspaceAccess).filter(
+    (access) => access.boardId === comment.boardId,
+  );
+
+  for (const access of boardAccess) {
+    const accessUser = snapshot.adminUsers[access.userId];
+    if (!accessUser) {
+      continue;
+    }
+
+    const handleFromEmail = `@${normalizeValue(accessUser.email).split("@")[0].replace(/[^a-z0-9._-]/gi, "")}`;
+    const normalizedAccessName = normalizeValue(cleanMemberName(accessUser.name));
+
+    if (handleFromEmail === normalizedHandle || normalizedAccessName === normalizedName) {
+      return access.userId;
+    }
+  }
+
+  return null;
 }
 
 function getBoardLists(snapshot: BoardStoreSnapshot, boardId: string) {
@@ -533,10 +585,12 @@ async function upsertComments({
   workspaceId,
   comments,
   cardIdMap,
+  snapshot,
 }: {
   workspaceId: string;
   comments: Comment[];
   cardIdMap: Map<string, string>;
+  snapshot?: BoardStoreSnapshot;
 }) {
   const client = getClient();
   if (!client) {
@@ -561,8 +615,7 @@ async function upsertComments({
         local_id: comment.id,
         workspace_id: workspaceId,
         card_id: remoteCardId,
-        // Local member IDs are mapped to profile UUIDs when member persistence is enabled.
-        author_id: null,
+        author_id: snapshot ? resolveCommentAuthorProfileId(snapshot, comment) : extractProfileIdFromMemberId(comment.authorId),
         content: comment.content,
         created_at: comment.createdAt,
       };
@@ -572,7 +625,7 @@ async function upsertComments({
         local_id: string;
         workspace_id: string;
         card_id: string;
-        author_id: null;
+        author_id: string | null;
         content: string;
         created_at: string;
       } => Boolean(comment),
@@ -679,7 +732,7 @@ export async function syncSupabaseBoardContent(snapshot: BoardStoreSnapshot, boa
     folderIdMap,
   });
   await syncCardLabels({ cards, cardIdMap, labelIdMap });
-  await upsertComments({ workspaceId, comments, cardIdMap });
+  await upsertComments({ workspaceId, comments, cardIdMap, snapshot });
   await upsertAttachments({ workspaceId, attachments, cardIdMap });
 
   return {
@@ -834,7 +887,7 @@ export async function fetchSupabaseBoardRelations(boardId: string) {
       .eq("cards.workspace_id", workspace.id),
     client
       .from("comments")
-      .select("local_id, content, created_at, cards!inner(local_id)")
+      .select("local_id, author_id, content, created_at, cards!inner(local_id)")
       .eq("workspace_id", workspace.id),
     client
       .from("attachments")
@@ -894,7 +947,7 @@ export async function fetchSupabaseBoardRelations(boardId: string) {
         id: comment.local_id,
         boardId,
         cardId: card.local_id,
-        authorId: "",
+        authorId: comment.author_id ? `member-${comment.author_id}` : "",
         content: comment.content,
         createdAt: comment.created_at,
       };
@@ -990,7 +1043,7 @@ export async function fetchSupabaseBoardSnapshot(baseSnapshot: BoardStoreSnapsho
       ? await Promise.all([
           client
             .from("comments")
-            .select("local_id, workspace_id, card_id, content, created_at")
+            .select("local_id, workspace_id, card_id, author_id, content, created_at")
             .in("card_id", remoteCardIds)
             .order("created_at", { ascending: true }),
           client
@@ -1356,7 +1409,10 @@ export async function fetchSupabaseBoardSnapshot(baseSnapshot: BoardStoreSnapsho
       id: commentId,
       boardId,
       cardId,
-      authorId: baseSnapshot.comments[commentId]?.authorId ?? "member-erick",
+      authorId:
+        (comment.author_id ? `member-${comment.author_id}` : null) ??
+        baseSnapshot.comments[commentId]?.authorId ??
+        "member-erick",
       content: comment.content,
       createdAt: comment.created_at,
     };

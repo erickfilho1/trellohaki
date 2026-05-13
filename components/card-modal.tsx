@@ -17,7 +17,6 @@ import {
   Timer,
   X,
 } from "@phosphor-icons/react";
-import { DEFAULT_BOARD_MEMBERS } from "@/lib/flowboard-constants";
 import {
   createComment,
   createId,
@@ -40,6 +39,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useFlowBoardData } from "@/hooks/use-flowboard-store";
+import { resolveCurrentBoardMember } from "@/lib/current-board-member";
 import {
   uploadCardAttachmentAsset,
   uploadCardCoverAsset,
@@ -76,7 +76,10 @@ export function CardModal({
 }) {
   const { user } = useAuth();
   const { canUsePomodoro, openForCard } = usePomodoro();
-  const currentUser = board.members[0] ?? DEFAULT_BOARD_MEMBERS[0];
+  const currentUser = useMemo(
+    () => resolveCurrentBoardMember(board.members, user),
+    [board.members, user],
+  );
   const { deleteCard, duplicateCard, moveCard, removeBoardLabel, saveCardTemplate, upsertBoardLabel } =
     useFlowBoardData(board.id);
   const panelRef = useRef<HTMLDivElement | null>(null);

@@ -8,7 +8,7 @@ import { Topbar } from "@/components/topbar";
 import { BoardContainer } from "@/components/board-container";
 import { Board } from "@/components/board";
 import { FilterPanel } from "@/components/filter-panel";
-import { cleanProfileName } from "@/lib/account-settings";
+import { resolveCurrentBoardMember } from "@/lib/current-board-member";
 import { createComment } from "@/lib/flowboard-helpers";
 import { useFlowBoardData } from "@/hooks/use-flowboard-store";
 
@@ -66,18 +66,8 @@ export function ClientBoardPage({ boardId }: { boardId?: string }) {
       return undefined;
     }
 
-    const cleanedUserName = cleanProfileName(user.name).toLowerCase();
-    return (
-      activeBoard.members.find((member) => {
-        const cleanedMemberName = cleanProfileName(member.name).toLowerCase();
-        return (
-          member.id === "member-erick" ||
-          member.handle === "@erickfilho281" ||
-          cleanedMemberName === cleanedUserName
-        );
-      }) ?? activeBoard.members[0]
-    );
-  }, [activeBoard, user.name]);
+    return resolveCurrentBoardMember(activeBoard.members, user);
+  }, [activeBoard, user]);
 
   useEffect(() => {
     if (!activeBoard || typeof window === "undefined") {
